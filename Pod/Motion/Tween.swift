@@ -8,25 +8,7 @@
 
 import UIKit
 
-//enum TweenProp: String {
-//	case X
-//	case Y
-//	case Position
-//	case Width
-//	case Height
-//	case Size
-//	case ShiftX
-//	case ShiftY
-//	case ShiftXY
-//	case ScaleX
-//	case ScaleY
-//	case Scale
-//	case Rotate
-//	case Transform
-//	case Property
-//}
-
-enum Property {
+public enum Property {
 	case X(CGFloat)
 	case Y(CGFloat)
 	case Position(CGFloat, CGFloat)
@@ -43,7 +25,7 @@ enum Property {
 	case KeyPath(String, CGFloat)
 }
 
-enum TweenMode {
+public enum TweenMode {
 	case To
 	case From
 	case FromTo
@@ -55,7 +37,7 @@ private enum PropertyKey: String {
 	case Transform = "transform"
 }
 
-public class Tween {
+public class Tween: NSObject {
 	weak var target: AnyObject?
 	
 	var id: UInt32 = 0
@@ -162,8 +144,10 @@ public class Tween {
 	
 	// MARK: Lifecycle
 	
-	init(target: AnyObject, from: [Property]?, to: [Property]?, mode: TweenMode = .To) {
+	required public init(target: AnyObject, from: [Property]?, to: [Property]?, mode: TweenMode = .To) {
 		self.target = target
+		super.init()
+		
 		prepare(from: from, to: to, mode: mode)
 	}
 	
@@ -243,9 +227,11 @@ public class Tween {
 		return CGFloat(elapsed / (delay + duration))
 	}
 	
-	public func remove() {
+	public func kill() {
 		running = false
 		animating = false
+		TweenManager.sharedInstance.remove(self)
+		print("killed tween \(id)")
 	}
 	
 	// MARK: Event Handlers
@@ -355,7 +341,7 @@ public class Tween {
 	}
 	
 	func proceed(dt: CFTimeInterval) -> Bool {
-		if target == nil {
+		if target == nil || !running {
 			return true
 		}
 		if paused {

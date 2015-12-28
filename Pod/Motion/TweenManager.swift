@@ -66,6 +66,14 @@ public class TweenManager {
 		self.displayLink = nil
 	}
 	
+	func remove(tween: Tween) {
+		tweens[tween.id] = nil
+		
+		if tweens.count == 0 {
+			stop()
+		}
+	}
+	
 	@objc func update(displayLink: CADisplayLink) {
 		let dt = displayLink.timestamp - lastLoopTime
 		defer {
@@ -73,10 +81,8 @@ public class TweenManager {
 		}
 		
 		for (_, tween) in tweens {
-//			print("tween: id=\(tween.id), proceed=\(tween.proceed(dt))")
 			if tween.proceed(dt) {
-				tween.remove()
-				tweens[tween.id] = nil
+				remove(tween)
 			}
 		}
 		

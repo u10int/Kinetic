@@ -9,31 +9,35 @@
 import UIKit
 
 class Motion {
+	private static var tweenCache = [NSObject: [Tween]]()
 	
 	// MARK: Class Methods
 	
-	static func to(item: AnyObject, duration: CFTimeInterval, options: [Property]) -> Tween {
+	static func to(item: NSObject, duration: CFTimeInterval, options: [Property]) -> Tween {
 		let tween = Tween(target: item, from: nil, to: options, mode: .To)
 		tween.duration = duration
+		cacheTween(tween, forObject: item)
 		
 		return tween
 	}
 	
-	static func from(item: AnyObject, duration: CFTimeInterval, options: [Property]) -> Tween {
+	static func from(item: NSObject, duration: CFTimeInterval, options: [Property]) -> Tween {
 		let tween = Tween(target: item, from: options, to: nil, mode: .From)
 		tween.duration = duration
+		cacheTween(tween, forObject: item)
 		
 		return tween
 	}
 	
-	static func fromTo(item: AnyObject, duration: CFTimeInterval, from: [Property], to: [Property]) -> Tween {
+	static func fromTo(item: NSObject, duration: CFTimeInterval, from: [Property], to: [Property]) -> Tween {
 		let tween = Tween(target: item, from: from, to: to, mode: .FromTo)
 		tween.duration = duration
+		cacheTween(tween, forObject: item)
 		
 		return tween
 	}
 	
-	static func itemsTo(items: [AnyObject], duration: CFTimeInterval, options: [Property]) -> TweenGroup {
+	static func itemsTo(items: [NSObject], duration: CFTimeInterval, options: [Property]) -> TweenGroup {
 		let group = TweenGroup()
 		
 		items.forEach { (item) -> () in
@@ -41,12 +45,13 @@ class Motion {
 			tween.duration = duration
 			tween.group = group
 			group.addTween(tween)
+			cacheTween(tween, forObject: item)
 		}
 		
 		return group
 	}
 	
-	static func itemsFrom(items: [AnyObject], duration: CFTimeInterval, options: [Property]) -> TweenGroup {
+	static func itemsFrom(items: [NSObject], duration: CFTimeInterval, options: [Property]) -> TweenGroup {
 		let group = TweenGroup()
 		
 		items.forEach { (item) -> () in
@@ -54,12 +59,13 @@ class Motion {
 			tween.duration = duration
 			tween.group = group
 			group.addTween(tween)
+			cacheTween(tween, forObject: item)
 		}
 		
 		return group
 	}
 	
-	static func itemsFromTo(items: [AnyObject], duration: CFTimeInterval, from: [Property], to: [Property]) -> TweenGroup {
+	static func itemsFromTo(items: [NSObject], duration: CFTimeInterval, from: [Property], to: [Property]) -> TweenGroup {
 		let group = TweenGroup()
 		
 		items.forEach { (item) -> () in
@@ -67,12 +73,37 @@ class Motion {
 			tween.duration = duration
 			tween.group = group
 			group.addTween(tween)
+			cacheTween(tween, forObject: item)
 		}
 		
 		return group
 	}
 	
-	static func killTweensOf(target: AnyObject) {
-		
+	static func killTweensOf(target: NSObject) {
+		if let tweens = tweenCache[target] {
+			for tween in tweens {
+				tween.kill()
+			}
+		}
+		tweenCache[target] = nil
+	}
+	
+	static func killAll() {
+		for (_, var tweens) in tweenCache {
+			for tween in tweens {
+				tween.kill()
+			}
+			tweens.removeAll()
+		}
+		tweenCache = [NSObject: [Tween]]()
+	}
+	
+	// MARK: Private Methods
+	
+	static func cacheTween(tween: Tween, forObject object: NSObject) {
+		if tweenCache[object] == nil {
+			tweenCache[object] = [Tween]()
+		}
+		tweenCache[object]?.append(tween)
 	}
 }

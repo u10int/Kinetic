@@ -56,7 +56,7 @@ class ViewController: UIViewController {
 	}
 
 	func animate(gestureRecognizer: UITapGestureRecognizer) {
-		let duration: CFTimeInterval = 2
+		let duration: CFTimeInterval = 1
 		let delay: CFTimeInterval = 0
 		reset()
 		
@@ -96,6 +96,8 @@ class ViewController: UIViewController {
 	func reset() {
 		square.layer.transform = CATransform3DIdentity
 		square.frame = CGRectMake(50, 50, 50, 50)
+		
+		Motion.killTweensOf(square)
 	}
 }
 
