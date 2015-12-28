@@ -82,7 +82,7 @@ public class TweenManager {
 		
 		for (_, tween) in tweens {
 			if tween.proceed(dt) {
-				remove(tween)
+				tween.kill()
 			}
 		}
 		

@@ -61,7 +61,7 @@ class ViewController: UIViewController {
 		reset()
 		
 		let move = Motion.to(square, duration: duration, options: [.Shift(100, 100), .Width(200)])
-		move.ease(Easing.inOutQuart).delay(delay).start()
+		move.ease(Easing.inOutQuart).delay(delay).play()
 		
 		var timer: CFTimeInterval = 0
 		var startTimer: CFTimeInterval = 0
@@ -74,7 +74,7 @@ class ViewController: UIViewController {
 			timer = CACurrentMediaTime()
 		}).onComplete { () -> Void in
 			print("completed: diff=\(timer - startTimer)")
-		}.yoyo().repeatCount(4).start()
+		}.yoyo().repeatCount(4).play()
 		
 		
 		
@@ -87,10 +87,10 @@ class ViewController: UIViewController {
 			self.label.text = "\(round(testObject.value))"
 		}.onComplete({ () -> Void in
 			self.label.text = "\(round(testObject.value))"
-		}).start()
+		}).play()
 		
 //		let move = Motion.itemsTo([square, square2], duration: 2, options: [.ShiftXY: CGPoint(x: 100, y: 100)])
-//		move.ease(Easing.inOutQuart).delay(2).stagger(0.2).start()
+//		move.ease(Easing.inOutQuart).delay(2).stagger(0.2).play()
 	}
 	
 	func reset() {

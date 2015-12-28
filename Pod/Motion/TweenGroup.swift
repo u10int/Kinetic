@@ -46,9 +46,9 @@ class TweenGroup {
 		return self
 	}
 	
-	func start() {
+	func play() {
 		for tween in tweens {
-			tween.start()
+			tween.play()
 		}
 	}
 	

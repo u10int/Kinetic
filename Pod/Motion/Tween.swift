@@ -193,7 +193,7 @@ public class Tween: NSObject {
 		return self
 	}
 	
-	public func start() -> Tween {
+	public func play() -> Tween {
 		if running {
 			return self
 		}
@@ -231,7 +231,6 @@ public class Tween: NSObject {
 		running = false
 		animating = false
 		TweenManager.sharedInstance.remove(self)
-		print("killed tween \(id)")
 	}
 	
 	// MARK: Event Handlers
