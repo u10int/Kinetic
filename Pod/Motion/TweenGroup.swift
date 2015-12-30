@@ -8,12 +8,13 @@
 
 import Foundation
 
-class TweenGroup {
-	var tweens = [Tween]()
-	var properties = [AnimatableProperty]()
-	var elapsed: CFTimeInterval = 0
-	var delay: CFTimeInterval = 0
-	var duration: CFTimeInterval = 1.0
+public class TweenGroup {
+	public var tweens = [Tween]()
+	public var delay: CFTimeInterval = 0
+	public var duration: CFTimeInterval = 1.0
+	public var active = false
+	
+	private var elapsed: CFTimeInterval = 0
 	
 	// MARK: Lifecycle
 	
@@ -23,21 +24,21 @@ class TweenGroup {
 	
 	// MARK: Public Methods
 	
-	func delay(delay: CFTimeInterval) -> TweenGroup {
+	public func delay(delay: CFTimeInterval) -> TweenGroup {
 		for tween in tweens {
 			tween.delay(delay)
 		}
 		return self
 	}
 	
-	func ease(easing: Ease) -> TweenGroup {
+	public func ease(easing: Ease) -> TweenGroup {
 		for tween in tweens {
 			tween.ease(easing)
 		}
 		return self
 	}
 	
-	func stagger(offset: CFTimeInterval) -> TweenGroup {
+	public func stagger(offset: CFTimeInterval) -> TweenGroup {
 		var delay: CFTimeInterval = 0
 		for tween in tweens {
 			tween.stagger(delay)
@@ -46,23 +47,31 @@ class TweenGroup {
 		return self
 	}
 	
-	func play() {
+	public func play() {
 		for tween in tweens {
 			tween.play()
 		}
 	}
 	
-	func pause() {
+	public func pause() {
 		for tween in tweens {
 			tween.pause()
 		}
 	}
 	
-	func resume() {
+	public func resume() {
 		for tween in tweens {
 			tween.resume()
 		}
 	}
+	
+	public func kill() {
+		for tween in tweens {
+			tween.kill()
+		}
+	}
+	
+	// MARK: Internal Methods
 	
 	func prepare() {
 		elapsed = 0

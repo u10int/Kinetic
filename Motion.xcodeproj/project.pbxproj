@@ -16,7 +16,7 @@
 		2BAC199B1C31ABC30037F22B /* AnimatableProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BAC19941C31ABC30037F22B /* AnimatableProperty.swift */; };
 		2BAC199C1C31ABC30037F22B /* Easing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BAC19951C31ABC30037F22B /* Easing.swift */; };
 		2BAC199D1C31ABC30037F22B /* Motion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BAC19961C31ABC30037F22B /* Motion.swift */; };
-		2BAC199E1C31ABC30037F22B /* MotionTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BAC19971C31ABC30037F22B /* MotionTimeline.swift */; };
+		2BAC199E1C31ABC30037F22B /* Timeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BAC19971C31ABC30037F22B /* Timeline.swift */; };
 		2BAC199F1C31ABC30037F22B /* Tween.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BAC19981C31ABC30037F22B /* Tween.swift */; };
 		2BAC19A01C31ABC30037F22B /* TweenGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BAC19991C31ABC30037F22B /* TweenGroup.swift */; };
 		2BAC19A11C31ABC30037F22B /* TweenManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BAC199A1C31ABC30037F22B /* TweenManager.swift */; };
@@ -33,7 +33,7 @@
 		2BAC19941C31ABC30037F22B /* AnimatableProperty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimatableProperty.swift; sourceTree = "<group>"; };
 		2BAC19951C31ABC30037F22B /* Easing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Easing.swift; sourceTree = "<group>"; };
 		2BAC19961C31ABC30037F22B /* Motion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Motion.swift; sourceTree = "<group>"; };
-		2BAC19971C31ABC30037F22B /* MotionTimeline.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MotionTimeline.swift; sourceTree = "<group>"; };
+		2BAC19971C31ABC30037F22B /* Timeline.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Timeline.swift; sourceTree = "<group>"; };
 		2BAC19981C31ABC30037F22B /* Tween.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tween.swift; sourceTree = "<group>"; };
 		2BAC19991C31ABC30037F22B /* TweenGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TweenGroup.swift; sourceTree = "<group>"; };
 		2BAC199A1C31ABC30037F22B /* TweenManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TweenManager.swift; sourceTree = "<group>"; };
@@ -94,7 +94,7 @@
 				2BAC19941C31ABC30037F22B /* AnimatableProperty.swift */,
 				2BAC19951C31ABC30037F22B /* Easing.swift */,
 				2BAC19961C31ABC30037F22B /* Motion.swift */,
-				2BAC19971C31ABC30037F22B /* MotionTimeline.swift */,
+				2BAC19971C31ABC30037F22B /* Timeline.swift */,
 				2BAC19981C31ABC30037F22B /* Tween.swift */,
 				2BAC19991C31ABC30037F22B /* TweenGroup.swift */,
 				2BAC199A1C31ABC30037F22B /* TweenManager.swift */,
@@ -180,7 +180,7 @@
 				2BAC19A01C31ABC30037F22B /* TweenGroup.swift in Sources */,
 				2BAC199F1C31ABC30037F22B /* Tween.swift in Sources */,
 				2BAC199D1C31ABC30037F22B /* Motion.swift in Sources */,
-				2BAC199E1C31ABC30037F22B /* MotionTimeline.swift in Sources */,
+				2BAC199E1C31ABC30037F22B /* Timeline.swift in Sources */,
 				2BAC199B1C31ABC30037F22B /* AnimatableProperty.swift in Sources */,
 				2BAC19A11C31ABC30037F22B /* TweenManager.swift in Sources */,
 			);

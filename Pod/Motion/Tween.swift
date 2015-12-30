@@ -22,6 +22,8 @@ public enum Property {
 	case Rotate(CGFloat)
 	case RotateXY(CGFloat, CGFloat)
 	case Transform(CATransform3D)
+	case Alpha(CGFloat)
+	case BackgroundColor(UIColor)
 	case KeyPath(String, CGFloat)
 }
 
@@ -35,18 +37,32 @@ private enum PropertyKey: String {
 	case Position = "frame.origin"
 	case Size = "frame.size"
 	case Transform = "transform"
+	case Alpha = "alpha"
+	case BackgroundColor = "backgroundColor"
+}
+
+public protocol Animation {
+	var delay: CFTimeInterval { get set }
+	var duration: CFTimeInterval { get set }
+	
+	func delay(delay: CFTimeInterval) -> Animation
+	func play() -> Animation
+	func pause()
+	func resume()
+	func restart()
+	func kill()
 }
 
 public class Tween: NSObject {
 	weak var target: AnyObject?
 	
 	var id: UInt32 = 0
+	public var active = false
 	var running = false
 	var paused = false
 	var animating = false
-	var elapsed: CFTimeInterval = 0
-	var delay: CFTimeInterval = 0
-	var duration: CFTimeInterval = 1.0 {
+	public var delay: CFTimeInterval = 0
+	public var duration: CFTimeInterval = 1.0 {
 		didSet {
 			for prop in properties {
 				prop.duration = duration
@@ -57,90 +73,44 @@ public class Tween: NSObject {
 	var repeatCount: Int = 0
 	var group: TweenGroup?
 	var properties = [AnimatableProperty]()
+	var startTime: CFTimeInterval {
+		get {
+			return (delay + staggerDelay)
+		}
+	}
+	var endTime: CFTimeInterval {
+		get {
+			return startTime + totalDuration
+		}
+	}
+	var totalTime: CFTimeInterval {
+		get {
+			return (elapsed - delay - staggerDelay)
+		}
+	}
+	var totalDuration: CFTimeInterval {
+		get {
+			return (duration * CFTimeInterval(repeatCount + 1)) + (repeatDelay * CFTimeInterval(repeatCount))
+		}
+	}
+	
+	var elapsed: CFTimeInterval = 0
+	var timeline: Timeline?
+	private var timeScale: Float = 1
 	
 	private var reversed = false
 	private var staggerDelay: CFTimeInterval = 0
-	private var repeated: Int = 0
+	private var cycle: Int = 0
 	private var repeatForever = false
+	private var repeatDelay: CFTimeInterval = 0
 	private var reverseOnComplete = false
 	
 	private var startBlock: (() -> Void)?
 	private var updateBlock: (() -> Void)?
 	private var completionBlock: (() -> Void)?
+	private var repeatBlock: (() -> Void)?
 	private var propertiesByType = [String: AnimatableProperty]()
 	private var needsPropertyPrep = false
-	
-//	// MARK: Class Methods
-//	
-//	static func to(item: AnyObject, duration: CFTimeInterval, options: [Property]) -> Tween {
-//		let tween = Tween(target: item)
-//		tween.duration = duration
-//		tween.prepare(from: nil, to: options, mode: .To)
-//		
-//		return tween
-//	}
-//	
-//	static func from(item: AnyObject, duration: CFTimeInterval, options: [Property]) -> Tween {
-//		let tween = Tween(target: item)
-//		tween.duration = duration
-//		tween.prepare(from: options, to: nil, mode: .From)
-//		
-//		return tween
-//	}
-//	
-//	static func fromTo(item: AnyObject, duration: CFTimeInterval, from: [Property], to: [Property]) -> Tween {
-//		let tween = Tween(target: item)
-//		tween.duration = duration
-//		tween.prepare(from: from, to: to, mode: .FromTo)
-//		
-//		return tween
-//	}
-//	
-//	static func itemsTo(items: [AnyObject], duration: CFTimeInterval, options: [Property]) -> TweenGroup {
-//		let group = TweenGroup()
-//		
-//		items.forEach { (item) -> () in
-//			let tween = Tween(target: item)
-//			tween.duration = duration
-//			tween.prepare(from: nil, to: options, mode: .To)
-//			tween.group = group
-//			group.addTween(tween)
-//		}
-//		
-//		return group
-//	}
-//	
-//	static func itemsFrom(items: [AnyObject], duration: CFTimeInterval, options: [Property]) -> TweenGroup {
-//		let group = TweenGroup()
-//		
-//		items.forEach { (item) -> () in
-//			let tween = Tween(target: item)
-//			tween.duration = duration
-//			tween.prepare(from: options, to: nil, mode: .From)
-//			tween.group = group
-//			group.addTween(tween)
-//		}
-//		
-//		return group
-//	}
-//	
-//	static func itemsFromTo(items: [AnyObject], duration: CFTimeInterval, from: [Property], to: [Property]) -> TweenGroup {
-//		let group = TweenGroup()
-//		
-//		items.forEach { (item) -> () in
-//			let tween = Tween(target: item)
-//			tween.duration = duration
-//			tween.prepare(from: from, to: to, mode: .FromTo)
-//			tween.group = group
-//			group.addTween(tween)
-//		}
-//		
-//		return group
-//	}
-//	
-//	static func killTweensOf(target: AnyObject) {
-//		
-//	}
 	
 	// MARK: Lifecycle
 	
@@ -178,6 +148,11 @@ public class Tween: NSObject {
 		return self
 	}
 	
+	public func repeatDelay(delay: CFTimeInterval) -> Tween {
+		repeatDelay = delay
+		return self
+	}
+	
 	public func forever() -> Tween {
 		repeatForever = true
 		return self
@@ -190,6 +165,11 @@ public class Tween: NSObject {
 	
 	public func stagger(offset: CFTimeInterval) -> Tween {
 		staggerDelay = offset
+		return self
+	}
+	
+	public func timeScale(scale: Float) -> Tween {
+		timeScale = scale
 		return self
 	}
 	
@@ -214,6 +194,14 @@ public class Tween: NSObject {
 		animating = false
 	}
 	
+	public func seek(time: CFTimeInterval) -> Tween {
+		elapsed += delay + staggerDelay + time
+		for prop in properties {
+			prop.seek(time)
+		}
+		return self
+	}
+	
 	public func restart(includeDelay: Bool = false) {
 		elapsed = includeDelay ? 0 : delay
 		reversed = false
@@ -225,6 +213,14 @@ public class Tween: NSObject {
 	
 	public func progress() -> CGFloat {
 		return CGFloat(elapsed / (delay + duration))
+	}
+	
+	public func time() -> CFTimeInterval {
+		return totalTime - (CFTimeInterval(cycle) * (duration + repeatDelay))
+	}
+	
+	public func updateTo(options: [Property], restart: Bool = false) {
+		
 	}
 	
 	public func kill() {
@@ -250,12 +246,15 @@ public class Tween: NSObject {
 		return self
 	}
 	
+	public func onRepeat(callback: (() -> Void)?) -> Tween {
+		repeatBlock = callback
+		return self
+	}
+	
 	// MARK: Private Methods
 	
 	private func prepare(from from: [Property]?, to: [Property]?, mode: TweenMode) {
 		guard let _ = target else { return }
-		
-		elapsed = 0
 		
 		if let from = from {
 			setupProperties(from, mode: .From)
@@ -266,75 +265,17 @@ public class Tween: NSObject {
 		
 		for (_, prop) in propertiesByType {
 			properties.append(prop)
+			prop.reset()
+			prop.calc()
 		}
-		
 		needsPropertyPrep = true
-		
-//		for (opt, value) in options {
-//			var prop: AnimatableProperty?
-//			
-//			if opt == .X || opt == .Y || opt == .Position {
-//				if let origin = targetOrigin(target) {
-//					var from = origin, to = origin
-//					
-//					if mode == .To {
-//						if let storedProp = propertyForType(.Position) as? PointProperty {
-//							to = storedProp.to
-//						}
-//						to = adjustedPoint(to, withValue: value, prop: opt)
-//					}
-//					
-//					prop = PointProperty(target: target, from: from, to: to)
-//					propertiesByType[.Position] = prop
-//				}
-//				
-//			} else if opt == .Width || opt == .Height || opt == .Size {
-//				if let size = targetSize(target) {
-//					var from = size, to = size
-//					
-//					if mode == .To {
-//						to = adjustedSize(to, withValue: value, prop: opt)
-//					} else if mode == .From {
-//						from = adjustedSize(from, withValue: value, prop: opt)
-//					}
-//					
-//					prop = SizeProperty(target: target, from: from, to: to)
-//					propertiesByType[.Size] = prop
-//				}
-//			} else if opt == .ShiftX || opt == .ShiftY || opt == .ShiftXY {
-//				if let transform = targetTransform(target) {
-//					var from = transform, to = transform
-//					
-//					if mode == .To {
-//						if let value = value as? NSNumber {
-//							if opt == .ShiftX {
-//								to = CATransform3DTranslate(to, CGFloat(value.floatValue), 0, 0)
-//							} else if opt == .ShiftY {
-//								to = CATransform3DTranslate(to, 0, CGFloat(value.floatValue), 0)
-//							}
-//						} else if let value = value as? CGPoint {
-//							to = CATransform3DTranslate(to, value.x, value.y, 0)
-//						}
-//					} else if mode == .From {
-//						
-//					}
-//					
-//					prop = TransformProperty(target: target, from: from, to: to)
-//					propertiesByType[.Transform] = prop
-//				}
-//			}
-//			
-//			if let prop = prop {
-//				addProperty(prop)
-//			}
-//		}
 		
 		// set anchor point and adjust position if target is UIView or CALayer
 		if target is UIView || target is CALayer {
 			
 		}
 		
-		restart(true)
+//		restart(true)
 		
 		group?.prepare()
 	}
@@ -349,7 +290,7 @@ public class Tween: NSObject {
 		
 		elapsed += dt
 		
-		if elapsed < (delay + staggerDelay) {
+		if elapsed < (delay + staggerDelay + repeatDelay) {
 			return false
 		}
 		if properties.count == 0 {
@@ -369,9 +310,10 @@ public class Tween: NSObject {
 				prop.prepare()
 			}
 			if prop.proceed(dt, reversed: reversed) {
-				print("DONE: repeatCount=\(repeatCount), repeated=\(repeated)")
-				if repeatForever || (repeatCount > 0 && repeated < repeatCount) {
+				print("DONE: repeatCount=\(repeatCount), cycle=\(cycle)")
+				if repeatForever || (repeatCount > 0 && cycle < repeatCount) {
 					shouldRepeat = true
+					cycle++
 				} else {
 					completionBlock?()
 					return true
@@ -382,6 +324,7 @@ public class Tween: NSObject {
 		updateBlock?()
 		
 		if shouldRepeat {
+			repeatBlock?()
 			if reverseOnComplete {
 				reversed = !reversed
 				for prop in properties {
@@ -390,7 +333,6 @@ public class Tween: NSObject {
 			} else {
 				restart()
 			}
-			repeated++
 		}
 		
 		return false
@@ -512,6 +454,16 @@ public class Tween: NSObject {
 						currentTransform.to = transform
 					}
 				}
+			case .Alpha(let alpha):
+				if let currentAlpha = propObj as? ValueProperty {
+					if mode == .From {
+						currentAlpha.from = alpha
+					} else {
+						currentAlpha.to = alpha
+					}
+				}
+			case .BackgroundColor(let color):
+				print("")
 			case .KeyPath(_, let value):
 				if let custom = propObj as? ObjectProperty {
 					if mode == .From {
@@ -548,6 +500,10 @@ public class Tween: NSObject {
 		switch propType {
 		case .KeyPath(let key, _):
 			propKey = key
+		case .Alpha(_):
+			propKey = PropertyKey.Alpha.rawValue
+		case .BackgroundColor(_):
+			propKey = PropertyKey.BackgroundColor.rawValue
 		case .Position(_, _), .X(_), .Y(_), .Shift(_, _):
 			propKey = PropertyKey.Position.rawValue
 		case .Size(_, _), .Width(_), .Height(_):
@@ -573,6 +529,12 @@ public class Tween: NSObject {
 					if let target = target, transform = targetTransform(target) {
 						prop = TransformProperty(target: target, from: transform, to: transform)
 					}
+				case PropertyKey.Alpha.rawValue:
+					if let target = target, alpha = targetAlpha(target) {
+						prop = ValueProperty(target: target, from: alpha, to: alpha)
+					}
+				case PropertyKey.BackgroundColor.rawValue:
+					prop = nil
 				default:
 					if let target = target as? NSObject, value = target.valueForKeyPath(key) as? CGFloat {
 						prop = ObjectProperty(target: target, keyPath: key, from: value, to: value)
@@ -690,5 +652,17 @@ public class Tween: NSObject {
 		}
 		
 		return transform
+	}
+	
+	private func targetAlpha(target: AnyObject) -> CGFloat? {
+		var alpha: CGFloat?
+		
+		if let layer = target as? CALayer {
+			alpha = CGFloat(layer.opacity)
+		} else if let view = target as? UIView {
+			alpha = view.alpha
+		}
+		
+		return alpha
 	}
 }

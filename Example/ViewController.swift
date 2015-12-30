@@ -16,6 +16,9 @@ class ViewController: UIViewController {
 	var square: UIView!
 	var square2: UIView!
 	var label: UILabel!
+	
+	private var originalSquareFrame = CGRectZero
+	private var originalSquare2Frame = CGRectZero
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -48,6 +51,9 @@ class ViewController: UIViewController {
 		
 		let tapRecognizer = UITapGestureRecognizer(target: self, action: "animate:")
 		view.addGestureRecognizer(tapRecognizer)
+		
+		originalSquareFrame = square.frame
+		originalSquare2Frame = square2.frame
 	}
 
 	override func didReceiveMemoryWarning() {
@@ -75,6 +81,7 @@ class ViewController: UIViewController {
 		}).onComplete { () -> Void in
 			print("completed: diff=\(timer - startTimer)")
 		}.yoyo().repeatCount(4).play()
+		print("TWEEN: start=\(resize.startTime), end=\(resize.endTime), total=\(resize.totalDuration)")
 		
 		
 		
@@ -89,15 +96,17 @@ class ViewController: UIViewController {
 			self.label.text = "\(round(testObject.value))"
 		}).play()
 		
-//		let move = Motion.itemsTo([square, square2], duration: 2, options: [.ShiftXY: CGPoint(x: 100, y: 100)])
-//		move.ease(Easing.inOutQuart).delay(2).stagger(0.2).play()
+//		let move = Motion.itemsTo([square, square2], duration: duration, options: [.Shift(100, 100)])
+//		move.ease(Easing.inOutQuart).delay(delay).stagger(0.1).play()
 	}
 	
 	func reset() {
 		square.layer.transform = CATransform3DIdentity
-		square.frame = CGRectMake(50, 50, 50, 50)
+		square.frame = originalSquareFrame
+		square2.layer.transform = CATransform3DIdentity
+		square2.frame = originalSquare2Frame
 		
-		Motion.killTweensOf(square)
+		Motion.killAll()
 	}
 }
 
