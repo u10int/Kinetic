@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2B91B27F1C34BE330008E51B /* Spring.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B91B27E1C34BE330008E51B /* Spring.swift */; };
 		2BA5BB2E1BD9C11700046239 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BA5BB241BD9C11700046239 /* AppDelegate.swift */; };
 		2BA5BB2F1BD9C11700046239 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2BA5BB251BD9C11700046239 /* Assets.xcassets */; };
 		2BA5BB301BD9C11700046239 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2BA5BB261BD9C11700046239 /* LaunchScreen.storyboard */; };
@@ -23,6 +24,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2B91B27E1C34BE330008E51B /* Spring.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Spring.swift; sourceTree = "<group>"; };
 		2BA5BAF21BD9C0DF00046239 /* Motion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Motion.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BA5BB241BD9C11700046239 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2BA5BB251BD9C11700046239 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -94,6 +96,7 @@
 				2BAC19941C31ABC30037F22B /* AnimatableProperty.swift */,
 				2BAC19951C31ABC30037F22B /* Easing.swift */,
 				2BAC19961C31ABC30037F22B /* Motion.swift */,
+				2B91B27E1C34BE330008E51B /* Spring.swift */,
 				2BAC19971C31ABC30037F22B /* Timeline.swift */,
 				2BAC19981C31ABC30037F22B /* Tween.swift */,
 				2BAC19991C31ABC30037F22B /* TweenGroup.swift */,
@@ -180,6 +183,7 @@
 				2BAC19A01C31ABC30037F22B /* TweenGroup.swift in Sources */,
 				2BAC199F1C31ABC30037F22B /* Tween.swift in Sources */,
 				2BAC199D1C31ABC30037F22B /* Motion.swift in Sources */,
+				2B91B27F1C34BE330008E51B /* Spring.swift in Sources */,
 				2BAC199E1C31ABC30037F22B /* Timeline.swift in Sources */,
 				2BAC199B1C31ABC30037F22B /* AnimatableProperty.swift in Sources */,
 				2BAC19A11C31ABC30037F22B /* TweenManager.swift in Sources */,

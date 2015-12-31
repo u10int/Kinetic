@@ -32,6 +32,7 @@ public class AnimatableProperty {
 	var dt: CFTimeInterval = 0
 	var current: CGFloat = 0
 	var easing: Ease = Easing.linear
+	var spring: Spring?
 	var additive: Bool = true
 	
 	init(target: AnyObject) {
@@ -52,6 +53,9 @@ public class AnimatableProperty {
 			update()
 		}
 		
+		if let spring = spring {
+			return spring.ended
+		}
 		return elapsed >= end
 	}
 	
@@ -88,6 +92,10 @@ public class AnimatableProperty {
 	// MARK: LERP Calculations
 	
 	func lerpFloat(from: CGFloat, to: CGFloat) -> CGFloat {
+		if let spring = spring {
+			spring.proceed(dt / duration)
+			return from + (to - from) * CGFloat(spring.current)
+		}
 		return easing(t: current, b: from, c: to - from)
 	}
 	

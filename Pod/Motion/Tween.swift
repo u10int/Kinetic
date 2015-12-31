@@ -41,28 +41,128 @@ private enum PropertyKey: String {
 	case BackgroundColor = "backgroundColor"
 }
 
-public protocol Animation {
-	var delay: CFTimeInterval { get set }
-	var duration: CFTimeInterval { get set }
+public class Animation: NSObject {
+	public var running = false
+	public var paused = false
+	public var animating = false
+	public var delay: CFTimeInterval = 0
+	public var duration: CFTimeInterval = 1.0
+	public var repeatCount: Int = 0
 	
-	func delay(delay: CFTimeInterval) -> Animation
-	func play() -> Animation
-	func pause()
-	func resume()
-	func restart()
-	func kill()
+	private var elapsed: CFTimeInterval = 0
+	private var repeatForever = false
+	private var repeatDelay: CFTimeInterval = 0
+	private var reverseOnComplete = false
+	
+	private var startBlock: (() -> Void)?
+	private var updateBlock: (() -> Void)?
+	private var completionBlock: (() -> Void)?
+	private var repeatBlock: (() -> Void)?
+	
+	// MARK: Options
+	
+	public func delay(delay: CFTimeInterval) -> Animation {
+		self.delay = delay
+		return self
+	}
+	
+	public func repeatCount(count: Int) -> Animation {
+		repeatCount = count
+		return self
+	}
+	
+	public func repeatDelay(delay: CFTimeInterval) -> Animation {
+		repeatDelay = delay
+		return self
+	}
+	
+	public func forever() -> Animation {
+		repeatForever = true
+		return self
+	}
+	
+	public func yoyo() -> Animation {
+		reverseOnComplete = true
+		return self
+	}
+	
+	// MARK: Playback
+	
+	public func play() -> Animation {
+		if running {
+			return self
+		}
+		running = true
+		
+		return self
+	}
+	
+	public func pause() {
+		paused = true
+		animating = false
+	}
+	
+	public func resume() {
+		paused = false
+		animating = false
+	}
+	
+	public func restart(includeDelay: Bool = false) {
+		
+	}
+	
+	public func kill() {
+		
+	}
+	
+	// MARK: Event Handlers
+	
+	public func onStart(callback: (() -> Void)?) -> Animation {
+		startBlock = callback
+		return self
+	}
+	
+	public func onUpdate(callback: (() -> Void)?) -> Animation {
+		updateBlock = callback
+		return self
+	}
+	
+	public func onComplete(callback: (() -> Void)?) -> Animation {
+		completionBlock = callback
+		return self
+	}
+	
+	public func onRepeat(callback: (() -> Void)?) -> Animation {
+		repeatBlock = callback
+		return self
+	}
+	
+	// MARK: Internal Methods
+	
+	func proceed(dt: CFTimeInterval) -> Bool {
+		if !running {
+			return true
+		}
+		if paused {
+			return false
+		}
+		
+		elapsed += dt
+		
+		return false
+	}
 }
 
-public class Tween: NSObject {
+public class Tween: Animation {
 	weak var target: AnyObject?
 	
 	var id: UInt32 = 0
 	public var active = false
-	var running = false
-	var paused = false
-	var animating = false
-	public var delay: CFTimeInterval = 0
-	public var duration: CFTimeInterval = 1.0 {
+//	var running = false
+//	var paused = false
+//	var animating = false
+//	public var delay: CFTimeInterval = 0
+	override public var duration: CFTimeInterval {
 		didSet {
 			for prop in properties {
 				prop.duration = duration
@@ -70,7 +170,7 @@ public class Tween: NSObject {
 			group?.duration = duration
 		}
 	}
-	var repeatCount: Int = 0
+//	var repeatCount: Int = 0
 	var group: TweenGroup?
 	var properties = [AnimatableProperty]()
 	var startTime: CFTimeInterval {
@@ -94,21 +194,21 @@ public class Tween: NSObject {
 		}
 	}
 	
-	var elapsed: CFTimeInterval = 0
+//	var elapsed: CFTimeInterval = 0
 	var timeline: Timeline?
 	private var timeScale: Float = 1
 	
 	private var reversed = false
 	private var staggerDelay: CFTimeInterval = 0
 	private var cycle: Int = 0
-	private var repeatForever = false
-	private var repeatDelay: CFTimeInterval = 0
-	private var reverseOnComplete = false
+//	private var repeatForever = false
+//	private var repeatDelay: CFTimeInterval = 0
+//	private var reverseOnComplete = false
 	
-	private var startBlock: (() -> Void)?
-	private var updateBlock: (() -> Void)?
-	private var completionBlock: (() -> Void)?
-	private var repeatBlock: (() -> Void)?
+//	private var startBlock: (() -> Void)?
+//	private var updateBlock: (() -> Void)?
+//	private var completionBlock: (() -> Void)?
+//	private var repeatBlock: (() -> Void)?
 	private var propertiesByType = [String: AnimatableProperty]()
 	private var needsPropertyPrep = false
 	
@@ -121,16 +221,60 @@ public class Tween: NSObject {
 		prepare(from: from, to: to, mode: mode)
 	}
 	
-	// MARK: Public Methods
+	// MARK: Animation Overrides
 	
-	public func delay(delay: CFTimeInterval) -> Tween {
-		self.delay = delay
+	override public func delay(delay: CFTimeInterval) -> Tween {
+		super.delay(delay)
 		return self
 	}
+	
+	override public func repeatCount(count: Int) -> Tween {
+		super.repeatCount(count)
+		return self
+	}
+	
+	override public func repeatDelay(delay: CFTimeInterval) -> Tween {
+		super.repeatDelay(delay)
+		return self
+	}
+	
+	override public func forever() -> Tween {
+		super.forever()
+		return self
+	}
+	
+	override public func yoyo() -> Tween {
+		super.yoyo()
+		return self
+	}
+	
+	override public func restart(includeDelay: Bool = false) {
+		elapsed = includeDelay ? 0 : delay
+		reversed = false
+		for prop in properties {
+			prop.reset()
+			prop.calc()
+		}
+	}
+	
+	override public func kill() {
+		running = false
+		animating = false
+		TweenManager.sharedInstance.remove(self)
+	}
+	
+	// MARK: Public Methods
 	
 	public func ease(easing: Ease) -> Tween {
 		for prop in properties {
 			prop.easing = easing
+		}
+		return self
+	}
+	
+	public func spring(tension tension: Double, friction: Double = 3) -> Tween {
+		for prop in properties {
+			prop.spring = Spring(tension: tension, friction: friction)
 		}
 		return self
 	}
@@ -140,26 +284,6 @@ public class Tween: NSObject {
 	}
 	
 	public func anchorPoint(point: CGPoint) -> Tween {
-		return self
-	}
-	
-	public func repeatCount(count: Int) -> Tween {
-		repeatCount = count
-		return self
-	}
-	
-	public func repeatDelay(delay: CFTimeInterval) -> Tween {
-		repeatDelay = delay
-		return self
-	}
-	
-	public func forever() -> Tween {
-		repeatForever = true
-		return self
-	}
-	
-	public func yoyo() -> Tween {
-		reverseOnComplete = true
 		return self
 	}
 	
@@ -173,7 +297,7 @@ public class Tween: NSObject {
 		return self
 	}
 	
-	public func play() -> Tween {
+	override public func play() -> Tween {
 		if running {
 			return self
 		}
@@ -184,15 +308,15 @@ public class Tween: NSObject {
 		return self
 	}
 	
-	public func pause() {
-		paused = true
-		animating = false
-	}
-	
-	public func resume() {
-		paused = false
-		animating = false
-	}
+//	public func pause() {
+//		paused = true
+//		animating = false
+//	}
+//	
+//	public func resume() {
+//		paused = false
+//		animating = false
+//	}
 	
 	public func seek(time: CFTimeInterval) -> Tween {
 		elapsed += delay + staggerDelay + time
@@ -200,15 +324,6 @@ public class Tween: NSObject {
 			prop.seek(time)
 		}
 		return self
-	}
-	
-	public func restart(includeDelay: Bool = false) {
-		elapsed = includeDelay ? 0 : delay
-		reversed = false
-		for prop in properties {
-			prop.reset()
-			prop.calc()
-		}
 	}
 	
 	public func progress() -> CGFloat {
@@ -221,34 +336,6 @@ public class Tween: NSObject {
 	
 	public func updateTo(options: [Property], restart: Bool = false) {
 		
-	}
-	
-	public func kill() {
-		running = false
-		animating = false
-		TweenManager.sharedInstance.remove(self)
-	}
-	
-	// MARK: Event Handlers
-	
-	public func onStart(callback: (() -> Void)?) -> Tween {
-		startBlock = callback
-		return self
-	}
-	
-	public func onUpdate(callback: (() -> Void)?) -> Tween {
-		updateBlock = callback
-		return self
-	}
-	
-	public func onComplete(callback: (() -> Void)?) -> Tween {
-		completionBlock = callback
-		return self
-	}
-	
-	public func onRepeat(callback: (() -> Void)?) -> Tween {
-		repeatBlock = callback
-		return self
 	}
 	
 	// MARK: Private Methods
@@ -280,7 +367,7 @@ public class Tween: NSObject {
 		group?.prepare()
 	}
 	
-	func proceed(dt: CFTimeInterval) -> Bool {
+	override func proceed(dt: CFTimeInterval) -> Bool {
 		if target == nil || !running {
 			return true
 		}

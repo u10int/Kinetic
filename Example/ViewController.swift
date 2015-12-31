@@ -68,6 +68,7 @@ class ViewController: UIViewController {
 		
 		let move = Motion.to(square, duration: duration, options: [.Shift(100, 100), .Width(200)])
 		move.ease(Easing.inOutQuart).delay(delay).play()
+//		move.spring(tension: 50, friction: 5).play()
 		
 		var timer: CFTimeInterval = 0
 		var startTimer: CFTimeInterval = 0
