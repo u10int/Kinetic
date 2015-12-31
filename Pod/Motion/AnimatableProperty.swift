@@ -43,7 +43,7 @@ public class AnimatableProperty {
 		self.dt = dt
 		
 		let end = delay + duration
-		if elapsed >= end {
+		if elapsed >= end && spring == nil {
 			return true
 		}
 		

@@ -397,7 +397,7 @@ public class Tween: Animation {
 				prop.prepare()
 			}
 			if prop.proceed(dt, reversed: reversed) {
-				print("DONE: repeatCount=\(repeatCount), cycle=\(cycle)")
+				print("DONE: prop=\(prop), repeatCount=\(repeatCount), cycle=\(cycle)")
 				if repeatForever || (repeatCount > 0 && cycle < repeatCount) {
 					shouldRepeat = true
 					cycle++

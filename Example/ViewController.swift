@@ -68,21 +68,21 @@ class ViewController: UIViewController {
 		
 		let move = Motion.to(square, duration: duration, options: [.Shift(100, 100), .Width(200)])
 		move.ease(Easing.inOutQuart).delay(delay).play()
-//		move.spring(tension: 50, friction: 5).play()
-		
-		var timer: CFTimeInterval = 0
-		var startTimer: CFTimeInterval = 0
-		let resize = Motion.to(square, duration: duration, options: [.Scale(0.5), .Rotate(CGFloat(M_PI_4))])
-		resize.ease(Easing.inOutQuart).delay(delay + duration).onStart { () -> Void in
-			print("started")
-			startTimer = CACurrentMediaTime()
-			timer = CACurrentMediaTime()
-		}.onUpdate({ () -> Void in
-			timer = CACurrentMediaTime()
-		}).onComplete { () -> Void in
-			print("completed: diff=\(timer - startTimer)")
-		}.yoyo().repeatCount(4).play()
-		print("TWEEN: start=\(resize.startTime), end=\(resize.endTime), total=\(resize.totalDuration)")
+//		move.spring(tension: 70, friction: 10).play()
+//
+//		var timer: CFTimeInterval = 0
+//		var startTimer: CFTimeInterval = 0
+//		let resize = Motion.to(square, duration: duration, options: [.Scale(0.5), .Rotate(CGFloat(M_PI_4))])
+//		resize.ease(Easing.inOutQuart).delay(delay + duration).onStart { () -> Void in
+//			print("started")
+//			startTimer = CACurrentMediaTime()
+//			timer = CACurrentMediaTime()
+//		}.onUpdate({ () -> Void in
+//			timer = CACurrentMediaTime()
+//		}).onComplete { () -> Void in
+//			print("completed: diff=\(timer - startTimer)")
+//		}.yoyo().repeatCount(4).play()
+//		print("TWEEN: start=\(resize.startTime), end=\(resize.endTime), total=\(resize.totalDuration)")
 		
 		
 		
@@ -99,6 +99,19 @@ class ViewController: UIViewController {
 		
 //		let move = Motion.itemsTo([square, square2], duration: duration, options: [.Shift(100, 100)])
 //		move.ease(Easing.inOutQuart).delay(delay).stagger(0.1).play()
+	}
+	
+	func animateTimeline() {
+		let duration: CFTimeInterval = 1
+		let delay: CFTimeInterval = 0
+		reset()
+		
+		let move = Motion.to(square, duration: duration, options: [.Shift(100, 100), .Width(200)])
+		move.ease(Easing.inOutQuart).delay(delay)
+		
+		let timeline = Timeline()
+		timeline.add(move, position: 0)
+		timeline.play()
 	}
 	
 	func reset() {
