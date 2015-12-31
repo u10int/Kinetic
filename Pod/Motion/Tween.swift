@@ -41,122 +41,9 @@ private enum PropertyKey: String {
 	case BackgroundColor = "backgroundColor"
 }
 
-public class Animation: NSObject {
-	public var running = false
-	public var paused = false
-	public var animating = false
-	public var delay: CFTimeInterval = 0
-	public var duration: CFTimeInterval = 1.0
-	public var repeatCount: Int = 0
-	
-	private var elapsed: CFTimeInterval = 0
-	private var repeatForever = false
-	private var repeatDelay: CFTimeInterval = 0
-	private var reverseOnComplete = false
-	
-	private var startBlock: (() -> Void)?
-	private var updateBlock: (() -> Void)?
-	private var completionBlock: (() -> Void)?
-	private var repeatBlock: (() -> Void)?
-	
-	// MARK: Options
-	
-	public func delay(delay: CFTimeInterval) -> Animation {
-		self.delay = delay
-		return self
-	}
-	
-	public func repeatCount(count: Int) -> Animation {
-		repeatCount = count
-		return self
-	}
-	
-	public func repeatDelay(delay: CFTimeInterval) -> Animation {
-		repeatDelay = delay
-		return self
-	}
-	
-	public func forever() -> Animation {
-		repeatForever = true
-		return self
-	}
-	
-	public func yoyo() -> Animation {
-		reverseOnComplete = true
-		return self
-	}
-	
-	// MARK: Playback
-	
-	public func play() -> Animation {
-		if running {
-			return self
-		}
-		running = true
-		
-		return self
-	}
-	
-	public func pause() {
-		paused = true
-		animating = false
-	}
-	
-	public func resume() {
-		paused = false
-		animating = false
-	}
-	
-	public func restart(includeDelay: Bool = false) {
-		
-	}
-	
-	public func kill() {
-		
-	}
-	
-	// MARK: Event Handlers
-	
-	public func onStart(callback: (() -> Void)?) -> Animation {
-		startBlock = callback
-		return self
-	}
-	
-	public func onUpdate(callback: (() -> Void)?) -> Animation {
-		updateBlock = callback
-		return self
-	}
-	
-	public func onComplete(callback: (() -> Void)?) -> Animation {
-		completionBlock = callback
-		return self
-	}
-	
-	public func onRepeat(callback: (() -> Void)?) -> Animation {
-		repeatBlock = callback
-		return self
-	}
-	
-	// MARK: Internal Methods
-	
-	func proceed(dt: CFTimeInterval) -> Bool {
-		if !running {
-			return true
-		}
-		if paused {
-			return false
-		}
-		
-		elapsed += dt
-		
-		return false
-	}
-}
-
 public class Tween: Animation {
 	weak var target: AnyObject?
 	
-	var id: UInt32 = 0
 	public var active = false
 //	var running = false
 //	var paused = false
@@ -173,24 +60,10 @@ public class Tween: Animation {
 //	var repeatCount: Int = 0
 	var group: TweenGroup?
 	var properties = [AnimatableProperty]()
-	var startTime: CFTimeInterval {
-		get {
-			return (delay + staggerDelay)
-		}
-	}
-	var endTime: CFTimeInterval {
-		get {
-			return startTime + totalDuration
-		}
-	}
-	var totalTime: CFTimeInterval {
+	
+	override var totalTime: CFTimeInterval {
 		get {
 			return (elapsed - delay - staggerDelay)
-		}
-	}
-	var totalDuration: CFTimeInterval {
-		get {
-			return (duration * CFTimeInterval(repeatCount + 1)) + (repeatDelay * CFTimeInterval(repeatCount))
 		}
 	}
 	
@@ -225,6 +98,11 @@ public class Tween: Animation {
 	
 	override public func delay(delay: CFTimeInterval) -> Tween {
 		super.delay(delay)
+		
+		if timeline == nil {
+			startTime = delay + staggerDelay
+		}
+		
 		return self
 	}
 	
@@ -289,6 +167,11 @@ public class Tween: Animation {
 	
 	public func stagger(offset: CFTimeInterval) -> Tween {
 		staggerDelay = offset
+		
+		if timeline == nil {
+			startTime = delay + staggerDelay
+		}
+		
 		return self
 	}
 	
@@ -318,7 +201,7 @@ public class Tween: Animation {
 //		animating = false
 //	}
 	
-	public func seek(time: CFTimeInterval) -> Tween {
+	override public func seek(time: CFTimeInterval) -> Tween {
 		elapsed += delay + staggerDelay + time
 		for prop in properties {
 			prop.seek(time)
@@ -367,29 +250,38 @@ public class Tween: Animation {
 		group?.prepare()
 	}
 	
-	override func proceed(dt: CFTimeInterval) -> Bool {
+	override func proceed(dt: CFTimeInterval, force: Bool = false) -> Bool {
 		if target == nil || !running {
 			return true
 		}
 		if paused {
 			return false
 		}
-		
-		elapsed += dt
-		
-		if elapsed < (delay + staggerDelay + repeatDelay) {
-			return false
-		}
 		if properties.count == 0 {
 			return true
 		}
 		
+		// if tween belongs to a timeline, don't start animating until the timeline's playhead reaches the tween's startTime
+		if let timeline = timeline {
+			if timeline.totalTime < startTime {
+				return false
+			}
+		}
+		
+		elapsed += dt
+		
+		if timeline == nil && elapsed < (delay + staggerDelay + repeatDelay) {
+			return false
+		}
+		
+		// now we can finally animate
 		if !animating {
 			animating = true
 			startBlock?()
 		}
 		
 		var shouldRepeat = false
+		var done = false
 		
 		// proceed each property
 		for prop in properties {
@@ -402,8 +294,7 @@ public class Tween: Animation {
 					shouldRepeat = true
 					cycle++
 				} else {
-					completionBlock?()
-					return true
+					done = true
 				}
 			}
 		}
@@ -420,6 +311,11 @@ public class Tween: Animation {
 			} else {
 				restart()
 			}
+		} else if done {
+			animating = false
+			running = false
+			completionBlock?()
+			return true
 		}
 		
 		return false

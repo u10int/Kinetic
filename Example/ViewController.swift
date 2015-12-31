@@ -49,7 +49,7 @@ class ViewController: UIViewController {
 		label.textColor = UIColor.blackColor()
 		view.addSubview(label)
 		
-		let tapRecognizer = UITapGestureRecognizer(target: self, action: "animate:")
+		let tapRecognizer = UITapGestureRecognizer(target: self, action: "animateTimeline:")
 		view.addGestureRecognizer(tapRecognizer)
 		
 		originalSquareFrame = square.frame
@@ -101,17 +101,41 @@ class ViewController: UIViewController {
 //		move.ease(Easing.inOutQuart).delay(delay).stagger(0.1).play()
 	}
 	
-	func animateTimeline() {
+	func animateTimeline(gestureRecognizer: UITapGestureRecognizer) {
 		let duration: CFTimeInterval = 1
 		let delay: CFTimeInterval = 0
 		reset()
 		
 		let move = Motion.to(square, duration: duration, options: [.Shift(100, 100), .Width(200)])
-		move.ease(Easing.inOutQuart).delay(delay)
+		move.ease(Easing.inOutQuart).delay(delay).onStart({ () -> Void in
+			print("move started")
+		}).onUpdate({ () -> Void in
+//			print("move time: \(move.totalTime)")
+		}).onComplete { () -> Void in
+			print("move done")
+		}
+		
+		let move2 = Motion.to(square2, duration: duration, options: [.Shift(-100, 0)])
+		move2.spring(tension: 70, friction: 10).delay(delay).onStart({ () -> Void in
+			print("move2 started")
+		}).onComplete { () -> Void in
+			print("move2 done")
+		}
 		
 		let timeline = Timeline()
-		timeline.add(move, position: 0)
+		timeline.add(move, position: 1)
+		timeline.add(move2, position: 1.5)
+		timeline.addLabel("testPosition", position: 1.5)
+		timeline.onStart { () -> Void in
+			print("timeline started")
+		}.onComplete { () -> Void in
+			print("timeline done")
+		}
+		
+//		timeline.seekToLabel("testPosition", pause: false)
 		timeline.play()
+		
+		print("timeline.endTime: \(timeline.endTime)")
 	}
 	
 	func reset() {

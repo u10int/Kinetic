@@ -11,7 +11,7 @@ import UIKit
 public class TweenManager {
 	public static let sharedInstance = TweenManager()
 	
-	var tweens = [UInt32: Tween]()
+	var tweens = [UInt32: Animation]()
 	var counter: UInt32
 	
 	private var displayLink: CADisplayLink?
@@ -26,7 +26,7 @@ public class TweenManager {
 	
 	// MARK: Public Methods
 	
-	func add(tween: Tween) {
+	func add(tween: Animation) {
 		objc_sync_enter(self)
 		defer {
 			objc_sync_exit(self)
@@ -66,7 +66,7 @@ public class TweenManager {
 		self.displayLink = nil
 	}
 	
-	func remove(tween: Tween) {
+	func remove(tween: Animation) {
 		tweens[tween.id] = nil
 		
 		if tweens.count == 0 {

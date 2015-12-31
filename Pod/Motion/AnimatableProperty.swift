@@ -61,6 +61,7 @@ public class AnimatableProperty {
 	
 	func seek(time: CFTimeInterval) {
 		elapsed = delay + time
+		proceed(0)
 	}
 	
 	func prepare() {
