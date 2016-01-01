@@ -119,6 +119,22 @@ public class Timeline: Animation {
 		return self
 	}
 	
+	override public func pause() {
+		super.pause()
+		
+		for tween in tweens {
+			tween.pause()
+		}
+	}
+	
+	override public func resume() {
+		super.resume()
+		
+		for tween in tweens {
+			tween.resume()
+		}
+	}
+	
 	override public func seek(time: CFTimeInterval) -> Timeline {
 		super.seek(time)
 		

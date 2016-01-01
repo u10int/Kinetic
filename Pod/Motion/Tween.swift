@@ -127,6 +127,7 @@ public class Tween: Animation {
 			prop.reset()
 			prop.calc()
 		}
+		run()
 	}
 	
 	override public func kill() {
@@ -177,21 +178,29 @@ public class Tween: Animation {
 		guard !active else { return self }
 		
 		super.play()
-		TweenManager.sharedInstance.add(self)
+		
+		for prop in properties {
+			prop.reset()
+			prop.calc()
+		}
+		run()
 		
 		return self
 	}
 	
-//	override public func reverse() -> Tween {
-//		super.reverse()
-//		
-//		// update property direction to match tween direction
-//		for prop in properties {
-//			prop.reverse(true)
-//		}
-//		
-//		return self
-//	}
+	override public func reverse() -> Tween {
+		super.reverse()
+		run()
+		
+		return self
+	}
+	
+	override public func forward() -> Animation {
+		super.forward()
+		run()
+		
+		return self
+	}
 	
 	override public func seek(time: CFTimeInterval) -> Tween {
 		elapsed += delay + staggerDelay + time
@@ -285,7 +294,6 @@ public class Tween: Animation {
 				prop.prepare()
 			}
 			if prop.proceed(dt, reversed: reversed) {
-//				print("DONE: prop=\(prop), repeatCount=\(repeatCount), cycle=\(cycle)")
 //				if repeatForever || (repeatCount > 0 && cycle < repeatCount) {
 //					shouldRepeat = true
 //					cycle++
@@ -328,6 +336,11 @@ public class Tween: Animation {
 	}
 	
 	// MARK: Private Methods
+	
+	private func run() {
+		running = true
+		TweenManager.sharedInstance.add(self)
+	}
 	
 	private func setupProperties(props: [Property], mode: TweenMode) {		
 		for prop in props {

@@ -95,8 +95,13 @@ public class Animation: NSObject {
 			return self
 		}
 		running = true
+		elapsed = 0
 		
 		return self
+	}
+	
+	public func stop() {
+		kill()
 	}
 	
 	public func pause() {
@@ -116,14 +121,14 @@ public class Animation: NSObject {
 	
 	public func forward() -> Animation {
 		_reversed = false
-		play()
+//		play()
 		
 		return self
 	}
 	
 	public func reverse() -> Animation {
 		_reversed = true
-		play()
+//		play()
 		
 		return self
 	}
