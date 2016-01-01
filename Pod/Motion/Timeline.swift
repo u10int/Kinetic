@@ -8,6 +8,12 @@
 
 import UIKit
 
+public enum TweenAlign {
+	case Normal
+	case Sequence
+	case Start
+}
+
 public class Timeline: Animation {
 	public var tweens = [Tween]()
 	override var endTime: CFTimeInterval {
@@ -34,44 +40,62 @@ public class Timeline: Animation {
 	
 	// MARK: Lifecycle
 	
-	convenience init(tweens: [Tween]?) {
+	convenience init(tweens: [Tween], align: TweenAlign = .Normal) {
 		self.init()
-		
-		if let tweens = tweens {
-			for tween in tweens {
-				add(tween)
-			}
-		}
+		add(tweens, position: 0, align: align)
 	}
 	
 	// MARK: Public Methods
 	
-	public func add(tween: Tween) {
+	public func add(tween: Tween) -> Timeline {
 		add(tween, position: endTime)
+		return self
 	}
 	
-	public func add(tween: Tween, position: AnyObject) {
+	public func add(value: AnyObject, position: AnyObject, align: TweenAlign = .Normal) -> Timeline {
+		var tweensToAdd = [Tween]()
+		if let tween = value as? Tween {
+			tweensToAdd.append(tween)
+		} else if let items = value as? [Tween] {
+			tweensToAdd = items
+		} else {
+			assert(false, "Only a single Tween instance or an array of Tween instances can be provided")
+			return self
+		}
+		
 		var pos: CFTimeInterval = 0
-		
-		if let time = position as? CFTimeInterval {
-			pos = time
-		} else if let label = position as? NSString {
-			pos = timeFromString(label, relativeToTime: endTime)
+		for (idx, tween) in tweensToAdd.enumerate() {
+			if idx == 0 {
+				if let time = position as? CFTimeInterval {
+					pos = time
+				} else if let label = position as? NSString {
+					pos = timeFromString(label, relativeToTime: endTime)
+				}
+			}
+			if align != .Start {
+				pos += tween.delay
+			}
+			tween.startTime = pos
+			
+			if align == .Sequence {
+				pos += tween.totalDuration
+			}
+			
+			// remove tween from existing timeline (if `timeline` is not nil)... assign timeline to this
+			if let timeline = tween.timeline {
+				timeline.remove(tween)
+			}
+			tween.timeline = self
+			tweens.append(tween)
+			
+			// assign references to prev and next tweens...
+			
 		}
-		tween.startTime = pos + tween.delay
 		
-		// remove tween from existing timeline (if `timeline` is not nil)... assign timeline to this
-		if let timeline = tween.timeline {
-			timeline.remove(tween)
-		}
-		tween.timeline = self
-		tweens.append(tween)
-		
-		// assign references to prev and next tweens...
-		
+		return self
 	}
 	
-	public func add(tween: Tween, relativeToLabel label: String, offset: CFTimeInterval) {
+	public func add(tween: Tween, relativeToLabel label: String, offset: CFTimeInterval) -> Timeline {
 		if labels[label] == nil {
 			addLabel(label)
 		}
@@ -79,9 +103,11 @@ public class Timeline: Animation {
 		if let position = labels[label] {
 			add(tween, position: position + offset)
 		}
+		
+		return self
 	}
 	
-	public func addLabel(label: String, position: AnyObject = 0) {
+	public func addLabel(label: String, position: AnyObject = 0) -> Timeline {
 		var pos: CFTimeInterval = 0
 		
 		if let time = position as? CFTimeInterval {
@@ -91,6 +117,8 @@ public class Timeline: Animation {
 		}
 		
 		labels[label] = pos
+		
+		return self
 	}
 	
 	public func removeLabel(label: String) {
