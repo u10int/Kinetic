@@ -186,6 +186,84 @@ public class ValueProperty: AnimatableProperty {
 	}
 }
 
+public class StructProperty: ValueProperty {
+	var currentFrame: CGRect? {
+		get {
+			if let view = target as? UIView {
+				return view.frame
+			} else if let layer = target as? CALayer {
+				return layer.frame
+			}
+			return nil
+		}
+	}
+	var currentValue: CGFloat? {
+		get {
+			if let frame = currentFrame, prop = property {
+				switch prop {
+				case .X(_):
+					return CGRectGetMinX(frame)
+				case .Y(_):
+					return CGRectGetMinY(frame)
+				case .Width(_):
+					return CGRectGetWidth(frame)
+				case .Height(_):
+					return CGRectGetHeight(frame)
+				default:
+					break
+				}
+			}
+			return nil
+		}
+	}
+	
+	override func prepare() {
+		if let value = currentValue {
+			if additive {
+				if mode == .To {
+					from = value
+				} else if mode == .From {
+					to = value
+				}
+			}
+		}
+		super.prepare()
+	}
+	
+	override func update() {
+		let value = lerpFloat(from, to: to)
+		updateTarget(value)
+	}
+	
+	override func reset() {
+		super.reset()
+		updateTarget(_from)
+	}
+	
+	private func updateTarget(value: CGFloat) {
+		if var frame = currentFrame, let prop = property {
+			switch prop {
+			case .X(_):
+				frame.origin.x = value
+			case .Y(_):
+				frame.origin.y = value
+			case .Width(_):
+				frame.size.width = value
+			case .Height(_):
+				frame.size.height = value
+			default:
+				break
+			}
+			
+			if let view = target as? UIView {
+				return view.frame = frame
+			} else if let layer = target as? CALayer {
+				return layer.frame = frame
+			}
+		}
+	}
+}
+
 public class PointProperty: AnimatableProperty {
 	var from: CGPoint = CGPointZero
 	var to: CGPoint = CGPointZero

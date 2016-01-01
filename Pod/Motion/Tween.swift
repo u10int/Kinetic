@@ -34,7 +34,11 @@ public enum TweenMode {
 }
 
 private enum PropertyKey: String {
+	case X = "frame.origin.x"
+	case Y = "frame.origin.y"
 	case Position = "frame.origin"
+	case Width = "frame.size.width"
+	case Height = "frame.size.height"
 	case Size = "frame.size"
 	case Frame = "frame"
 	case Transform = "transform"
@@ -350,19 +354,19 @@ public class Tween: Animation {
 			
 			switch prop {
 			case .X(let x):
-				if let point = propObj as? PointProperty {
+				if let point = propObj as? StructProperty {
 					if mode == .From {
-						point.from.x = x
+						point.from = x
 					} else {
-						point.to.x = x
+						point.to = x
 					}
 				}
 			case .Y(let y):
-				if let point = propObj as? PointProperty {
+				if let point = propObj as? StructProperty {
 					if mode == .From {
-						point.from.y = y
+						point.from = y
 					} else {
-						point.to.y = y
+						point.to = y
 					}
 				}
 			case .Position(let x, let y):
@@ -384,19 +388,19 @@ public class Tween: Animation {
 					}
 				}
 			case .Width(let width):
-				if let size = propObj as? SizeProperty {
+				if let size = propObj as? StructProperty {
 					if mode == .From {
-						size.from.width = width
+						size.from = width
 					} else {
-						size.to.width = width
+						size.to = width
 					}
 				}
 			case .Height(let height):
-				if let size = propObj as? SizeProperty {
+				if let size = propObj as? StructProperty {
 					if mode == .From {
-						size.from.height = height
+						size.from = height
 					} else {
-						size.to.height = height
+						size.to = height
 					}
 				}
 			case .Size(let width, let height):
@@ -526,8 +530,16 @@ public class Tween: Animation {
 			propKey = PropertyKey.Alpha.rawValue
 		case .BackgroundColor(_):
 			propKey = PropertyKey.BackgroundColor.rawValue
-		case .Position(_, _), .X(_), .Y(_), .Shift(_, _):
+		case .X(_):
+			propKey = PropertyKey.X.rawValue
+		case .Y(_):
+			propKey = PropertyKey.Y.rawValue
+		case .Position(_, _), .Shift(_, _):
 			propKey = PropertyKey.Position.rawValue
+		case .Width(_):
+			propKey = PropertyKey.Width.rawValue
+		case .Height(_):
+			propKey = PropertyKey.Height.rawValue
 		case .Size(_, _), .Width(_), .Height(_):
 			propKey = PropertyKey.Size.rawValue
 		default:
@@ -559,6 +571,26 @@ public class Tween: Animation {
 				case PropertyKey.BackgroundColor.rawValue:
 					if let target = target, color = targetColor(target, keyPath: "backgroundColor") {
 						prop = ColorProperty(target: target, property: "backgroundColor", from: color, to: color)
+					}
+				case PropertyKey.X.rawValue:
+					if let target = target, frame = targetFrame(target) {
+						let value = CGRectGetMinX(frame)
+						prop = StructProperty(target: target, from: value, to: value)
+					}
+				case PropertyKey.Y.rawValue:
+					if let target = target, frame = targetFrame(target) {
+						let value = CGRectGetMinY(frame)
+						prop = StructProperty(target: target, from: value, to: value)
+					}
+				case PropertyKey.Width.rawValue:
+					if let target = target, frame = targetFrame(target) {
+						let value = CGRectGetWidth(frame)
+						prop = StructProperty(target: target, from: value, to: value)
+					}
+				case PropertyKey.Height.rawValue:
+					if let target = target, frame = targetFrame(target) {
+						let value = CGRectGetHeight(frame)
+						prop = StructProperty(target: target, from: value, to: value)
 					}
 				default:
 					if let target = target as? NSObject, value = target.valueForKeyPath(key) as? CGFloat {
