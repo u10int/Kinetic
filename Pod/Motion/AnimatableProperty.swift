@@ -364,6 +364,68 @@ public class SizeProperty: AnimatableProperty {
 	}
 }
 
+public class RectProperty: AnimatableProperty {
+	var from: CGRect = CGRectZero
+	var to: CGRect = CGRectZero
+	var toCalc: CGRect = CGRectZero
+	var currentRect: CGRect? {
+		get {
+			if let view = target as? UIView {
+				return view.frame
+			} else if let layer = target as? CALayer {
+				return layer.frame
+			}
+			return nil
+		}
+	}
+	
+	private var _from: CGRect = CGRectZero
+	private var _to: CGRect = CGRectZero
+	
+	init(target: AnyObject, from: CGRect, to: CGRect) {
+		super.init(target: target)
+		self.from = from
+		self.to = to
+		self._from = from
+		self._to = to
+	}
+	
+	override func calc() {
+		toCalc = to
+	}
+	
+	override func prepare() {
+		if additive {
+			if let size = currentRect {
+				if mode == .To {
+					from = size
+				} else if mode == .From {
+					to = size
+				}
+			}
+		}
+		super.prepare()
+	}
+	
+	override func update() {
+		let size = lerpRect(from, to: to)
+		updateTarget(size)
+	}
+	
+	override func reset() {
+		super.reset()
+		updateTarget(_from)
+	}
+	
+	private func updateTarget(value: CGRect) {
+		if let view = target as? UIView {
+			view.frame = value
+		} else if let layer = target as? CALayer {
+			layer.frame = value
+		}
+	}
+}
+
 public class TransformProperty: AnimatableProperty {
 	var from: CATransform3D = CATransform3DIdentity
 	var to: CATransform3D = CATransform3DIdentity

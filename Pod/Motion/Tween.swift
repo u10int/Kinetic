@@ -36,6 +36,7 @@ public enum TweenMode {
 private enum PropertyKey: String {
 	case Position = "frame.origin"
 	case Size = "frame.size"
+	case Frame = "frame"
 	case Transform = "transform"
 	case Alpha = "alpha"
 	case BackgroundColor = "backgroundColor"
@@ -482,6 +483,19 @@ public class Tween: Animation {
 				}
 			}
 		}
+		
+		// if we have both a SizeProperty and PositionProperty, merge them into a single FrameProperty
+		if let size = propertiesByType[PropertyKey.Size.rawValue] as? SizeProperty, origin = propertiesByType[PropertyKey.Position.rawValue] as? PointProperty, target = target, frame = targetFrame(target) {
+			let prop = RectProperty(target: target, from: frame, to: frame)
+			prop.from = CGRect(origin: origin.from, size: size.from)
+			prop.to = CGRect(origin: origin.to, size: size.to)
+			propertiesByType[PropertyKey.Frame.rawValue] = prop
+			
+			// delete size and position properties from cache
+			propertiesByType[PropertyKey.Size.rawValue] = nil
+			propertiesByType[PropertyKey.Position.rawValue] = nil
+		}
+		
 	}
 	
 	private func resolvedPropertyTypeForType(type: Property) -> Property {
