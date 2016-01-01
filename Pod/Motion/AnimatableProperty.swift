@@ -25,6 +25,7 @@ public class AnimatableProperty {
 	weak var target: AnyObject!
 	weak var group: TweenGroup!
 	
+	var property: Property?
 	var mode: TweenMode = .To
 	var duration: CFTimeInterval = 1
 	var delay: CFTimeInterval = 0
@@ -69,11 +70,6 @@ public class AnimatableProperty {
 	func prepare() {
 		calc()
 	}
-	
-//	func reverse(reverse: Bool) {
-//		reset()
-//		calc()
-//	}
 	
 	func reset() {
 		elapsed = 0
@@ -188,18 +184,6 @@ public class ValueProperty: AnimatableProperty {
 //		toCalc = from + to
 		toCalc = to
 	}
-	
-//	override func reverse(reverse: Bool) {
-//		if reverse {
-//			from = _to
-//			to = _from
-//		} else {
-//			from = _from
-//			to = _to
-//		}
-//		
-//		super.reverse(reverse)
-//	}
 }
 
 public class PointProperty: AnimatableProperty {
@@ -234,34 +218,40 @@ public class PointProperty: AnimatableProperty {
 	}
 	
 	override func prepare() {
-		if additive {
-			if let size = currentOrigin {
+		if let origin = currentOrigin, prop = property {
+			if additive {
 				if mode == .To {
-					from = size
+					from = origin
 				} else if mode == .From {
-					to = size
+					to = origin
+				}
+				
+				switch prop {
+				case .X(_):
+					if mode == .To {
+						to.y = origin.y
+					} else {
+						from.y = origin.y
+					}
+				case .Y(_):
+					if mode == .To {
+						to.x = origin.x
+					} else {
+						from.x = origin.x
+					}
+				case .Shift(let shiftX, let shiftY):
+					if mode == .To {
+						to = CGPoint(x: origin.x + shiftX, y: origin.y + shiftY)
+					} else {
+						from = CGPoint(x: origin.x + shiftX, y: origin.y + shiftY)
+					}
+				default:
+					break
 				}
 			}
 		}
-		
-		// cache original values to account for reversed tweens
-//		self._from = from
-//		self._to = to
-		
 		super.prepare()
 	}
-	
-//	override func reverse(reverse: Bool) {
-//		if reverse {
-//			from = _to
-//			to = _from
-//		} else {
-//			from = _from
-//			to = _to
-//		}
-//		
-//		super.reverse(reverse)
-//	}
 	
 	override func update() {
 		let point = lerpPoint(from, to: to)
@@ -314,36 +304,34 @@ public class SizeProperty: AnimatableProperty {
 	}
 	
 	override func prepare() {
-		if additive {
-			if let size = currentSize {
+		if let size = currentSize, prop = property {
+			if additive {
 				if mode == .To {
 					from = size
 				} else if mode == .From {
 					to = size
 				}
+				
+				switch prop {
+				case .Width(_):
+					if mode == .To {
+						from.height = size.height
+					} else {
+						to.height = size.height
+					}
+				case .Height(_):
+					if mode == .To {
+						from.width = size.width
+					} else {
+						to.width = size.width
+					}
+				default:
+					break
+				}
 			}
 		}
-		
-		// cache original values to account for reversed tweens
-//		self._from = from
-//		self._to = to
-		
 		super.prepare()
 	}
-	
-//	override func reverse(reverse: Bool) {
-//		if reverse {
-//			from = _to
-//			to = _from
-//		} else {
-//			from = _from
-//			to = _to
-//		}
-//		
-//		print("PROP.reverse - reversed: \(reverse), from: \(from), to: \(to)")
-//		
-//		super.reverse(reverse)
-//	}
 	
 	override func update() {
 		let size = lerpSize(from, to: toCalc)
@@ -472,25 +460,8 @@ public class TransformProperty: AnimatableProperty {
 				toCalc = to
 			}
 		}
-		
-		// cache original values to account for reversed tweens
-//		self._from = from
-//		self._to = to
-		
 		super.prepare()
 	}
-	
-//	override func reverse(reverse: Bool) {
-//		if reverse {
-//			from = _to
-//			to = _from
-//		} else {
-//			from = _from
-//			to = _to
-//		}
-//		
-//		super.reverse(reverse)
-//	}
 	
 	override func update() {
 		let transform = lerpTransform(from, to: toCalc)
@@ -512,14 +483,14 @@ public class TransformProperty: AnimatableProperty {
 }
 
 public class ColorProperty: AnimatableProperty {
-	var property: String
+	var keyPath: String
 	var from: UIColor = UIColor.blackColor()
 	var to: UIColor = UIColor.blackColor()
 	var toCalc: UIColor = UIColor.blackColor()
 	var currentColor: UIColor? {
 		get {
-			if target.respondsToSelector(Selector(property)) {
-				if let color = target.valueForKeyPath(property) as? UIColor {
+			if target.respondsToSelector(Selector(keyPath)) {
+				if let color = target.valueForKeyPath(keyPath) as? UIColor {
 					return color
 				}
 			}
@@ -531,7 +502,7 @@ public class ColorProperty: AnimatableProperty {
 	private var _to: UIColor = UIColor.blackColor()
 	
 	init(target: AnyObject, property: String, from: UIColor, to: UIColor) {
-		self.property = property
+		self.keyPath = property
 		super.init(target: target)
 		
 		if let target = target as? NSObject {
@@ -574,7 +545,7 @@ public class ColorProperty: AnimatableProperty {
 	
 	private func updateTarget(value: UIColor) {
 		if let target = target as? NSObject {
-			target.setValue(value, forKeyPath: property)
+			target.setValue(value, forKeyPath: keyPath)
 		}
 	}
 }

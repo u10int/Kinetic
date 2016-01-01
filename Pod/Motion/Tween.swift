@@ -2,7 +2,7 @@
 //  Tween.swift
 //  Tween
 //
-//  Created by Nicholas Shipes on 10/22/15.
+//  Created by Nicholas Shipes on 12/18/15.
 //  Copyright © 2015 Urban10 Interactive, LLC. All rights reserved.
 //
 
@@ -343,7 +343,7 @@ public class Tween: Animation {
 		TweenManager.sharedInstance.add(self)
 	}
 	
-	private func setupProperties(props: [Property], mode: TweenMode) {		
+	private func setupProperties(props: [Property], mode: TweenMode) {
 		for prop in props {
 			print("adding property for \(prop)")
 			let propObj = propertyForType(prop)
@@ -566,6 +566,7 @@ public class Tween: Animation {
 					}
 				}
 				
+				prop?.property = type
 				propertiesByType[key] = prop
 			}
 			
