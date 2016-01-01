@@ -70,19 +70,19 @@ class ViewController: UIViewController {
 		move.ease(Easing.inOutQuart).delay(delay).play()
 //		move.spring(tension: 70, friction: 10).play()
 //
-//		var timer: CFTimeInterval = 0
-//		var startTimer: CFTimeInterval = 0
-//		let resize = Motion.to(square, duration: duration, options: [.Scale(0.5), .Rotate(CGFloat(M_PI_4))])
-//		resize.ease(Easing.inOutQuart).delay(delay + duration).onStart { () -> Void in
-//			print("started")
-//			startTimer = CACurrentMediaTime()
-//			timer = CACurrentMediaTime()
-//		}.onUpdate({ () -> Void in
-//			timer = CACurrentMediaTime()
-//		}).onComplete { () -> Void in
-//			print("completed: diff=\(timer - startTimer)")
-//		}.yoyo().repeatCount(4).play()
-//		print("TWEEN: start=\(resize.startTime), end=\(resize.endTime), total=\(resize.totalDuration)")
+		var timer: CFTimeInterval = 0
+		var startTimer: CFTimeInterval = 0
+		let resize = Motion.to(square, duration: duration, options: [.Scale(0.5), .Rotate(CGFloat(M_PI_4))])
+		resize.ease(Easing.inOutQuart).delay(delay + duration).onStart { () -> Void in
+			print("started")
+			startTimer = CACurrentMediaTime()
+			timer = CACurrentMediaTime()
+		}.onUpdate({ () -> Void in
+			timer = CACurrentMediaTime()
+		}).onComplete { () -> Void in
+			print("completed: diff=\(timer - startTimer)")
+		}.yoyo().repeatCount(4).play()
+		print("TWEEN: start=\(resize.startTime), end=\(resize.endTime), total=\(resize.totalDuration)")
 		
 		
 		
@@ -106,7 +106,7 @@ class ViewController: UIViewController {
 		let delay: CFTimeInterval = 0
 		reset()
 		
-		let move = Motion.to(square, duration: duration, options: [.Shift(100, 100), .Width(200)])
+		let move = Motion.to(square, duration: duration, options: [.Shift(100, 100), .Width(200), .Alpha(0.3)])
 		move.ease(Easing.inOutQuart).delay(delay).onStart({ () -> Void in
 			print("move started")
 		}).onUpdate({ () -> Void in
@@ -116,7 +116,7 @@ class ViewController: UIViewController {
 		}
 		
 		let move2 = Motion.to(square2, duration: duration, options: [.Shift(-100, 0)])
-		move2.spring(tension: 70, friction: 10).delay(delay).onStart({ () -> Void in
+		move2.ease(Easing.inOutQuart).delay(delay).onStart({ () -> Void in
 			print("move2 started")
 		}).onComplete { () -> Void in
 			print("move2 done")
@@ -126,21 +126,31 @@ class ViewController: UIViewController {
 		timeline.add(move, position: 1)
 		timeline.add(move2, position: 1.5)
 		timeline.addLabel("testPosition", position: 1.5)
+		
+		var timer: CFTimeInterval = 0
+		var started: CFTimeInterval = 0
 		timeline.onStart { () -> Void in
 			print("timeline started")
+			started = CACurrentMediaTime()
+			timer = CACurrentMediaTime()
 		}.onComplete { () -> Void in
-			print("timeline done")
+			timer = CACurrentMediaTime()
+			print("timeline done, diff=\(timer - started)")
 		}
+		timeline.repeatCount(2).yoyo()
 		
 //		timeline.seekToLabel("testPosition", pause: false)
 		timeline.play()
 		
-		print("timeline.endTime: \(timeline.endTime)")
+		print("timeline.endTime: \(timeline.endTime), totalDuration: \(timeline.totalDuration)")
 	}
 	
 	func reset() {
+		square.alpha = 1
 		square.layer.transform = CATransform3DIdentity
 		square.frame = originalSquareFrame
+		
+		square2.alpha = 1
 		square2.layer.transform = CATransform3DIdentity
 		square2.frame = originalSquare2Frame
 		

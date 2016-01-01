@@ -26,7 +26,7 @@ public class Timeline: Animation {
 	}
 	override var totalDuration: CFTimeInterval {
 		get {
-			return (duration * CFTimeInterval(repeatCount + 1)) + (repeatDelay * CFTimeInterval(repeatCount))
+			return (endTime * CFTimeInterval(repeatCount + 1)) + (repeatDelay * CFTimeInterval(repeatCount))
 		}
 	}
 	
@@ -107,12 +107,11 @@ public class Timeline: Animation {
 	// MARK: Animation
 	
 	override public func play() -> Timeline {
-		if running {
-			return self
-		}
-		running = true
+		guard !active else { return self }
 		
+		super.play()
 		TweenManager.sharedInstance.add(self)
+		
 		for tween in tweens {
 			tween.play()
 		}
@@ -120,7 +119,7 @@ public class Timeline: Animation {
 		return self
 	}
 	
-	override public func seek(time: CFTimeInterval) -> Animation {
+	override public func seek(time: CFTimeInterval) -> Timeline {
 		super.seek(time)
 		
 		for tween in tweens {
@@ -132,19 +131,42 @@ public class Timeline: Animation {
 		return self
 	}
 	
-	override public func restart(includeDelay: Bool) {
+	override public func reverse() -> Timeline {
+		super.reverse()
 		
+		for tween in tweens {
+			tween.reverse()
+		}
+		
+		return self
+	}
+	
+	override public func forward() -> Timeline {
+		super.forward()
+		
+		for tween in tweens {
+			tween.forward()
+		}
+		
+		return self
+	}
+	
+	override public func restart(includeDelay: Bool) {
+		super.restart(includeDelay)
+		
+		for tween in tweens {
+			tween.restart(includeDelay)
+		}
 	}
 	
 	override public func kill() {
-		running = false
-		animating = false
+		super.kill()
 		TweenManager.sharedInstance.remove(self)
 	}
 	
 	// MARK: Internal Methods
 	
-	override func proceed(dt: CFTimeInterval, force: Bool = false) -> Bool {
+	override func proceed(var dt: CFTimeInterval, force: Bool = false) -> Bool {
 		if !running {
 			return true
 		}
@@ -152,31 +174,35 @@ public class Timeline: Animation {
 			return false
 		}
 		
+		if reversed {
+			dt *= -1
+		}
 		elapsed += dt
-		print(elapsed)
 		
 		if elapsed < (delay + repeatDelay) {
-			return false
+			if reversed {
+				return completed()
+			} else {
+				return false
+			}
 		}
 		
 		var done = true
 		if !animating {
-			animating = true
-			startBlock?()
+			started()
 		}
 		
 		for tween in tweens {
-			if tween.running {
+			if tween.active {
 				done = false
 			}
 		}
 		
+		// make sure we don't consider timeline done if we currently don't have any tweens playing
+		done = (elapsed <= delay || elapsed >= endTime)
 		if done {
-			animating = false
-			completionBlock?()
-			return true
+			return completed()
 		}
-		
 		return false
 	}
 }

@@ -9,15 +9,28 @@
 import UIKit
 
 public class Animation: NSObject {
-	var id: UInt32 = 0
-	
-	public var running = false
+	public var active: Bool {
+		get {
+			return running
+		}
+	}
 	public var paused = false
-	public var animating = false
+	public var animating: Bool {
+		get {
+			return _animating
+		}
+	}
+	public var reversed: Bool {
+		get {
+			return _reversed
+		}
+	}
 	public var delay: CFTimeInterval = 0
 	public var duration: CFTimeInterval = 1.0
 	public var repeatCount: Int = 0
 	
+	var id: UInt32 = 0
+	var running = false
 	var startTime: CFTimeInterval = 0
 	var endTime: CFTimeInterval {
 		get {
@@ -43,6 +56,10 @@ public class Animation: NSObject {
 	var updateBlock: (() -> Void)?
 	var completionBlock: (() -> Void)?
 	var repeatBlock: (() -> Void)?
+	
+	private var cycle: Int = 0
+	private var _animating = false
+	private var _reversed = false
 	
 	// MARK: Options
 	
@@ -84,12 +101,12 @@ public class Animation: NSObject {
 	
 	public func pause() {
 		paused = true
-		animating = false
+		_animating = false
 	}
 	
 	public func resume() {
 		paused = false
-		animating = false
+		_animating = false
 	}
 	
 	public func seek(time: CFTimeInterval) -> Animation {
@@ -97,12 +114,36 @@ public class Animation: NSObject {
 		return self
 	}
 	
-	public func restart(includeDelay: Bool = false) {
+	public func forward() -> Animation {
+		_reversed = false
+		play()
 		
+		return self
+	}
+	
+	public func reverse() -> Animation {
+		_reversed = true
+		play()
+		
+		return self
+	}
+	
+	public func restart(includeDelay: Bool = false) {
+		elapsed = includeDelay ? 0 : delay
+		play()
+	}
+	
+	public func progress() -> CGFloat {
+		return CGFloat(elapsed / (delay + duration))
+	}
+	
+	public func time() -> CFTimeInterval {
+		return totalTime - (CFTimeInterval(cycle) * (duration + repeatDelay))
 	}
 	
 	public func kill() {
-		
+		running = false
+		_animating = false
 	}
 	
 	// MARK: Event Handlers
@@ -129,7 +170,7 @@ public class Animation: NSObject {
 	
 	// MARK: Internal Methods
 	
-	func proceed(dt: CFTimeInterval, force: Bool = false) -> Bool {
+	func proceed(var dt: CFTimeInterval, force: Bool = false) -> Bool {
 		if !running {
 			return true
 		}
@@ -137,8 +178,49 @@ public class Animation: NSObject {
 			return false
 		}
 		
+		if reversed {
+			dt *= -1
+		}
 		elapsed += dt
 		
 		return false
+	}
+	
+	func started() {
+		_animating = true
+		startBlock?()
+	}
+	
+	func completed() -> Bool {
+		var shouldRepeat = false
+		print("DONE: repeatCount=\(repeatCount), cycle=\(cycle)")
+		if repeatForever || (repeatCount > 0 && cycle < repeatCount) {
+			shouldRepeat = true
+			cycle++
+		}
+		
+		if shouldRepeat {
+			repeatBlock?()
+			if reverseOnComplete {
+				if reversed {
+					forward()
+				} else {
+					reverse()
+				}
+			} else {
+				restart()
+			}
+		} else {
+			_animating = false
+			running = false
+			completionBlock?()
+			return true
+		}
+		
+		return false
+	}
+	
+	func repeated() {
+		
 	}
 }

@@ -43,12 +43,7 @@ private enum PropertyKey: String {
 
 public class Tween: Animation {
 	weak var target: AnyObject?
-	
-	public var active = false
-//	var running = false
-//	var paused = false
-//	var animating = false
-//	public var delay: CFTimeInterval = 0
+
 	override public var duration: CFTimeInterval {
 		didSet {
 			for prop in properties {
@@ -57,6 +52,7 @@ public class Tween: Animation {
 			group?.duration = duration
 		}
 	}
+	
 //	var repeatCount: Int = 0
 	var group: TweenGroup?
 	var properties = [AnimatableProperty]()
@@ -70,10 +66,8 @@ public class Tween: Animation {
 //	var elapsed: CFTimeInterval = 0
 	var timeline: Timeline?
 	private var timeScale: Float = 1
-	
-	private var reversed = false
 	private var staggerDelay: CFTimeInterval = 0
-	private var cycle: Int = 0
+//	private var cycle: Int = 0
 //	private var repeatForever = false
 //	private var repeatDelay: CFTimeInterval = 0
 //	private var reverseOnComplete = false
@@ -127,8 +121,8 @@ public class Tween: Animation {
 	}
 	
 	override public func restart(includeDelay: Bool = false) {
-		elapsed = includeDelay ? 0 : delay
-		reversed = false
+		super.restart(includeDelay)
+		
 		for prop in properties {
 			prop.reset()
 			prop.calc()
@@ -136,8 +130,7 @@ public class Tween: Animation {
 	}
 	
 	override public func kill() {
-		running = false
-		animating = false
+		super.kill()
 		TweenManager.sharedInstance.remove(self)
 	}
 	
@@ -181,24 +174,23 @@ public class Tween: Animation {
 	}
 	
 	override public func play() -> Tween {
-		if running {
-			return self
-		}
+		guard !active else { return self }
 		
-		running = true
+		super.play()
 		TweenManager.sharedInstance.add(self)
 		
 		return self
 	}
 	
-//	public func pause() {
-//		paused = true
-//		animating = false
-//	}
-//	
-//	public func resume() {
-//		paused = false
-//		animating = false
+//	override public func reverse() -> Tween {
+//		super.reverse()
+//		
+//		// update property direction to match tween direction
+//		for prop in properties {
+//			prop.reverse(true)
+//		}
+//		
+//		return self
 //	}
 	
 	override public func seek(time: CFTimeInterval) -> Tween {
@@ -207,14 +199,6 @@ public class Tween: Animation {
 			prop.seek(time)
 		}
 		return self
-	}
-	
-	public func progress() -> CGFloat {
-		return CGFloat(elapsed / (delay + duration))
-	}
-	
-	public func time() -> CFTimeInterval {
-		return totalTime - (CFTimeInterval(cycle) * (duration + repeatDelay))
 	}
 	
 	public func updateTo(options: [Property], restart: Bool = false) {
@@ -244,13 +228,12 @@ public class Tween: Animation {
 		if target is UIView || target is CALayer {
 			
 		}
-		
 //		restart(true)
 		
 		group?.prepare()
 	}
 	
-	override func proceed(dt: CFTimeInterval, force: Bool = false) -> Bool {
+	override func proceed(var dt: CFTimeInterval, force: Bool = false) -> Bool {
 		if target == nil || !running {
 			return true
 		}
@@ -263,60 +246,83 @@ public class Tween: Animation {
 		
 		// if tween belongs to a timeline, don't start animating until the timeline's playhead reaches the tween's startTime
 		if let timeline = timeline {
-			if timeline.totalTime < startTime {
+			if (!timeline.reversed && timeline.totalTime < startTime) || (timeline.reversed && timeline.totalTime > endTime) {
 				return false
 			}
 		}
 		
-		elapsed += dt
+		let end = delay + duration
+		if reversed {
+			dt *= -1
+		}
+		elapsed = min(elapsed + dt, end)
+		if elapsed < 0 {
+			elapsed = 0
+		}
+//		print("TWEEN - elapsed: \(elapsed), dt: \(dt), reversed: \(reversed)")
 		
-		if timeline == nil && elapsed < (delay + staggerDelay + repeatDelay) {
-			return false
+		let delayOffset = delay + staggerDelay + repeatDelay
+		if timeline == nil {
+			if elapsed < delayOffset {
+				// if direction is reversed, then don't allow playhead to go below the tween's delay and call completed handler
+				if reversed {
+					completed()
+				} else {
+					return false
+				}
+			}
 		}
 		
 		// now we can finally animate
 		if !animating {
-			animating = true
-			startBlock?()
+			started()
 		}
 		
-		var shouldRepeat = false
-		var done = false
-		
 		// proceed each property
+		var done = false
 		for prop in properties {
 			if needsPropertyPrep {
 				prop.prepare()
 			}
 			if prop.proceed(dt, reversed: reversed) {
-				print("DONE: prop=\(prop), repeatCount=\(repeatCount), cycle=\(cycle)")
-				if repeatForever || (repeatCount > 0 && cycle < repeatCount) {
-					shouldRepeat = true
-					cycle++
-				} else {
-					done = true
-				}
+//				print("DONE: prop=\(prop), repeatCount=\(repeatCount), cycle=\(cycle)")
+//				if repeatForever || (repeatCount > 0 && cycle < repeatCount) {
+//					shouldRepeat = true
+//					cycle++
+//				} else {
+//					done = true
+//				}
+				done = true
 			}
 		}
 		needsPropertyPrep = false
 		updateBlock?()
 		
-		if shouldRepeat {
-			repeatBlock?()
-			if reverseOnComplete {
-				reversed = !reversed
-				for prop in properties {
-					prop.reverse(reversed)
-				}
-			} else {
-				restart()
-			}
-		} else if done {
-			animating = false
-			running = false
-			completionBlock?()
-			return true
+		if done {
+			return completed()
 		}
+		
+//		if shouldRepeat {
+//			repeatBlock?()
+//			if reverseOnComplete {
+//				if reversed {
+//					play()
+//				} else {
+//					reverse()
+//				}
+//				print("reversed: \(reversed)")
+//				
+//				for prop in properties {
+//					prop.reverse(reversed)
+//				}
+//				
+//			} else {
+//				restart()
+//			}
+//		} else if done {
+//			completed()
+//			return true
+//		}
 		
 		return false
 	}
@@ -514,7 +520,8 @@ public class Tween: Animation {
 					}
 				case PropertyKey.Alpha.rawValue:
 					if let target = target, alpha = targetAlpha(target) {
-						prop = ValueProperty(target: target, from: alpha, to: alpha)
+						let key = (target is CALayer) ? "opacity" : "alpha"
+						prop = ObjectProperty(target: target, keyPath: key, from: alpha, to: alpha)
 					}
 				case PropertyKey.BackgroundColor.rawValue:
 					prop = nil

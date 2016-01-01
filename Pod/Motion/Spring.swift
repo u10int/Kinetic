@@ -80,4 +80,11 @@ class Spring {
 			proceedStep(dt)
 		}
 	}
+	
+	func reset() {
+		current = 0
+		velocity = 0
+		elapsed = 0
+		ended = false
+	}
 }

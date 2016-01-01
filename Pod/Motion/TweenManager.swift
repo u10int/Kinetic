@@ -27,6 +27,7 @@ public class TweenManager {
 	// MARK: Public Methods
 	
 	func add(tween: Animation) {
+		guard !contains(tween) else { return }
 		objc_sync_enter(self)
 		defer {
 			objc_sync_exit(self)
@@ -89,5 +90,20 @@ public class TweenManager {
 		if tweens.count == 0 {
 			stop()
 		}
+	}
+	
+	// MARK: Private Methods
+	
+	private func contains(animation: Animation) -> Bool {
+		var contains = false
+		
+		for (_, anim) in tweens {
+			if anim == animation {
+				contains = true
+				break
+			}
+		}
+		
+		return contains
 	}
 }

@@ -41,13 +41,15 @@ public class AnimatableProperty {
 	
 	func proceed(dt: CFTimeInterval, reversed: Bool = false) -> Bool {
 		self.dt = dt
-		
 		let end = delay + duration
-		if elapsed >= end && spring == nil {
+		
+		elapsed = min(elapsed + dt, end)
+		if elapsed < 0 { elapsed = 0 }
+
+		if spring == nil && (!reversed && elapsed >= end) || (reversed && elapsed <= 0) {
 			return true
 		}
 		
-		elapsed = min(elapsed + dt, end)
 		if elapsed >= delay {
 			current = CGFloat((elapsed - delay) / duration)
 			update()
@@ -68,14 +70,18 @@ public class AnimatableProperty {
 		calc()
 	}
 	
-	func reverse(reverse: Bool) {
-		reset()
-		calc()
-	}
+//	func reverse(reverse: Bool) {
+//		reset()
+//		calc()
+//	}
 	
 	func reset() {
 		elapsed = 0
 		current = 0
+		
+		if let spring = spring {
+			spring.reset()
+		}
 	}
 	
 	func calc() {
@@ -183,17 +189,17 @@ public class ValueProperty: AnimatableProperty {
 		toCalc = to
 	}
 	
-	override func reverse(reverse: Bool) {
-		if reverse {
-			from = _to
-			to = _from
-		} else {
-			from = _from
-			to = _to
-		}
-		
-		super.reverse(reverse)
-	}
+//	override func reverse(reverse: Bool) {
+//		if reverse {
+//			from = _to
+//			to = _from
+//		} else {
+//			from = _from
+//			to = _to
+//		}
+//		
+//		super.reverse(reverse)
+//	}
 }
 
 public class PointProperty: AnimatableProperty {
@@ -218,6 +224,8 @@ public class PointProperty: AnimatableProperty {
 		super.init(target: target)
 		self.from = from
 		self.to = to
+		self._from = from
+		self._to = to
 	}
 	
 	override func calc() {
@@ -237,29 +245,39 @@ public class PointProperty: AnimatableProperty {
 		}
 		
 		// cache original values to account for reversed tweens
-		self._from = from
-		self._to = to
+//		self._from = from
+//		self._to = to
 		
 		super.prepare()
 	}
 	
-	override func reverse(reverse: Bool) {
-		if reverse {
-			from = _to
-			to = _from
-		} else {
-			from = _from
-			to = _to
-		}
-		
-		super.reverse(reverse)
-	}
+//	override func reverse(reverse: Bool) {
+//		if reverse {
+//			from = _to
+//			to = _from
+//		} else {
+//			from = _from
+//			to = _to
+//		}
+//		
+//		super.reverse(reverse)
+//	}
 	
 	override func update() {
+		let point = lerpPoint(from, to: to)
+		updateTarget(point)
+	}
+	
+	override func reset() {
+		super.reset()
+		updateTarget(_from)
+	}
+	
+	private func updateTarget(value: CGPoint) {
 		if let view = target as? UIView {
-			view.frame = CGRect(origin: lerpPoint(from, to: to), size: view.frame.size)
+			view.frame = CGRect(origin: value, size: view.frame.size)
 		} else if let layer = target as? CALayer {
-			layer.frame = CGRect(origin: lerpPoint(from, to: to), size: layer.frame.size)
+			layer.frame = CGRect(origin: value, size: layer.frame.size)
 		}
 	}
 }
@@ -286,6 +304,8 @@ public class SizeProperty: AnimatableProperty {
 		super.init(target: target)
 		self.from = from
 		self.to = to
+		self._from = from
+		self._to = to
 	}
 	
 	override func calc() {
@@ -305,31 +325,41 @@ public class SizeProperty: AnimatableProperty {
 		}
 		
 		// cache original values to account for reversed tweens
-		self._from = from
-		self._to = to
+//		self._from = from
+//		self._to = to
 		
 		super.prepare()
 	}
 	
-	override func reverse(reverse: Bool) {
-		if reverse {
-			from = _to
-			to = _from
-		} else {
-			from = _from
-			to = _to
-		}
-		
-		print("PROP.reverse - reversed: \(reverse), from: \(from), to: \(to)")
-		
-		super.reverse(reverse)
-	}
+//	override func reverse(reverse: Bool) {
+//		if reverse {
+//			from = _to
+//			to = _from
+//		} else {
+//			from = _from
+//			to = _to
+//		}
+//		
+//		print("PROP.reverse - reversed: \(reverse), from: \(from), to: \(to)")
+//		
+//		super.reverse(reverse)
+//	}
 	
 	override func update() {
+		let size = lerpSize(from, to: toCalc)
+		updateTarget(size)
+	}
+	
+	override func reset() {
+		super.reset()
+		updateTarget(_from)
+	}
+	
+	private func updateTarget(value: CGSize) {
 		if let view = target as? UIView {
-			view.bounds = CGRect(origin: CGPointZero, size: lerpSize(from, to: toCalc))
+			view.bounds = CGRect(origin: CGPointZero, size: value)
 		} else if let layer = target as? CALayer {
-			layer.bounds = CGRect(origin: CGPointZero, size: lerpSize(from, to: toCalc))
+			layer.bounds = CGRect(origin: CGPointZero, size: value)
 		}
 	}
 }
@@ -382,29 +412,39 @@ public class TransformProperty: AnimatableProperty {
 		}
 		
 		// cache original values to account for reversed tweens
-		self._from = from
-		self._to = to
+//		self._from = from
+//		self._to = to
 		
 		super.prepare()
 	}
 	
-	override func reverse(reverse: Bool) {
-		if reverse {
-			from = _to
-			to = _from
-		} else {
-			from = _from
-			to = _to
-		}
-		
-		super.reverse(reverse)
-	}
+//	override func reverse(reverse: Bool) {
+//		if reverse {
+//			from = _to
+//			to = _from
+//		} else {
+//			from = _from
+//			to = _to
+//		}
+//		
+//		super.reverse(reverse)
+//	}
 	
 	override func update() {
+		let transform = lerpTransform(from, to: toCalc)
+		updateTarget(transform)
+	}
+	
+	override func reset() {
+		super.reset()
+		updateTarget(_from)
+	}
+	
+	private func updateTarget(value: CATransform3D) {
 		if let view = target as? UIView {
-			view.layer.transform = lerpTransform(from, to: toCalc)
+			view.layer.transform = value
 		} else if let layer = target as? CALayer {
-			layer.transform = lerpTransform(from, to: toCalc)
+			layer.transform = value
 		}
 	}
 }
@@ -446,8 +486,18 @@ public class ObjectProperty: ValueProperty {
 	}
 	
 	override func update() {
+		let value = lerpFloat(from, to: toCalc)
+		updateTarget(value)
+	}
+	
+	override func reset() {
+		super.reset()
+		updateTarget(from)
+	}
+	
+	private func updateTarget(value: CGFloat) {
 		if let target = target as? NSObject {
-			target.setValue(lerpFloat(from, to: toCalc), forKeyPath: keyPath)
+			target.setValue(value, forKeyPath: keyPath)
 		}
 	}
 }
