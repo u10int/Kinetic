@@ -449,6 +449,74 @@ public class TransformProperty: AnimatableProperty {
 	}
 }
 
+public class ColorProperty: AnimatableProperty {
+	var property: String
+	var from: UIColor = UIColor.blackColor()
+	var to: UIColor = UIColor.blackColor()
+	var toCalc: UIColor = UIColor.blackColor()
+	var currentColor: UIColor? {
+		get {
+			if target.respondsToSelector(Selector(property)) {
+				if let color = target.valueForKeyPath(property) as? UIColor {
+					return color
+				}
+			}
+			return nil
+		}
+	}
+	
+	private var _from: UIColor = UIColor.blackColor()
+	private var _to: UIColor = UIColor.blackColor()
+	
+	init(target: AnyObject, property: String, from: UIColor, to: UIColor) {
+		self.property = property
+		super.init(target: target)
+		
+		if let target = target as? NSObject {
+			assert(target.respondsToSelector(Selector(property)), "Target for ColorProperty must contain a public property {\(property)}")
+		}
+		
+		self.from = from
+		self.to = to
+		self._from = from
+		self._to = to
+	}
+	
+	override func calc() {
+		toCalc = to
+	}
+	
+	override func prepare() {
+		if additive {
+			if let color = currentColor {
+				if mode == .To {
+					from = color
+				} else if mode == .From {
+					to = color
+				}
+			}
+		}
+		
+		super.prepare()
+	}
+	
+	override func update() {
+		let color = lerpColor(from, to: to)
+		updateTarget(color)
+	}
+	
+	override func reset() {
+		super.reset()
+		updateTarget(_from)
+	}
+	
+	private func updateTarget(value: UIColor) {
+		if let target = target as? NSObject {
+			target.setValue(value, forKeyPath: property)
+		}
+	}
+}
+
 public class ObjectProperty: ValueProperty {
 	var keyPath: String
 	

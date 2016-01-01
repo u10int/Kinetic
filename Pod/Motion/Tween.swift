@@ -465,7 +465,13 @@ public class Tween: Animation {
 					}
 				}
 			case .BackgroundColor(let color):
-				print("")
+				if let currentColor = propObj as? ColorProperty {
+					if mode == .From {
+						currentColor.from = color
+					} else {
+						currentColor.to = color
+					}
+				}
 			case .KeyPath(_, let value):
 				if let custom = propObj as? ObjectProperty {
 					if mode == .From {
@@ -537,7 +543,9 @@ public class Tween: Animation {
 						prop = ObjectProperty(target: target, keyPath: key, from: alpha, to: alpha)
 					}
 				case PropertyKey.BackgroundColor.rawValue:
-					prop = nil
+					if let target = target, color = targetColor(target, keyPath: "backgroundColor") {
+						prop = ColorProperty(target: target, property: "backgroundColor", from: color, to: color)
+					}
 				default:
 					if let target = target as? NSObject, value = target.valueForKeyPath(key) as? CGFloat {
 						prop = ObjectProperty(target: target, keyPath: key, from: value, to: value)
@@ -667,5 +675,17 @@ public class Tween: Animation {
 		}
 		
 		return alpha
+	}
+	
+	private func targetColor(target: AnyObject, keyPath: String) -> UIColor? {
+		var color: UIColor?
+		
+		if target.respondsToSelector(Selector(keyPath)) {
+			if let c = target.valueForKeyPath(keyPath) as? UIColor {
+				color = c
+			}
+		}
+		
+		return color
 	}
 }

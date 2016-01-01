@@ -119,9 +119,15 @@ public class Timeline: Animation {
 		return self
 	}
 	
+	override public func stop() {
+		super.stop()
+		for tween in tweens {
+			tween.stop()
+		}
+	}
+	
 	override public func pause() {
 		super.pause()
-		
 		for tween in tweens {
 			tween.pause()
 		}
@@ -129,7 +135,6 @@ public class Timeline: Animation {
 	
 	override public func resume() {
 		super.resume()
-		
 		for tween in tweens {
 			tween.resume()
 		}
@@ -137,7 +142,6 @@ public class Timeline: Animation {
 	
 	override public func seek(time: CFTimeInterval) -> Timeline {
 		super.seek(time)
-		
 		for tween in tweens {
 			let tweenSeek = time - tween.startTime
 			if tweenSeek >= 0 {
@@ -149,7 +153,6 @@ public class Timeline: Animation {
 	
 	override public func reverse() -> Timeline {
 		super.reverse()
-		
 		for tween in tweens {
 			tween.reverse()
 		}
@@ -159,7 +162,6 @@ public class Timeline: Animation {
 	
 	override public func forward() -> Timeline {
 		super.forward()
-		
 		for tween in tweens {
 			tween.forward()
 		}
@@ -169,7 +171,6 @@ public class Timeline: Animation {
 	
 	override public func restart(includeDelay: Bool) {
 		super.restart(includeDelay)
-		
 		for tween in tweens {
 			tween.restart(includeDelay)
 		}
