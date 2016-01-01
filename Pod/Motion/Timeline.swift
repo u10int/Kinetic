@@ -32,23 +32,33 @@ public class Timeline: Animation {
 	
 	private var labels = [String: CFTimeInterval]()
 	
+	// MARK: Lifecycle
+	
+	convenience init(tweens: [Tween]?) {
+		self.init()
+		
+		if let tweens = tweens {
+			for tween in tweens {
+				add(tween)
+			}
+		}
+	}
+	
 	// MARK: Public Methods
 	
 	public func add(tween: Tween) {
 		add(tween, position: endTime)
 	}
 	
-	public func add(tween: Tween, position: CFTimeInterval) {
-//		if let time = position as? CFTimeInterval {
-//			
-//		} else if let label = position as? String {
-//			let regex = try! NSRegularExpression(pattern: "(\\w+)?(?:+|\\-)=(\\d+)", options: [])
-////			let matches = regex.matchesInString(label, options: [], range: NSRange(location: 0, length: label.length))
-////			print(matches)
-//		}
+	public func add(tween: Tween, position: AnyObject) {
+		var pos: CFTimeInterval = 0
 		
-		// set startTime on tween...
-		tween.startTime = position + tween.delay
+		if let time = position as? CFTimeInterval {
+			pos = time
+		} else if let label = position as? NSString {
+			pos = timeFromString(label, relativeToTime: endTime)
+		}
+		tween.startTime = pos + tween.delay
 		
 		// remove tween from existing timeline (if `timeline` is not nil)... assign timeline to this
 		if let timeline = tween.timeline {
@@ -71,8 +81,27 @@ public class Timeline: Animation {
 		}
 	}
 	
-	public func addLabel(label: String, position: CFTimeInterval = 0) {
-		labels[label] = position
+	public func addLabel(label: String, position: AnyObject = 0) {
+		var pos: CFTimeInterval = 0
+		
+		if let time = position as? CFTimeInterval {
+			pos = time
+		} else if let label = position as? NSString {
+			pos = timeFromString(label, relativeToTime: endTime)
+		}
+		
+		labels[label] = pos
+	}
+	
+	public func removeLabel(label: String) {
+		labels[label] = nil
+	}
+	
+	public func timeForLabel(label: String) -> CFTimeInterval {
+		if let time = labels[label] {
+			return time
+		}
+		return 0
 	}
 	
 	public func seekToLabel(label: String, pause: Bool = false) {
@@ -82,6 +111,27 @@ public class Timeline: Animation {
 				self.pause()
 			}
 		}
+	}
+	
+	public func shift(amount: CFTimeInterval, afterTime time: CFTimeInterval = 0) -> Timeline {
+		for tween in tweens {
+			if tween.startTime >= time {
+				tween.startTime += amount
+				if tween.startTime <= 0 {
+					tween.startTime = 0
+				}
+			}
+		}
+		for (label, var labelTime) in labels {
+			if labelTime >= time {
+				labelTime += amount
+				if labelTime < 0 {
+					labelTime = 0
+				}
+				labels[label] = labelTime
+			}
+		}
+		return self
 	}
 	
 	public func getActive() -> [Tween] {
@@ -221,5 +271,40 @@ public class Timeline: Animation {
 			return completed()
 		}
 		return false
+	}
+	
+	// MARK: Private Methods
+	
+	private func timeFromString(string: NSString, relativeToTime time: CFTimeInterval = 0) -> CFTimeInterval {
+		var position: CFTimeInterval = time
+		
+		let regex = try! NSRegularExpression(pattern: "(\\w+)?([\\+,\\-]=)(\\d+)", options: [])
+		let match = regex.firstMatchInString(string as String, options: [], range: NSRange(location: 0, length: string.length))
+		if let match = match {
+			var idx = 1
+			var multiplier: CFTimeInterval = 1
+			while idx < match.numberOfRanges {
+				let range = match.rangeAtIndex(idx)
+				if range.length <= string.length && range.location < string.length {
+					let val = string.substringWithRange(range)
+					// label
+					if idx == 1 {
+						position = timeForLabel(val)
+					} else if idx == 2 {
+						if val == "-=" {
+							multiplier = -1
+						}
+					} else if idx == 3 {
+						position += CFTimeInterval(val)!
+					}
+					print(range)
+					print(string.substringWithRange(range))
+				}
+				idx++
+			}
+			position *= multiplier
+		}
+		
+		return position
 	}
 }
