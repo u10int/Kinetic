@@ -37,46 +37,55 @@ class Motion {
 		return tween
 	}
 	
-	static func itemsTo(items: [NSObject], duration: CFTimeInterval, options: [Property]) -> TweenGroup {
-		let group = TweenGroup()
+	static func itemsTo(items: [NSObject], duration: CFTimeInterval, options: [Property]) -> Timeline {
+		return staggerTo(items, duration: duration, options: options, stagger: 0)
+	}
+	
+	static func itemsFrom(items: [NSObject], duration: CFTimeInterval, options: [Property]) -> Timeline {
+		return staggerFrom(items, duration: duration, options: options, stagger: 0)
+	}
+	
+	static func itemsFromTo(items: [NSObject], duration: CFTimeInterval, from: [Property], to: [Property]) -> Timeline {
+		return staggerFromTo(items, duration: duration, from: from, to: to, stagger: 0)
+	}
+	
+	static func staggerTo(items: [NSObject], duration: CFTimeInterval, options: [Property], stagger: CFTimeInterval) -> Timeline {
+		let timeline = Timeline()
 		
-		items.forEach { (item) -> () in
+		for (idx, item) in items.enumerate() {
 			let tween = Tween(target: item, from: nil, to: options, mode: .To)
 			tween.duration = duration
-			tween.group = group
-			group.addTween(tween)
+			timeline.add(tween, position: stagger * CFTimeInterval(idx))
 			cacheTween(tween, forObject: item)
 		}
 		
-		return group
+		return timeline
 	}
 	
-	static func itemsFrom(items: [NSObject], duration: CFTimeInterval, options: [Property]) -> TweenGroup {
-		let group = TweenGroup()
+	static func staggerFrom(items: [NSObject], duration: CFTimeInterval, options: [Property], stagger: CFTimeInterval) -> Timeline {
+		let timeline = Timeline()
 		
-		items.forEach { (item) -> () in
-			let tween = Tween(target: item, from: options, to: nil, mode: .From)
+		for (idx, item) in items.enumerate() {
+			let tween = Tween(target: item, from: options, to: nil, mode: .To)
 			tween.duration = duration
-			tween.group = group
-			group.addTween(tween)
+			timeline.add(tween, position: stagger * CFTimeInterval(idx))
 			cacheTween(tween, forObject: item)
 		}
 		
-		return group
+		return timeline
 	}
 	
-	static func itemsFromTo(items: [NSObject], duration: CFTimeInterval, from: [Property], to: [Property]) -> TweenGroup {
-		let group = TweenGroup()
+	static func staggerFromTo(items: [NSObject], duration: CFTimeInterval, from: [Property], to: [Property], stagger: CFTimeInterval) -> Timeline {
+		let timeline = Timeline()
 		
-		items.forEach { (item) -> () in
+		for (idx, item) in items.enumerate() {
 			let tween = Tween(target: item, from: from, to: to, mode: .FromTo)
 			tween.duration = duration
-			tween.group = group
-			group.addTween(tween)
+			timeline.add(tween, position: stagger * CFTimeInterval(idx))
 			cacheTween(tween, forObject: item)
 		}
 		
-		return group
+		return timeline
 	}
 	
 	static func killTweensOf(target: NSObject) {
