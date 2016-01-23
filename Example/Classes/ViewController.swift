@@ -90,13 +90,13 @@ class ViewController: UIViewController {
 		let delay: CFTimeInterval = 0
 		reset()
 		
-		let move = Motion.to(square, duration: duration, options: [.Shift(100, 100), .Width(200)])
+		let move = Kinetic.to(square, duration: duration, options: [.Shift(100, 100), .Width(200)])
 		move.ease(Easing.inOutQuart).delay(delay).play()
 //		move.spring(tension: 70, friction: 10).play()
 //
 		var timer: CFTimeInterval = 0
 		var startTimer: CFTimeInterval = 0
-		let resize = Motion.to(square, duration: duration, options: [.Scale(0.5), .Rotate(CGFloat(M_PI_4))])
+		let resize = Kinetic.to(square, duration: duration, options: [.Scale(0.5), .Rotate(CGFloat(M_PI_4))])
 		resize.ease(Easing.inOutQuart).delay(delay + duration).onStart { () -> Void in
 			print("started")
 			startTimer = CACurrentMediaTime()
@@ -114,14 +114,14 @@ class ViewController: UIViewController {
 		testObject.value = 50
 		label.text = "\(round(testObject.value))"
 		
-		let increment = Motion.to(testObject, duration: duration, options: [.KeyPath("value", 100)])
+		let increment = Kinetic.to(testObject, duration: duration, options: [.KeyPath("value", 100)])
 		increment.ease(Easing.outQuart).onUpdate { () -> Void in
 			self.label.text = "\(round(testObject.value))"
 		}.onComplete({ () -> Void in
 			self.label.text = "\(round(testObject.value))"
 		}).play()
 		
-//		let move = Motion.itemsTo([square, square2], duration: duration, options: [.Shift(100, 100)])
+//		let move = Kinetic.itemsTo([square, square2], duration: duration, options: [.Shift(100, 100)])
 //		move.ease(Easing.inOutQuart).delay(delay).stagger(0.1).play()
 	}
 	
@@ -130,7 +130,7 @@ class ViewController: UIViewController {
 		let delay: CFTimeInterval = 0
 		reset()
 		
-		let move = Motion.to(square, duration: duration, options: [.Shift(100, 100), .Width(200), .Alpha(0.3)])
+		let move = Kinetic.to(square, duration: duration, options: [.Shift(100, 100), .Width(200), .Alpha(0.3)])
 		move.ease(Easing.inOutQuart).delay(delay).onStart({ () -> Void in
 			print("move started")
 		}).onUpdate({ () -> Void in
@@ -139,7 +139,7 @@ class ViewController: UIViewController {
 			print("move done")
 		}
 		
-		let move2 = Motion.to(square2, duration: duration, options: [.Shift(-100, 0)])
+		let move2 = Kinetic.to(square2, duration: duration, options: [.Shift(-100, 0)])
 		move2.ease(Easing.inOutQuart).delay(delay).onStart({ () -> Void in
 			print("move2 started")
 		}).onComplete { () -> Void in
@@ -178,7 +178,7 @@ class ViewController: UIViewController {
 		square2.layer.transform = CATransform3DIdentity
 		square2.frame = originalSquare2Frame
 		
-		Motion.killAll()
+		Kinetic.killAll()
 	}
 }
 

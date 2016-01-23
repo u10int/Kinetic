@@ -1,6 +1,6 @@
 //
 //  TweenUtils.swift
-//  Motion
+//  Kinetic
 //
 //  Created by Nicholas Shipes on 1/22/16.
 //  Copyright © 2016 Urban10 Interactive, LLC. All rights reserved.

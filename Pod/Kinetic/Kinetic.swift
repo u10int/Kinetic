@@ -1,6 +1,6 @@
 //
-//  Motion.swift
-//  Tween
+//  Kinetic.swift
+//  Kinetic
 //
 //  Created by Nicholas Shipes on 12/28/15.
 //  Copyright © 2015 Urban10 Interactive, LLC. All rights reserved.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class Motion {
+class Kinetic {
 	
 	// MARK: Class Methods
 	

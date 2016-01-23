@@ -21,7 +21,7 @@
 		2BA5BB321BD9C11700046239 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2BA5BB2A1BD9C11700046239 /* Info.plist */; };
 		2BAC199B1C31ABC30037F22B /* AnimatableProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BAC19941C31ABC30037F22B /* AnimatableProperty.swift */; };
 		2BAC199C1C31ABC30037F22B /* Easing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BAC19951C31ABC30037F22B /* Easing.swift */; };
-		2BAC199D1C31ABC30037F22B /* Motion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BAC19961C31ABC30037F22B /* Motion.swift */; };
+		2BAC199D1C31ABC30037F22B /* Kinetic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BAC19961C31ABC30037F22B /* Kinetic.swift */; };
 		2BAC199E1C31ABC30037F22B /* Timeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BAC19971C31ABC30037F22B /* Timeline.swift */; };
 		2BAC199F1C31ABC30037F22B /* Tween.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BAC19981C31ABC30037F22B /* Tween.swift */; };
 		2BAC19A01C31ABC30037F22B /* TweenGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BAC19991C31ABC30037F22B /* TweenGroup.swift */; };
@@ -39,14 +39,14 @@
 		2B91B28E1C360B780008E51B /* ExampleViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExampleViewController.swift; sourceTree = "<group>"; };
 		2B91B2901C360F150008E51B /* SequenceViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SequenceViewController.swift; sourceTree = "<group>"; };
 		2B91B2921C370E4B0008E51B /* GroupTweenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupTweenViewController.swift; sourceTree = "<group>"; };
-		2BA5BAF21BD9C0DF00046239 /* Motion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Motion.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2BA5BAF21BD9C0DF00046239 /* Kinetic.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kinetic.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BA5BB241BD9C11700046239 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2BA5BB251BD9C11700046239 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2BA5BB271BD9C11700046239 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2BA5BB2A1BD9C11700046239 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2BAC19941C31ABC30037F22B /* AnimatableProperty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimatableProperty.swift; sourceTree = "<group>"; };
 		2BAC19951C31ABC30037F22B /* Easing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Easing.swift; sourceTree = "<group>"; };
-		2BAC19961C31ABC30037F22B /* Motion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Motion.swift; sourceTree = "<group>"; };
+		2BAC19961C31ABC30037F22B /* Kinetic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Kinetic.swift; sourceTree = "<group>"; };
 		2BAC19971C31ABC30037F22B /* Timeline.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Timeline.swift; sourceTree = "<group>"; };
 		2BAC19981C31ABC30037F22B /* Tween.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tween.swift; sourceTree = "<group>"; };
 		2BAC19991C31ABC30037F22B /* TweenGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TweenGroup.swift; sourceTree = "<group>"; };
@@ -92,7 +92,7 @@
 		2BA5BAF31BD9C0DF00046239 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				2BA5BAF21BD9C0DF00046239 /* Motion.app */,
+				2BA5BAF21BD9C0DF00046239 /* Kinetic.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -112,18 +112,18 @@
 		2BA5BB2C1BD9C11700046239 /* Pod */ = {
 			isa = PBXGroup;
 			children = (
-				2BAC19931C31ABC30037F22B /* Motion */,
+				2BAC19931C31ABC30037F22B /* Kinetic */,
 			);
 			path = Pod;
 			sourceTree = "<group>";
 		};
-		2BAC19931C31ABC30037F22B /* Motion */ = {
+		2BAC19931C31ABC30037F22B /* Kinetic */ = {
 			isa = PBXGroup;
 			children = (
 				2BAC19941C31ABC30037F22B /* AnimatableProperty.swift */,
 				2B91B2871C35A1E50008E51B /* Animation.swift */,
 				2BAC19951C31ABC30037F22B /* Easing.swift */,
-				2BAC19961C31ABC30037F22B /* Motion.swift */,
+				2BAC19961C31ABC30037F22B /* Kinetic.swift */,
 				2B91B27E1C34BE330008E51B /* Spring.swift */,
 				2BAC19971C31ABC30037F22B /* Timeline.swift */,
 				2BAC19981C31ABC30037F22B /* Tween.swift */,
@@ -131,15 +131,15 @@
 				2BAC199A1C31ABC30037F22B /* TweenManager.swift */,
 				2B0E7E891C52D19D00139D82 /* TweenUtils.swift */,
 			);
-			path = Motion;
+			path = Kinetic;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		2BA5BAF11BD9C0DF00046239 /* Motion */ = {
+		2BA5BAF11BD9C0DF00046239 /* Kinetic */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2BA5BB1A1BD9C0DF00046239 /* Build configuration list for PBXNativeTarget "Motion" */;
+			buildConfigurationList = 2BA5BB1A1BD9C0DF00046239 /* Build configuration list for PBXNativeTarget "Kinetic" */;
 			buildPhases = (
 				2BA5BAEE1BD9C0DF00046239 /* Sources */,
 				2BA5BAEF1BD9C0DF00046239 /* Frameworks */,
@@ -149,9 +149,9 @@
 			);
 			dependencies = (
 			);
-			name = Motion;
+			name = Kinetic;
 			productName = Tween;
-			productReference = 2BA5BAF21BD9C0DF00046239 /* Motion.app */;
+			productReference = 2BA5BAF21BD9C0DF00046239 /* Kinetic.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -169,7 +169,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 2BA5BAED1BD9C0DF00046239 /* Build configuration list for PBXProject "Motion" */;
+			buildConfigurationList = 2BA5BAED1BD9C0DF00046239 /* Build configuration list for PBXProject "Kinetic" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -182,7 +182,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				2BA5BAF11BD9C0DF00046239 /* Motion */,
+				2BA5BAF11BD9C0DF00046239 /* Kinetic */,
 			);
 		};
 /* End PBXProject section */
@@ -216,7 +216,7 @@
 				2BAC19A01C31ABC30037F22B /* TweenGroup.swift in Sources */,
 				2B91B28B1C36005C0008E51B /* ViewController.swift in Sources */,
 				2BAC199F1C31ABC30037F22B /* Tween.swift in Sources */,
-				2BAC199D1C31ABC30037F22B /* Motion.swift in Sources */,
+				2BAC199D1C31ABC30037F22B /* Kinetic.swift in Sources */,
 				2B91B27F1C34BE330008E51B /* Spring.swift in Sources */,
 				2BAC199E1C31ABC30037F22B /* Timeline.swift in Sources */,
 				2B91B28D1C36007B0008E51B /* BasicTweenViewController.swift in Sources */,
@@ -328,8 +328,8 @@
 				INFOPLIST_FILE = "$(SRCROOT)/Example/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.urban10.Motion;
-				PRODUCT_NAME = Motion;
+				PRODUCT_BUNDLE_IDENTIFIER = com.urban10.Kinetic;
+				PRODUCT_NAME = Kinetic;
 			};
 			name = Debug;
 		};
@@ -340,15 +340,15 @@
 				INFOPLIST_FILE = "$(SRCROOT)/Example/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.urban10.Motion;
-				PRODUCT_NAME = Motion;
+				PRODUCT_BUNDLE_IDENTIFIER = com.urban10.Kinetic;
+				PRODUCT_NAME = Kinetic;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		2BA5BAED1BD9C0DF00046239 /* Build configuration list for PBXProject "Motion" */ = {
+		2BA5BAED1BD9C0DF00046239 /* Build configuration list for PBXProject "Kinetic" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2BA5BB181BD9C0DF00046239 /* Debug */,
@@ -357,7 +357,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2BA5BB1A1BD9C0DF00046239 /* Build configuration list for PBXNativeTarget "Motion" */ = {
+		2BA5BB1A1BD9C0DF00046239 /* Build configuration list for PBXNativeTarget "Kinetic" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2BA5BB1B1BD9C0DF00046239 /* Debug */,

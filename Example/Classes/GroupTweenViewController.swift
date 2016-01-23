@@ -31,9 +31,9 @@ class GroupTweenViewController: ExampleViewController {
 		square.backgroundColor = UIColor.redColor()
 		view.addSubview(square)
 		
-		let moveX = Motion.to(square, duration: 0.5, options: [.X(200)]).ease(Easing.inOutCubic)
-		let moveY = Motion.to(square, duration: 0.75, options: [.Y(290)]).ease(Easing.outSine)
-		let color = Motion.to(square, duration: 0.5, options: [.BackgroundColor(UIColor.yellowColor())]).ease(Easing.outSine)
+		let moveX = Kinetic.to(square, duration: 0.5, options: [.X(200)]).ease(Easing.inOutCubic)
+		let moveY = Kinetic.to(square, duration: 0.75, options: [.Y(290)]).ease(Easing.outSine)
+		let color = Kinetic.to(square, duration: 0.5, options: [.BackgroundColor(UIColor.yellowColor())]).ease(Easing.outSine)
 		
 		let timeline = Timeline(tweens: [moveX, moveY, color], align: .Start)
 		timeline.yoyo().forever()
