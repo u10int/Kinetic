@@ -17,6 +17,7 @@
 		2B91B28F1C360B780008E51B /* ExampleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B91B28E1C360B780008E51B /* ExampleViewController.swift */; };
 		2B91B2911C360F150008E51B /* SequenceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B91B2901C360F150008E51B /* SequenceViewController.swift */; };
 		2B91B2931C370E4B0008E51B /* GroupTweenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B91B2921C370E4B0008E51B /* GroupTweenViewController.swift */; };
+		2B92E0001C5327DD0086151E /* TimelineViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B92DFFF1C5327DD0086151E /* TimelineViewController.swift */; };
 		2BA5BB2E1BD9C11700046239 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BA5BB241BD9C11700046239 /* AppDelegate.swift */; };
 		2BA5BB2F1BD9C11700046239 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2BA5BB251BD9C11700046239 /* Assets.xcassets */; };
 		2BA5BB301BD9C11700046239 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2BA5BB261BD9C11700046239 /* LaunchScreen.storyboard */; };
@@ -42,6 +43,7 @@
 		2B91B28E1C360B780008E51B /* ExampleViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExampleViewController.swift; sourceTree = "<group>"; };
 		2B91B2901C360F150008E51B /* SequenceViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SequenceViewController.swift; sourceTree = "<group>"; };
 		2B91B2921C370E4B0008E51B /* GroupTweenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupTweenViewController.swift; sourceTree = "<group>"; };
+		2B92DFFF1C5327DD0086151E /* TimelineViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimelineViewController.swift; sourceTree = "<group>"; };
 		2BA5BAF21BD9C0DF00046239 /* Kinetic.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kinetic.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BA5BB241BD9C11700046239 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2BA5BB251BD9C11700046239 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -79,6 +81,7 @@
 				2B0E7E8B1C53156900139D82 /* PhysicsViewController.swift */,
 				2B91B2901C360F150008E51B /* SequenceViewController.swift */,
 				2B0E7E8D1C5323C700139D82 /* StaggerViewController.swift */,
+				2B92DFFF1C5327DD0086151E /* TimelineViewController.swift */,
 				2BDBB87E1C373FA0007D5C94 /* TransformViewController.swift */,
 			);
 			path = Classes;
@@ -217,6 +220,7 @@
 				2BDBB87F1C373FA0007D5C94 /* TransformViewController.swift in Sources */,
 				2B91B28F1C360B780008E51B /* ExampleViewController.swift in Sources */,
 				2BAC199C1C31ABC30037F22B /* Easing.swift in Sources */,
+				2B92E0001C5327DD0086151E /* TimelineViewController.swift in Sources */,
 				2B91B28B1C36005C0008E51B /* ViewController.swift in Sources */,
 				2BAC199F1C31ABC30037F22B /* Tween.swift in Sources */,
 				2BAC199D1C31ABC30037F22B /* Kinetic.swift in Sources */,
