@@ -1,5 +1,5 @@
 //
-//  AnimatableProperty.swift
+//  TweenProperty.swift
 //  Kinetic
 //
 //  Created by Nicholas Shipes on 12/18/15.
@@ -7,6 +7,25 @@
 //
 
 import UIKit
+
+public enum Property {
+	case X(CGFloat)
+	case Y(CGFloat)
+	case Position(CGFloat, CGFloat)
+	case Shift(CGFloat, CGFloat)
+	case Width(CGFloat)
+	case Height(CGFloat)
+	case Size(CGFloat, CGFloat)
+	case Translate(CGFloat, CGFloat)
+	case Scale(CGFloat)
+	case ScaleXY(CGFloat, CGFloat)
+	case Rotate(CGFloat)
+	case RotateXY(CGFloat, CGFloat)
+	case Transform(CATransform3D)
+	case Alpha(CGFloat)
+	case BackgroundColor(UIColor)
+	case KeyPath(String, CGFloat)
+}
 
 private struct RGBA {
 	var red: CGFloat = 0
@@ -21,9 +40,8 @@ private struct RGBA {
 	}
 }
 
-public class AnimatableProperty: Equatable {
+public class TweenProperty: Equatable {
 	weak var target: NSObject!
-	weak var group: TweenGroup!
 	
 	var property: Property?
 	var mode: TweenMode = .To
@@ -167,11 +185,11 @@ public class AnimatableProperty: Equatable {
 	}
 }
 
-public func ==(lhs: AnimatableProperty, rhs: AnimatableProperty) -> Bool {
+public func ==(lhs: TweenProperty, rhs: TweenProperty) -> Bool {
 	return ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
 }
 
-public class ValueProperty: AnimatableProperty {
+public class ValueProperty: TweenProperty {
 	var from: CGFloat = 0
 	var to: CGFloat = 0
 	var toCalc: CGFloat = 0
@@ -274,7 +292,7 @@ public class StructProperty: ValueProperty {
 	}
 }
 
-public class PointProperty: AnimatableProperty {
+public class PointProperty: TweenProperty {
 	var from: CGPoint = CGPointZero
 	var to: CGPoint = CGPointZero
 	var toCalc: CGPoint = CGPointZero
@@ -383,7 +401,7 @@ public class PointProperty: AnimatableProperty {
 	}
 }
 
-public class SizeProperty: AnimatableProperty {
+public class SizeProperty: TweenProperty {
 	var from: CGSize = CGSizeZero
 	var to: CGSize = CGSizeZero
 	var toCalc: CGSize = CGSizeZero
@@ -470,7 +488,7 @@ public class SizeProperty: AnimatableProperty {
 	}
 }
 
-public class RectProperty: AnimatableProperty {
+public class RectProperty: TweenProperty {
 	var from: CGRect = CGRectZero
 	var to: CGRect = CGRectZero
 	var toCalc: CGRect = CGRectZero
@@ -539,7 +557,7 @@ public class RectProperty: AnimatableProperty {
 	}
 }
 
-public class TransformProperty: AnimatableProperty {
+public class TransformProperty: TweenProperty {
 	var from: CATransform3D = CATransform3DIdentity
 	var to: CATransform3D = CATransform3DIdentity
 	var toCalc: CATransform3D = CATransform3DIdentity
@@ -607,7 +625,7 @@ public class TransformProperty: AnimatableProperty {
 	}
 }
 
-public class ColorProperty: AnimatableProperty {
+public class ColorProperty: TweenProperty {
 	var keyPath: String
 	var from: UIColor = UIColor.blackColor()
 	var to: UIColor = UIColor.blackColor()

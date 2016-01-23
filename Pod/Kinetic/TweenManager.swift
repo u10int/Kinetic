@@ -20,7 +20,6 @@ public class TweenManager {
 	}
 	
 	private var tweenCache = [NSObject: [Tween]]()
-	private var additiveProperties = [NSObject: PropertyStore]()
 	private var displayLink: CADisplayLink?
 	private var lastLoopTime: CFTimeInterval
 	
@@ -49,17 +48,6 @@ public class TweenManager {
 		
 		tweens[tween.id] = tween
 		print("adding tween, id: \(tween.id)")
-		
-//		if let tween = tween as? Tween, target = tween.target {
-//			for prop in tween.properties {
-//				if let property = prop.property, key = TweenUtils.propertyKeyForType(property) {
-//					if additiveProperties[target] == nil {
-//						additiveProperties[target] = PropertyStore()
-//					}
-//					additiveProperties[target]?.addProperty(prop, forKey: key)
-//				}
-//			}
-//		}
 		
 		if displayLink == nil {
 			displayLink = CADisplayLink(target: self, selector: "update:")
@@ -119,19 +107,17 @@ public class TweenManager {
 	
 	func removeFromCache(target: NSObject) {
 		tweenCache[target] = nil
-		additiveProperties[target] = nil
 	}
 	
 	func removeAllFromCache() {
 		tweenCache.removeAll()
-		additiveProperties.removeAll()
 	}
 	
 	func tweensOfTarget(target: NSObject, activeOnly: Bool = false) -> [Tween]? {
 		return tweenCache[target]
 	}
 	
-	func lastPropertyForTarget(target: NSObject, type: Property) -> AnimatableProperty? {
+	func lastPropertyForTarget(target: NSObject, type: Property) -> TweenProperty? {
 		let props = propertiesForTarget(target, type: type)
 		
 		if props.count > 1 {
@@ -155,8 +141,8 @@ public class TweenManager {
 		return contains
 	}
 	
-	private func propertiesForTarget(target: NSObject, type: Property) -> [AnimatableProperty] {
-		var props = [AnimatableProperty]()
+	private func propertiesForTarget(target: NSObject, type: Property) -> [TweenProperty] {
+		var props = [TweenProperty]()
 		
 		if let tweens = tweensOfTarget(target) {
 			for tween in tweens {
@@ -167,27 +153,5 @@ public class TweenManager {
 		}
 		
 		return props
-	}
-}
-
-
-class PropertyStore {
-	var propertiesByKey = [String: [AnimatableProperty]]()
-	
-	func addProperty(property: AnimatableProperty, forKey key: String) {
-		if propertiesByKey[key] == nil {
-			propertiesByKey[key] = [AnimatableProperty]()
-		}
-		propertiesByKey[key]?.append(property)
-	}
-	
-	func addProperties(properties: [AnimatableProperty], forKey key: String) {
-		for property in properties {
-			addProperty(property, forKey: key)
-		}
-	}
-	
-	func propertiesForKey(key: String) -> [AnimatableProperty]? {
-		return propertiesByKey[key]
 	}
 }

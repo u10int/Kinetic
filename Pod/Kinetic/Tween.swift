@@ -8,25 +8,6 @@
 
 import UIKit
 
-public enum Property {
-	case X(CGFloat)
-	case Y(CGFloat)
-	case Position(CGFloat, CGFloat)
-	case Shift(CGFloat, CGFloat)
-	case Width(CGFloat)
-	case Height(CGFloat)
-	case Size(CGFloat, CGFloat)
-	case Translate(CGFloat, CGFloat)
-	case Scale(CGFloat)
-	case ScaleXY(CGFloat, CGFloat)
-	case Rotate(CGFloat)
-	case RotateXY(CGFloat, CGFloat)
-	case Transform(CATransform3D)
-	case Alpha(CGFloat)
-	case BackgroundColor(UIColor)
-	case KeyPath(String, CGFloat)
-}
-
 public enum TweenMode {
 	case To
 	case From
@@ -41,19 +22,17 @@ public class Tween: Animation {
 			for prop in properties {
 				prop.duration = duration
 			}
-			group?.duration = duration
 		}
 	}
 	public var additive = true
 	
 //	var repeatCount: Int = 0
-	var group: TweenGroup?
-	var properties: [AnimatableProperty] {
+	var properties: [TweenProperty] {
 		get {
 			return _properties
 		}
 	}
-	var _properties = [AnimatableProperty]()
+	var _properties = [TweenProperty]()
 	
 	override var totalTime: CFTimeInterval {
 		get {
@@ -74,7 +53,7 @@ public class Tween: Animation {
 //	private var updateBlock: (() -> Void)?
 //	private var completionBlock: (() -> Void)?
 //	private var repeatBlock: (() -> Void)?
-	private var propertiesByType = [String: AnimatableProperty]()
+	private var propertiesByType = [String: TweenProperty]()
 	private var needsPropertyPrep = false
 	
 	// MARK: Lifecycle
@@ -249,8 +228,6 @@ public class Tween: Animation {
 			
 		}
 //		restart(true)
-		
-		group?.prepare()
 	}
 	
 	override func proceed(var dt: CFTimeInterval, force: Bool = false) -> Bool {
@@ -346,7 +323,7 @@ public class Tween: Animation {
 		return false
 	}
 	
-	func storedPropertyForType(type: Property) -> AnimatableProperty? {
+	func storedPropertyForType(type: Property) -> TweenProperty? {
 		if let key = TweenUtils.propertyKeyForType(type) {
 			return propertiesByType[key]
 		}
@@ -533,7 +510,7 @@ public class Tween: Animation {
 		return resolvedType
 	}
 	
-	private func propertyForType(type: Property) -> AnimatableProperty? {
+	private func propertyForType(type: Property) -> TweenProperty? {
 		if let key = TweenUtils.propertyKeyForType(type) {
 			var prop = propertiesByType[key]
 			
