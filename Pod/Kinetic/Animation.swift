@@ -67,6 +67,10 @@ public class Animation: NSObject {
 		return self
 	}
 	
+	public func spring(tension tension: Double, friction: Double = 3) -> Animation {
+		return self
+	}
+	
 	public func delay(delay: CFTimeInterval) -> Animation {
 		self.delay = delay
 		return self

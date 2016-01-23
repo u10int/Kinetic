@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		2B0E7E8A1C52D19D00139D82 /* TweenUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B0E7E891C52D19D00139D82 /* TweenUtils.swift */; };
 		2B0E7E8C1C53156900139D82 /* PhysicsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B0E7E8B1C53156900139D82 /* PhysicsViewController.swift */; };
+		2B0E7E8E1C5323C700139D82 /* StaggerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B0E7E8D1C5323C700139D82 /* StaggerViewController.swift */; };
 		2B91B27F1C34BE330008E51B /* Spring.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B91B27E1C34BE330008E51B /* Spring.swift */; };
 		2B91B2881C35A1E50008E51B /* Animation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B91B2871C35A1E50008E51B /* Animation.swift */; };
 		2B91B28B1C36005C0008E51B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B91B28A1C36005C0008E51B /* ViewController.swift */; };
@@ -33,6 +34,7 @@
 /* Begin PBXFileReference section */
 		2B0E7E891C52D19D00139D82 /* TweenUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TweenUtils.swift; sourceTree = "<group>"; };
 		2B0E7E8B1C53156900139D82 /* PhysicsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhysicsViewController.swift; sourceTree = "<group>"; };
+		2B0E7E8D1C5323C700139D82 /* StaggerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StaggerViewController.swift; sourceTree = "<group>"; };
 		2B91B27E1C34BE330008E51B /* Spring.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Spring.swift; sourceTree = "<group>"; };
 		2B91B2871C35A1E50008E51B /* Animation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Animation.swift; sourceTree = "<group>"; };
 		2B91B28A1C36005C0008E51B /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -76,6 +78,7 @@
 				2B91B2921C370E4B0008E51B /* GroupTweenViewController.swift */,
 				2B0E7E8B1C53156900139D82 /* PhysicsViewController.swift */,
 				2B91B2901C360F150008E51B /* SequenceViewController.swift */,
+				2B0E7E8D1C5323C700139D82 /* StaggerViewController.swift */,
 				2BDBB87E1C373FA0007D5C94 /* TransformViewController.swift */,
 			);
 			path = Classes;
@@ -220,6 +223,7 @@
 				2B91B27F1C34BE330008E51B /* Spring.swift in Sources */,
 				2BAC199E1C31ABC30037F22B /* Timeline.swift in Sources */,
 				2B91B28D1C36007B0008E51B /* BasicTweenViewController.swift in Sources */,
+				2B0E7E8E1C5323C700139D82 /* StaggerViewController.swift in Sources */,
 				2BAC199B1C31ABC30037F22B /* TweenProperty.swift in Sources */,
 				2BAC19A11C31ABC30037F22B /* TweenManager.swift in Sources */,
 				2B91B2911C360F150008E51B /* SequenceViewController.swift in Sources */,

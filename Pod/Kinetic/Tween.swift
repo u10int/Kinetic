@@ -121,7 +121,7 @@ public class Tween: Animation {
 		return self
 	}
 	
-	public func spring(tension tension: Double, friction: Double = 3) -> Tween {
+	override public func spring(tension tension: Double, friction: Double = 3) -> Tween {
 		for prop in properties {
 			prop.spring = Spring(tension: tension, friction: friction)
 		}

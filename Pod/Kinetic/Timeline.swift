@@ -191,6 +191,13 @@ public class Timeline: Animation {
 		return self
 	}
 	
+	override public func spring(tension tension: Double, friction: Double) -> Animation {
+		for tween in tweens {
+			tween.spring(tension: tension, friction: friction)
+		}
+		return self
+	}
+	
 	override public func perspective(value: CGFloat) -> Timeline {
 		for tween in tweens {
 			tween.perspective(value)
