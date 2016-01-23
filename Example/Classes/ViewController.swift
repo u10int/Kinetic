@@ -19,41 +19,65 @@ class ViewController: UIViewController {
 	
 	private var originalSquareFrame = CGRectZero
 	private var originalSquare2Frame = CGRectZero
+	
+	var tableView: UITableView!
+	var rows = [UIViewController]()
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		
-		square = UIView()
-		square.frame = CGRectMake(50, 50, 50, 50)
-		square.backgroundColor = UIColor.redColor()
-		view.addSubview(square)
+		title = "Motion"
+		view.backgroundColor = UIColor.whiteColor()
 		
-		square2 = UIView()
-		square2.frame = CGRectMake(200, 200, 50, 50)
-		square2.backgroundColor = UIColor.blueColor()
-		view.addSubview(square2)
+		tableView = UITableView()
+		tableView.frame = view.bounds
+		tableView.dataSource = self
+		tableView.delegate = self
+		tableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "Row")
+		view.addSubview(tableView)
 		
-		var testTransform = CATransform3DIdentity
-		testTransform = CATransform3DTranslate(testTransform, 0, 50, 0)
-		testTransform = CATransform3DRotate(testTransform, CGFloat(M_PI_4), 0, 0, 1)
-		let testSquare = UIView()
-		testSquare.frame = square2.frame
-		testSquare.backgroundColor = UIColor.greenColor()
-		testSquare.layer.anchorPoint = CGPointMake(0.5, 0.5)
-		testSquare.layer.transform = testTransform
-		view.addSubview(testSquare)
+		rows.append(BasicTweenViewController())
+		rows.append(GroupTweenViewController())
+		rows.append(SequenceViewController())
+		rows.append(TransformViewController())
+		rows.append(AdditiveViewController())
 		
-		label = UILabel()
-		label.frame = CGRectMake(20, 30, 200, 20)
-		label.font = UIFont.systemFontOfSize(14)
-		label.textColor = UIColor.blackColor()
-		view.addSubview(label)
-		
-		let tapRecognizer = UITapGestureRecognizer(target: self, action: "animateTimeline:")
-		view.addGestureRecognizer(tapRecognizer)
-		
-		originalSquareFrame = square.frame
-		originalSquare2Frame = square2.frame
+//		square = UIView()
+//		square.frame = CGRectMake(50, 50, 50, 50)
+//		square.backgroundColor = UIColor.redColor()
+//		view.addSubview(square)
+//		
+//		square2 = UIView()
+//		square2.frame = CGRectMake(200, 200, 50, 50)
+//		square2.backgroundColor = UIColor.blueColor()
+//		view.addSubview(square2)
+//		
+//		var testTransform = CATransform3DIdentity
+//		testTransform = CATransform3DTranslate(testTransform, 0, 50, 0)
+//		testTransform = CATransform3DRotate(testTransform, CGFloat(M_PI_4), 0, 0, 1)
+//		let testSquare = UIView()
+//		testSquare.frame = square2.frame
+//		testSquare.backgroundColor = UIColor.greenColor()
+//		testSquare.layer.anchorPoint = CGPointMake(0.5, 0.5)
+//		testSquare.layer.transform = testTransform
+//		view.addSubview(testSquare)
+//		
+//		label = UILabel()
+//		label.frame = CGRectMake(20, 30, 200, 20)
+//		label.font = UIFont.systemFontOfSize(14)
+//		label.textColor = UIColor.blackColor()
+//		view.addSubview(label)
+//		
+//		let tapRecognizer = UITapGestureRecognizer(target: self, action: "animateTimeline:")
+//		view.addGestureRecognizer(tapRecognizer)
+//		
+//		originalSquareFrame = square.frame
+//		originalSquare2Frame = square2.frame
+	}
+	
+	override func viewWillAppear(animated: Bool) {
+		super.viewWillAppear(animated)
+		tableView.reloadData()
 	}
 
 	override func didReceiveMemoryWarning() {
@@ -155,6 +179,34 @@ class ViewController: UIViewController {
 		square2.frame = originalSquare2Frame
 		
 		Motion.killAll()
+	}
+}
+
+extension ViewController: UITableViewDataSource {
+	
+	func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+		return 1
+	}
+	
+	func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+		return rows.count
+	}
+	
+	func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+		let cell = tableView.dequeueReusableCellWithIdentifier("Row", forIndexPath: indexPath)
+		let controller = rows[indexPath.row]
+		
+		cell.textLabel?.text = controller.title
+		
+		return cell
+	}
+}
+
+extension ViewController: UITableViewDelegate {
+	
+	func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+		let controller = rows[indexPath.row]
+		navigationController?.pushViewController(controller, animated: true)
 	}
 }
 

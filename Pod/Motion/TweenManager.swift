@@ -13,7 +13,14 @@ public class TweenManager {
 	
 	var tweens = [UInt32: Animation]()
 	var counter: UInt32
+	var cache: [NSObject: [Tween]] {
+		get {
+			return tweenCache
+		}
+	}
 	
+	private var tweenCache = [NSObject: [Tween]]()
+	private var additiveProperties = [NSObject: PropertyStore]()
 	private var displayLink: CADisplayLink?
 	private var lastLoopTime: CFTimeInterval
 	
@@ -24,7 +31,7 @@ public class TweenManager {
 		lastLoopTime = 0
 	}
 	
-	// MARK: Public Methods
+	// MARK: Internal Methods
 	
 	func add(tween: Animation) {
 		guard !contains(tween) else { return }
@@ -42,6 +49,17 @@ public class TweenManager {
 		
 		tweens[tween.id] = tween
 		print("adding tween, id: \(tween.id)")
+		
+//		if let tween = tween as? Tween, target = tween.target {
+//			for prop in tween.properties {
+//				if let property = prop.property, key = TweenUtils.propertyKeyForType(property) {
+//					if additiveProperties[target] == nil {
+//						additiveProperties[target] = PropertyStore()
+//					}
+//					additiveProperties[target]?.addProperty(prop, forKey: key)
+//				}
+//			}
+//		}
 		
 		if displayLink == nil {
 			displayLink = CADisplayLink(target: self, selector: "update:")
@@ -92,6 +110,36 @@ public class TweenManager {
 		}
 	}
 	
+	func cache(tween: Tween, target: NSObject) {
+		if tweenCache[target] == nil {
+			tweenCache[target] = [Tween]()
+		}
+		tweenCache[target]?.append(tween)
+	}
+	
+	func removeFromCache(target: NSObject) {
+		tweenCache[target] = nil
+		additiveProperties[target] = nil
+	}
+	
+	func removeAllFromCache() {
+		tweenCache.removeAll()
+		additiveProperties.removeAll()
+	}
+	
+	func tweensOfTarget(target: NSObject, activeOnly: Bool = false) -> [Tween]? {
+		return tweenCache[target]
+	}
+	
+	func lastPropertyForTarget(target: NSObject, type: Property) -> AnimatableProperty? {
+		let props = propertiesForTarget(target, type: type)
+		
+		if props.count > 1 {
+			return props[props.count - 2]
+		}
+		return nil
+	}
+	
 	// MARK: Private Methods
 	
 	private func contains(animation: Animation) -> Bool {
@@ -105,5 +153,41 @@ public class TweenManager {
 		}
 		
 		return contains
+	}
+	
+	private func propertiesForTarget(target: NSObject, type: Property) -> [AnimatableProperty] {
+		var props = [AnimatableProperty]()
+		
+		if let tweens = tweensOfTarget(target) {
+			for tween in tweens {
+				if let prop = tween.storedPropertyForType(type) {
+					props.append(prop)
+				}
+			}
+		}
+		
+		return props
+	}
+}
+
+
+class PropertyStore {
+	var propertiesByKey = [String: [AnimatableProperty]]()
+	
+	func addProperty(property: AnimatableProperty, forKey key: String) {
+		if propertiesByKey[key] == nil {
+			propertiesByKey[key] = [AnimatableProperty]()
+		}
+		propertiesByKey[key]?.append(property)
+	}
+	
+	func addProperties(properties: [AnimatableProperty], forKey key: String) {
+		for property in properties {
+			addProperty(property, forKey: key)
+		}
+	}
+	
+	func propertiesForKey(key: String) -> [AnimatableProperty]? {
+		return propertiesByKey[key]
 	}
 }

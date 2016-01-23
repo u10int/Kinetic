@@ -9,14 +9,13 @@
 import UIKit
 
 class Motion {
-	private static var tweenCache = [NSObject: [Tween]]()
 	
 	// MARK: Class Methods
 	
 	static func to(item: NSObject, duration: CFTimeInterval, options: [Property]) -> Tween {
 		let tween = Tween(target: item, from: nil, to: options, mode: .To)
 		tween.duration = duration
-		cacheTween(tween, forObject: item)
+		TweenManager.sharedInstance.cache(tween, target: item)
 		
 		return tween
 	}
@@ -24,7 +23,7 @@ class Motion {
 	static func from(item: NSObject, duration: CFTimeInterval, options: [Property]) -> Tween {
 		let tween = Tween(target: item, from: options, to: nil, mode: .From)
 		tween.duration = duration
-		cacheTween(tween, forObject: item)
+		TweenManager.sharedInstance.cache(tween, target: item)
 		
 		return tween
 	}
@@ -32,7 +31,7 @@ class Motion {
 	static func fromTo(item: NSObject, duration: CFTimeInterval, from: [Property], to: [Property]) -> Tween {
 		let tween = Tween(target: item, from: from, to: to, mode: .FromTo)
 		tween.duration = duration
-		cacheTween(tween, forObject: item)
+		TweenManager.sharedInstance.cache(tween, target: item)
 		
 		return tween
 	}
@@ -56,7 +55,7 @@ class Motion {
 			let tween = Tween(target: item, from: nil, to: options, mode: .To)
 			tween.duration = duration
 			timeline.add(tween, position: stagger * CFTimeInterval(idx))
-			cacheTween(tween, forObject: item)
+			TweenManager.sharedInstance.cache(tween, target: item)
 		}
 		
 		return timeline
@@ -69,7 +68,7 @@ class Motion {
 			let tween = Tween(target: item, from: options, to: nil, mode: .To)
 			tween.duration = duration
 			timeline.add(tween, position: stagger * CFTimeInterval(idx))
-			cacheTween(tween, forObject: item)
+			TweenManager.sharedInstance.cache(tween, target: item)
 		}
 		
 		return timeline
@@ -82,37 +81,32 @@ class Motion {
 			let tween = Tween(target: item, from: from, to: to, mode: .FromTo)
 			tween.duration = duration
 			timeline.add(tween, position: stagger * CFTimeInterval(idx))
-			cacheTween(tween, forObject: item)
+			TweenManager.sharedInstance.cache(tween, target: item)
 		}
 		
 		return timeline
 	}
 	
+	static func getTweensOf(target: NSObject) -> [Tween]? {
+		return TweenManager.sharedInstance.tweensOfTarget(target)
+	}
+	
 	static func killTweensOf(target: NSObject) {
-		if let tweens = tweenCache[target] {
+		if let tweens = TweenManager.sharedInstance.tweensOfTarget(target) {
 			for tween in tweens {
 				tween.kill()
 			}
 		}
-		tweenCache[target] = nil
+		TweenManager.sharedInstance.removeFromCache(target)
 	}
 	
 	static func killAll() {
-		for (_, var tweens) in tweenCache {
+		for (_, var tweens) in TweenManager.sharedInstance.cache {
 			for tween in tweens {
 				tween.kill()
 			}
 			tweens.removeAll()
 		}
-		tweenCache = [NSObject: [Tween]]()
-	}
-	
-	// MARK: Private Methods
-	
-	static func cacheTween(tween: Tween, forObject object: NSObject) {
-		if tweenCache[object] == nil {
-			tweenCache[object] = [Tween]()
-		}
-		tweenCache[object]?.append(tween)
+		TweenManager.sharedInstance.removeAllFromCache()
 	}
 }

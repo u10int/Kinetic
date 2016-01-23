@@ -63,6 +63,10 @@ public class Animation: NSObject {
 	
 	// MARK: Options
 	
+	public func ease(easing: Ease) -> Animation {
+		return self
+	}
+	
 	public func delay(delay: CFTimeInterval) -> Animation {
 		self.delay = delay
 		return self
@@ -85,6 +89,10 @@ public class Animation: NSObject {
 	
 	public func yoyo() -> Animation {
 		reverseOnComplete = true
+		return self
+	}
+	
+	public func perspective(value: CGFloat) -> Animation {
 		return self
 	}
 	

@@ -21,22 +21,23 @@ private struct RGBA {
 	}
 }
 
-public class AnimatableProperty {
-	weak var target: AnyObject!
+public class AnimatableProperty: Equatable {
+	weak var target: NSObject!
 	weak var group: TweenGroup!
 	
 	var property: Property?
 	var mode: TweenMode = .To
+	var tween: Tween?
 	var duration: CFTimeInterval = 1
 	var delay: CFTimeInterval = 0
 	var elapsed: CFTimeInterval = 0
 	var dt: CFTimeInterval = 0
-	var current: CGFloat = 0
+	var time: CGFloat = 0
 	var easing: Ease = Easing.linear
 	var spring: Spring?
 	var additive: Bool = true
 	
-	init(target: AnyObject) {
+	init(target: NSObject) {
 		self.target = target
 	}
 	
@@ -52,7 +53,7 @@ public class AnimatableProperty {
 		}
 		
 		if elapsed >= delay {
-			current = CGFloat((elapsed - delay) / duration)
+			time = CGFloat((elapsed - delay) / duration)
 			update()
 		}
 		
@@ -69,11 +70,15 @@ public class AnimatableProperty {
 	
 	func prepare() {
 		calc()
+		
+//		for tween in currentTweens() {
+//			tween.stop()
+//		}
 	}
 	
 	func reset() {
 		elapsed = 0
-		current = 0
+		time = 0
 		
 		if let spring = spring {
 			spring.reset()
@@ -99,7 +104,7 @@ public class AnimatableProperty {
 			spring.proceed(dt / duration)
 			return from + (to - from) * CGFloat(spring.current)
 		}
-		return easing(t: current, b: from, c: to - from)
+		return easing(t: time, b: from, c: to - from)
 	}
 	
 	func lerpPoint(from: CGPoint, to: CGPoint) -> CGPoint {
@@ -162,15 +167,21 @@ public class AnimatableProperty {
 	}
 }
 
+public func ==(lhs: AnimatableProperty, rhs: AnimatableProperty) -> Bool {
+	return ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
+}
+
 public class ValueProperty: AnimatableProperty {
 	var from: CGFloat = 0
 	var to: CGFloat = 0
 	var toCalc: CGFloat = 0
+	var current: CGFloat = 0
+//	var delta: CGFloat = 0
 	
 	private var _from: CGFloat = 0
 	private var _to: CGFloat = 0
 	
-	init(target: AnyObject, from: CGFloat, to: CGFloat) {
+	init(target: NSObject, from: CGFloat, to: CGFloat) {
 		super.init(target: target)
 		self.from = from
 		self.to = to
@@ -219,12 +230,11 @@ public class StructProperty: ValueProperty {
 	
 	override func prepare() {
 		if let value = currentValue {
-			if additive {
-				if mode == .To {
-					from = value
-				} else if mode == .From {
-					to = value
-				}
+			print("prepare: \(property), value=\(value)")
+			if mode == .To {
+				from = value
+			} else if mode == .From {
+				to = value
 			}
 		}
 		super.prepare()
@@ -268,6 +278,8 @@ public class PointProperty: AnimatableProperty {
 	var from: CGPoint = CGPointZero
 	var to: CGPoint = CGPointZero
 	var toCalc: CGPoint = CGPointZero
+	var current: CGPoint = CGPointZero
+	
 	var currentOrigin: CGPoint? {
 		get {
 			if let view = target as? UIView {
@@ -282,7 +294,7 @@ public class PointProperty: AnimatableProperty {
 	private var _from: CGPoint = CGPointZero
 	private var _to: CGPoint = CGPointZero
 	
-	init(target: AnyObject, from: CGPoint, to: CGPoint) {
+	init(target: NSObject, from: CGPoint, to: CGPoint) {
 		super.init(target: target)
 		self.from = from
 		self.to = to
@@ -291,48 +303,69 @@ public class PointProperty: AnimatableProperty {
 	}
 	
 	override func calc() {
-//		toCalc = CGPoint(x: from.x + to.x, y: from.y + to.y)
 		toCalc = to
+		print("calc: to=\(toCalc)")
 	}
 	
 	override func prepare() {
 		if let origin = currentOrigin, prop = property {
 			if additive {
+				if let target = target, tween = tween, lastProp = TweenManager.sharedInstance.lastPropertyForTarget(target, type: prop) as? PointProperty {
+					from = lastProp.to
+					print("tween \(tween.id): setting from \(from)")
+				}
+			} else {
 				if mode == .To {
 					from = origin
 				} else if mode == .From {
 					to = origin
 				}
-				
-				switch prop {
-				case .X(_):
-					if mode == .To {
-						to.y = origin.y
-					} else {
-						from.y = origin.y
-					}
-				case .Y(_):
-					if mode == .To {
-						to.x = origin.x
-					} else {
-						from.x = origin.x
-					}
-				case .Shift(let shiftX, let shiftY):
-					if mode == .To {
-						to = CGPoint(x: origin.x + shiftX, y: origin.y + shiftY)
-					} else {
-						from = CGPoint(x: origin.x + shiftX, y: origin.y + shiftY)
-					}
-				default:
-					break
+			}
+			
+			switch prop {
+			case .X(_):
+				if mode == .To {
+					to.y = origin.y
+				} else {
+					from.y = origin.y
 				}
+			case .Y(_):
+				if mode == .To {
+					to.x = origin.x
+				} else {
+					from.x = origin.x
+				}
+			case .Shift(let shiftX, let shiftY):
+				if mode == .To {
+					to = CGPoint(x: origin.x + shiftX, y: origin.y + shiftY)
+				} else {
+					from = CGPoint(x: origin.x + shiftX, y: origin.y + shiftY)
+				}
+			default:
+				break
 			}
 		}
+		
+		print("prepare: from=\(from), to=\(to)")
+		current = from
+		
 		super.prepare()
 	}
 	
 	override func update() {
-		let point = lerpPoint(from, to: to)
+		var point = lerpPoint(from, to: toCalc)
+		let newPoint = point
+		
+		if additive {
+			if let origin = currentOrigin, tween = tween {
+				let delta = CGPoint(x: point.x - current.x, y: point.y - current.y)
+				point.x = origin.x + delta.x
+				point.y = origin.y + delta.y
+//				print("tween \(tween.id) - origin: \(origin), current: \(current), new: \(point), delta: \(delta), from: \(from), to: \(toCalc)")
+			}
+		}
+		
+		current = newPoint
 		updateTarget(point)
 	}
 	
@@ -354,6 +387,8 @@ public class SizeProperty: AnimatableProperty {
 	var from: CGSize = CGSizeZero
 	var to: CGSize = CGSizeZero
 	var toCalc: CGSize = CGSizeZero
+	var current: CGSize = CGSizeZero
+	
 	var currentSize: CGSize? {
 		get {
 			if let view = target as? UIView {
@@ -368,7 +403,7 @@ public class SizeProperty: AnimatableProperty {
 	private var _from: CGSize = CGSizeZero
 	private var _to: CGSize = CGSizeZero
 	
-	init(target: AnyObject, from: CGSize, to: CGSize) {
+	init(target: NSObject, from: CGSize, to: CGSize) {
 		super.init(target: target)
 		self.from = from
 		self.to = to
@@ -384,28 +419,33 @@ public class SizeProperty: AnimatableProperty {
 	override func prepare() {
 		if let size = currentSize, prop = property {
 			if additive {
+				if let target = target, tween = tween, lastProp = TweenManager.sharedInstance.lastPropertyForTarget(target, type: prop) as? SizeProperty {
+					from = lastProp.to
+					print("tween \(tween.id): setting from \(from)")
+				}
+			} else {
 				if mode == .To {
 					from = size
 				} else if mode == .From {
 					to = size
 				}
-				
-				switch prop {
-				case .Width(_):
-					if mode == .To {
-						from.height = size.height
-					} else {
-						to.height = size.height
-					}
-				case .Height(_):
-					if mode == .To {
-						from.width = size.width
-					} else {
-						to.width = size.width
-					}
-				default:
-					break
+			}
+			
+			switch prop {
+			case .Width(_):
+				if mode == .To {
+					from.height = size.height
+				} else {
+					to.height = size.height
 				}
+			case .Height(_):
+				if mode == .To {
+					from.width = size.width
+				} else {
+					to.width = size.width
+				}
+			default:
+				break
 			}
 		}
 		super.prepare()
@@ -434,6 +474,8 @@ public class RectProperty: AnimatableProperty {
 	var from: CGRect = CGRectZero
 	var to: CGRect = CGRectZero
 	var toCalc: CGRect = CGRectZero
+	var current: CGRect = CGRectZero
+	
 	var currentRect: CGRect? {
 		get {
 			if let view = target as? UIView {
@@ -448,7 +490,7 @@ public class RectProperty: AnimatableProperty {
 	private var _from: CGRect = CGRectZero
 	private var _to: CGRect = CGRectZero
 	
-	init(target: AnyObject, from: CGRect, to: CGRect) {
+	init(target: NSObject, from: CGRect, to: CGRect) {
 		super.init(target: target)
 		self.from = from
 		self.to = to
@@ -462,6 +504,10 @@ public class RectProperty: AnimatableProperty {
 	
 	override func prepare() {
 		if additive {
+			if let target = target, prop = property, lastProp = TweenManager.sharedInstance.lastPropertyForTarget(target, type: prop) as? RectProperty {
+				from = lastProp.to
+			}
+		} else {
 			if let size = currentRect {
 				if mode == .To {
 					from = size
@@ -470,6 +516,7 @@ public class RectProperty: AnimatableProperty {
 				}
 			}
 		}
+		
 		super.prepare()
 	}
 	
@@ -510,7 +557,7 @@ public class TransformProperty: AnimatableProperty {
 	private var _from: CATransform3D = CATransform3DIdentity
 	private var _to: CATransform3D = CATransform3DIdentity
 	
-	init(target: AnyObject, from: CATransform3D, to: CATransform3D) {
+	init(target: NSObject, from: CATransform3D, to: CATransform3D) {
 		super.init(target: target)
 		self.from = from
 		self.to = to
@@ -579,13 +626,11 @@ public class ColorProperty: AnimatableProperty {
 	private var _from: UIColor = UIColor.blackColor()
 	private var _to: UIColor = UIColor.blackColor()
 	
-	init(target: AnyObject, property: String, from: UIColor, to: UIColor) {
+	init(target: NSObject, property: String, from: UIColor, to: UIColor) {
 		self.keyPath = property
 		super.init(target: target)
 		
-		if let target = target as? NSObject {
-			assert(target.respondsToSelector(Selector(property)), "Target for ColorProperty must contain a public property {\(property)}")
-		}
+		assert(target.respondsToSelector(Selector(property)), "Target for ColorProperty must contain a public property {\(property)}")
 		
 		self.from = from
 		self.to = to
@@ -622,7 +667,7 @@ public class ColorProperty: AnimatableProperty {
 	}
 	
 	private func updateTarget(value: UIColor) {
-		if let target = target as? NSObject {
+		if let target = target {
 			target.setValue(value, forKeyPath: keyPath)
 		}
 	}
@@ -631,15 +676,11 @@ public class ColorProperty: AnimatableProperty {
 public class ObjectProperty: ValueProperty {
 	var keyPath: String
 	
-	init(target: AnyObject, keyPath: String, from: CGFloat, to: CGFloat) {
-		assert(target is NSObject, "Target for CustomProperty must be of type NSObject")
-		
+	init(target: NSObject, keyPath: String, from: CGFloat, to: CGFloat) {
 		self.keyPath = keyPath
 		super.init(target: target, from: from, to: to)
 		
-		if let target = target as? NSObject {
-			assert(target.respondsToSelector(Selector(keyPath)), "Target for CustomProperty must contain a public property {\(keyPath)}")
-		}
+		assert(target.respondsToSelector(Selector(keyPath)), "Target for CustomProperty must contain a public property {\(keyPath)}")
 	}
 	
 	override func calc() {
@@ -648,7 +689,7 @@ public class ObjectProperty: ValueProperty {
 	
 	override func prepare() {
 		if additive {
-			if let target = target as? NSObject, value = target.valueForKeyPath(keyPath) as? CGFloat {
+			if let target = target, value = target.valueForKeyPath(keyPath) as? CGFloat {
 				if mode == .To {
 					from = value
 				} else if mode == .From {
@@ -675,7 +716,7 @@ public class ObjectProperty: ValueProperty {
 	}
 	
 	private func updateTarget(value: CGFloat) {
-		if let target = target as? NSObject {
+		if let target = target {
 			target.setValue(value, forKeyPath: keyPath)
 		}
 	}

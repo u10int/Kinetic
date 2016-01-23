@@ -33,22 +33,9 @@ public enum TweenMode {
 	case FromTo
 }
 
-private enum PropertyKey: String {
-	case X = "frame.origin.x"
-	case Y = "frame.origin.y"
-	case Position = "frame.origin"
-	case Width = "frame.size.width"
-	case Height = "frame.size.height"
-	case Size = "frame.size"
-	case Frame = "frame"
-	case Transform = "transform"
-	case Alpha = "alpha"
-	case BackgroundColor = "backgroundColor"
-}
-
 public class Tween: Animation {
-	weak var target: AnyObject?
-
+	weak var target: NSObject?
+	
 	override public var duration: CFTimeInterval {
 		didSet {
 			for prop in properties {
@@ -57,10 +44,16 @@ public class Tween: Animation {
 			group?.duration = duration
 		}
 	}
+	public var additive = true
 	
 //	var repeatCount: Int = 0
 	var group: TweenGroup?
-	var properties = [AnimatableProperty]()
+	var properties: [AnimatableProperty] {
+		get {
+			return _properties
+		}
+	}
+	var _properties = [AnimatableProperty]()
 	
 	override var totalTime: CFTimeInterval {
 		get {
@@ -86,7 +79,7 @@ public class Tween: Animation {
 	
 	// MARK: Lifecycle
 	
-	required public init(target: AnyObject, from: [Property]?, to: [Property]?, mode: TweenMode = .To) {
+	required public init(target: NSObject, from: [Property]?, to: [Property]?, mode: TweenMode = .To) {
 		self.target = target
 		super.init()
 		
@@ -142,7 +135,7 @@ public class Tween: Animation {
 	
 	// MARK: Public Methods
 	
-	public func ease(easing: Ease) -> Tween {
+	override public func ease(easing: Ease) -> Tween {
 		for prop in properties {
 			prop.easing = easing
 		}
@@ -156,7 +149,20 @@ public class Tween: Animation {
 		return self
 	}
 	
-	public func perspective(value: CGFloat) -> Tween {
+	override public func perspective(value: CGFloat) -> Tween {
+		var layer: CALayer?
+		
+		if let targetLayer = target as? CALayer {
+			layer = targetLayer
+		} else if let view = target as? UIView {
+			layer = view.layer
+		}
+		
+		if let layer = layer, var transform = layer.superlayer?.sublayerTransform {
+			transform.m34 = value
+			layer.superlayer?.sublayerTransform = transform
+		}
+		
 		return self
 	}
 	
@@ -232,7 +238,7 @@ public class Tween: Animation {
 		}
 		
 		for (_, prop) in propertiesByType {
-			properties.append(prop)
+			_properties.append(prop)
 			prop.reset()
 			prop.calc()
 		}
@@ -338,6 +344,14 @@ public class Tween: Animation {
 //		}
 		
 		return false
+	}
+	
+	func storedPropertyForType(type: Property) -> AnimatableProperty? {
+		if let key = TweenUtils.propertyKeyForType(type) {
+			return propertiesByType[key]
+		}
+		
+		return nil
 	}
 	
 	// MARK: Private Methods
@@ -520,36 +534,10 @@ public class Tween: Animation {
 	}
 	
 	private func propertyForType(type: Property) -> AnimatableProperty? {
-		let propType = type
-		var propKey: String?
-		
-		switch propType {
-		case .KeyPath(let key, _):
-			propKey = key
-		case .Alpha(_):
-			propKey = PropertyKey.Alpha.rawValue
-		case .BackgroundColor(_):
-			propKey = PropertyKey.BackgroundColor.rawValue
-		case .X(_):
-			propKey = PropertyKey.X.rawValue
-		case .Y(_):
-			propKey = PropertyKey.Y.rawValue
-		case .Position(_, _), .Shift(_, _):
-			propKey = PropertyKey.Position.rawValue
-		case .Width(_):
-			propKey = PropertyKey.Width.rawValue
-		case .Height(_):
-			propKey = PropertyKey.Height.rawValue
-		case .Size(_, _), .Width(_), .Height(_):
-			propKey = PropertyKey.Size.rawValue
-		default:
-			propKey = PropertyKey.Transform.rawValue
-		}
-		
-		if let key = propKey {
+		if let key = TweenUtils.propertyKeyForType(type) {
 			var prop = propertiesByType[key]
 			
-			if let key = propKey where prop == nil {
+			if prop == nil {
 				switch key {
 				case PropertyKey.Position.rawValue:
 					if let target = target, origin = targetOrigin(target) {
@@ -593,12 +581,13 @@ public class Tween: Animation {
 						prop = StructProperty(target: target, from: value, to: value)
 					}
 				default:
-					if let target = target as? NSObject, value = target.valueForKeyPath(key) as? CGFloat {
+					if let target = target, value = target.valueForKeyPath(key) as? CGFloat {
 						prop = ObjectProperty(target: target, keyPath: key, from: value, to: value)
 					}
 				}
 				
 				prop?.property = type
+				prop?.tween = self
 				propertiesByType[key] = prop
 			}
 			
@@ -664,7 +653,7 @@ public class Tween: Animation {
 //		return transform
 //	}
 	
-	private func targetOrigin(target: AnyObject) -> CGPoint? {
+	private func targetOrigin(target: NSObject) -> CGPoint? {
 		var origin: CGPoint?
 		
 		if let layer = target as? CALayer {
@@ -676,7 +665,7 @@ public class Tween: Animation {
 		return origin
 	}
 	
-	private func targetSize(target: AnyObject) -> CGSize? {
+	private func targetSize(target: NSObject) -> CGSize? {
 		var size: CGSize?
 		
 		if let layer = target as? CALayer {
@@ -688,7 +677,7 @@ public class Tween: Animation {
 		return size
 	}
 	
-	private func targetFrame(target: AnyObject) -> CGRect? {
+	private func targetFrame(target: NSObject) -> CGRect? {
 		var frame: CGRect?
 		
 		if let layer = target as? CALayer {
@@ -700,7 +689,7 @@ public class Tween: Animation {
 		return frame
 	}
 	
-	private func targetTransform(target: AnyObject) -> CATransform3D? {
+	private func targetTransform(target: NSObject) -> CATransform3D? {
 		var transform: CATransform3D?
 		
 		if let layer = target as? CALayer {
@@ -712,7 +701,7 @@ public class Tween: Animation {
 		return transform
 	}
 	
-	private func targetAlpha(target: AnyObject) -> CGFloat? {
+	private func targetAlpha(target: NSObject) -> CGFloat? {
 		var alpha: CGFloat?
 		
 		if let layer = target as? CALayer {
@@ -724,7 +713,7 @@ public class Tween: Animation {
 		return alpha
 	}
 	
-	private func targetColor(target: AnyObject, keyPath: String) -> UIColor? {
+	private func targetColor(target: NSObject, keyPath: String) -> UIColor? {
 		var color: UIColor?
 		
 		if target.respondsToSelector(Selector(keyPath)) {

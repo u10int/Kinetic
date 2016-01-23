@@ -184,6 +184,20 @@ public class Timeline: Animation {
 	
 	// MARK: Animation
 	
+	override public func ease(easing: Ease) -> Timeline {
+		for tween in tweens {
+			tween.ease(easing)
+		}
+		return self
+	}
+	
+	override public func perspective(value: CGFloat) -> Timeline {
+		for tween in tweens {
+			tween.perspective(value)
+		}
+		return self
+	}
+	
 	override public func play() -> Timeline {
 		guard !active else { return self }
 		
