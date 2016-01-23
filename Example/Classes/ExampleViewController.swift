@@ -56,7 +56,7 @@ class ExampleViewController: UIViewController {
 		
 		// layout
 		let views = ["play": playButton, "stop": stopButton, "pause": pauseButton, "resume": resumeButton]
-		let buttonHorizontal = NSLayoutConstraint.constraintsWithVisualFormat("|-10-[play(==70)]-[stop(==play)]-[pause(==play)]-[resume(==play)]", options: .AlignAllBottom, metrics: nil, views: views)
+		let buttonHorizontal = NSLayoutConstraint.constraintsWithVisualFormat("H:|-10-[play(==70)]-[stop(==play)]-[pause(==play)]-[resume(==play)]", options: .AlignAllBottom, metrics: nil, views: views)
 		let buttonVertical = NSLayoutConstraint.constraintsWithVisualFormat("V:[play]-20-|", options: [], metrics: nil, views: views)
 		view.addConstraints(buttonHorizontal)
 		view.addConstraints(buttonVertical)

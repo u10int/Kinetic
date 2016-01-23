@@ -41,6 +41,7 @@ class ViewController: UIViewController {
 		rows.append(SequenceViewController())
 		rows.append(TransformViewController())
 		rows.append(AdditiveViewController())
+		rows.append(PhysicsViewController())
 		
 //		square = UIView()
 //		square.frame = CGRectMake(50, 50, 50, 50)
