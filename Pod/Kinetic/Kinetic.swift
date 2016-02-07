@@ -95,6 +95,7 @@ class Kinetic {
 		if let tweens = TweenManager.sharedInstance.tweensOfTarget(target) {
 			for tween in tweens {
 				tween.kill()
+				tween.timeline?.remove(tween)
 			}
 		}
 		TweenManager.sharedInstance.removeFromCache(target)
@@ -104,6 +105,7 @@ class Kinetic {
 		for (_, var tweens) in TweenManager.sharedInstance.cache {
 			for tween in tweens {
 				tween.kill()
+				tween.timeline?.remove(tween)
 			}
 			tweens.removeAll()
 		}

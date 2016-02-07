@@ -290,6 +290,10 @@ public class Timeline: Animation {
 			return false
 		}
 		
+		if tweens.count == 0 {
+			kill()
+		}
+		
 		if reversed {
 			dt *= -1
 		}
