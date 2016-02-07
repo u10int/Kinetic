@@ -46,5 +46,10 @@ class SequenceViewController: ExampleViewController {
 		
 		animation = timeline
 	}
+	
+	override func reset() {
+		super.reset()
+		square.frame = CGRectMake(50, 50, 50, 50)
+	}
 
 }

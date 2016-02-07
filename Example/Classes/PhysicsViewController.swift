@@ -52,7 +52,7 @@ class PhysicsViewController: ExampleViewController {
 		tensionSlider = UISlider()
 		tensionSlider.translatesAutoresizingMaskIntoConstraints = false
 		tensionSlider.minimumValue = 0
-		tensionSlider.maximumValue = 100
+		tensionSlider.maximumValue = 300
 		tensionSlider.addTarget(self, action: "tensionChanged:", forControlEvents: .ValueChanged)
 		view.addSubview(tensionSlider)
 		
@@ -102,6 +102,12 @@ class PhysicsViewController: ExampleViewController {
 		animation?.play()
 	}
 	
+	override func reset() {
+		animation?.stop()
+		Kinetic.killTweensOf(square)
+		square.frame = CGRectMake(50, 50, 50, 50)
+	}
+	
 	func tensionChanged(sender: UISlider) {
 		tensionValue.text = "\(Int(round(sender.value)))"
 		reset()
@@ -112,11 +118,4 @@ class PhysicsViewController: ExampleViewController {
 		reset()
 	}
 	
-	// MARK: Private Methods
-	
-	private func reset() {
-		animation?.stop()
-		Kinetic.killTweensOf(square)
-		square.frame = CGRectMake(50, 50, 50, 50)
-	}
 }

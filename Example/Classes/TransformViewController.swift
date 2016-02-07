@@ -52,5 +52,11 @@ class TransformViewController: ExampleViewController {
 		frame.origin.x = CGRectGetMidX(view.frame) + 2
 		blueSquare.frame = frame
 	}
+	
+	override func reset() {
+		super.reset()
+		greenSquare.transform = CGAffineTransformIdentity
+		blueSquare.transform = CGAffineTransformIdentity
+	}
 
 }

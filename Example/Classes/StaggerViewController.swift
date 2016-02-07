@@ -48,4 +48,12 @@ class StaggerViewController: ExampleViewController {
 		}
 		super.play()
 	}
+	
+	override func reset() {
+		super.reset()
+		
+		for square in squares {
+			square.frame.size.width = 50
+		}
+	}
 }

@@ -13,6 +13,7 @@ class ExampleViewController: UIViewController {
 	var stopButton: UIButton!
 	var pauseButton: UIButton!
 	var resumeButton: UIButton!
+	var resetButton: UIButton!
 	
 	var animation: Animation?
 	
@@ -54,9 +55,15 @@ class ExampleViewController: UIViewController {
 		resumeButton.addTarget(self, action: "resume", forControlEvents: .TouchUpInside)
 		view.addSubview(resumeButton)
 		
+		resetButton = UIButton(type: .RoundedRect)
+		resetButton.translatesAutoresizingMaskIntoConstraints = false
+		resetButton.setTitle("Reset", forState: .Normal)
+		resetButton.addTarget(self, action: "reset", forControlEvents: .TouchUpInside)
+		view.addSubview(resetButton)
+		
 		// layout
-		let views = ["play": playButton, "stop": stopButton, "pause": pauseButton, "resume": resumeButton]
-		let buttonHorizontal = NSLayoutConstraint.constraintsWithVisualFormat("H:|-10-[play(==70)]-[stop(==play)]-[pause(==play)]-[resume(==play)]", options: .AlignAllBottom, metrics: nil, views: views)
+		let views = ["play": playButton, "stop": stopButton, "pause": pauseButton, "resume": resumeButton, "reset": resetButton]
+		let buttonHorizontal = NSLayoutConstraint.constraintsWithVisualFormat("H:|-10-[play(==60)]-[stop(==play)]-[pause(==play)]-[resume(==play)]-[reset(==play)]", options: .AlignAllBottom, metrics: nil, views: views)
 		let buttonVertical = NSLayoutConstraint.constraintsWithVisualFormat("V:[play]-20-|", options: [], metrics: nil, views: views)
 		view.addConstraints(buttonHorizontal)
 		view.addConstraints(buttonVertical)
@@ -65,7 +72,7 @@ class ExampleViewController: UIViewController {
 	override func viewDidDisappear(animated: Bool) {
 		super.viewDidDisappear(animated)
 		
-		
+		reset()
 	}
 
     override func didReceiveMemoryWarning() {
@@ -95,6 +102,18 @@ class ExampleViewController: UIViewController {
 		if let animation = animation {
 			animation.resume()
 		}
+	}
+	
+	func reset() {
+		animation?.stop()
+	}
+	
+	func hideButtons() {
+		playButton.hidden = true
+		stopButton.hidden = true
+		pauseButton.hidden = true
+		resumeButton.hidden = true
+		resetButton.hidden = true
 	}
 	
 }

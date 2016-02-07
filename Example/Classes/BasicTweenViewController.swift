@@ -34,4 +34,9 @@ class BasicTweenViewController: ExampleViewController {
 		let tween = Kinetic.to(square, duration: 0.5, options: [.X(250), .Height(100)]).ease(Easing.inOutQuart)
 		animation = tween
     }
+	
+	override func reset() {
+		super.reset()
+		square.frame = CGRectMake(50, 50, 50, 50)
+	}
 }

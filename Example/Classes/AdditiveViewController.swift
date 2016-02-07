@@ -26,6 +26,7 @@ class AdditiveViewController: ExampleViewController {
 		super.viewDidLoad()
 		
 		view.backgroundColor = UIColor.whiteColor()
+		hideButtons()
 		
 		square = UIView()
 		square.frame = CGRectMake(50, 50, 50, 50)
