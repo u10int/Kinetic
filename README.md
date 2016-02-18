@@ -1,6 +1,8 @@
 Kinetic
 ======
-A flexible tweening library for iOS in Swift2 similar to GSAP's TweenMax and inspired by Cheetah.
+A flexible tweening library for iOS in Swift2 similar to GSAP and inspired by Cheetah.
+
+**NOTE** This project is still a work in progress and may not by fully suitable for production usage. More extensive documentation will also be added along the way.
 
 Requirements
 ----
@@ -9,7 +11,7 @@ Requirements
 
 Features
 ----
-- Quickly setup animations in a syntax similar to TweenMax and the awesome [GSAP](http://greensock.com/gsap)
+- Quickly setup animations in a syntax similar to TweenMax, TimelineMax and the awesome [GSAP](http://greensock.com/gsap)
 - Start, stop, pause and resume any animation during runtime
 - Easings and springs for more realistic and interesting animations
 - Chaining methods for concise code
@@ -56,7 +58,21 @@ Animating the same properties on multiple objects is just as quick and easy:
 	
 {insert screenshot}
 
-Properties
+If you want to remove a tween at any time, you can either call `kill()` on the Tween instance directly, or you can remove multiple tweens of a single object by using the convenience methods provided by the central Kinetic class:
+
+	```swift			
+	Kinetic.killTweensOf(greenSquare)
+	```
+	
+To remove all tweens currently running from all objects, simply call `killAll()`:
+
+	```swift			
+	Kinetic.killAll(greenSquare)
+	```
+	
+Killing and removing a tween is similar to `pause()` and will stop the animation at its current position without returning the associated object back to its original starting position.
+
+Supported Properties
 ----
 Kinetic has support for animating most visible properties on UIView and CALayer already built-in, but you can also animating any custom key-value property on NSObject:
 
@@ -72,7 +88,7 @@ Kinetic has support for animating most visible properties on UIView and CALayer 
 - `.RotateXY(rotateX, rotateY)` - animates the rotation of the object in the x and y axes (for three-dimensional rotation)
 - `.Transform(transform)` - animates the object to the specified CATransform3D value
 - `.BackgroundColor(color)` - animates the background color of the view or layer
-- `.KeyPath(key, val)` - animates a custom property on an NSObject instance for the specified property (key)
+- `.KeyPath(key, val)` - animates a custom property on an NSObject instance for the specified key path
 
 The animation properties you provide with your tweens use a very Swift-like syntax where you specify the starting or ending values as parameters to the property you wish to animate. For example, to animate a view's origin.x from its current position to 100pt you would use `.X(100)`. However, if you just wanted to shift the view from its current location 100pt to the right, you would use `.Shift(100,0)` instead, which specifies the distance to move the view in both x and y coordinates.
 
@@ -90,5 +106,63 @@ The following are the primary classes used within the library along with their p
 | Easing        | Common easing properties for animations.                                                                                                                  |
 | Spring        | Basic spring for physics-based animations.                                                                                                                |
 
-Methods
+Timelines
 ----
+A Kinetic Timeline is similar to GSAP's TimelineMax in that it allows you to group multiple Tween instances into a single, easy to control sequence with precise timing management. Without using a Timeline instance, you would have to create multiple Tween instances and manually calculate their delay values to create the exact sequence you want.
+
+For instance, if you want to move a view to the right, then down, and then scale it up by 2 for a duration of 3 seconds, you could do so by creating three Tween instances and offset their delay values by 1 second: 
+
+	```swift
+	Kinetic.to(square, duration: 1, options: [ .X(110) ]).ease(Easing.inOutCubic).play()
+	Kinetic.to(square, duration: 1, options: [ .Y(250) ]).ease(Easing.inOutCubic).delay(1).play()
+	Kinetic.to(square, duration: 1, options: [ .Scale(2) ]).ease(Easing.inOutCubic).delay(2).play()
+	```		
+
+Note that if you change the duration of any of the individual tweens, you also have to be sure to adjust the delay values for the sequence. And trying to pause, restart or reverse the sequence is even more of a challenge. However, by using a Timeline instance you can perform all of these functions easily:
+
+	```swift
+	let timeline = Timeline()
+	timeline.add(Kinetic.to(square, duration: 1, options: [ .X(110) ]).ease(Easing.inOutCubic))
+	timeline.add(Kinetic.to(square, duration: 1, options: [ .Y(250) ]).ease(Easing.inOutCubic))
+	timeline.add(Kinetic.to(square, duration: 1, options: [ .Scale(2) ]).ease(Easing.inOutCubic))
+	timeline.play())
+	```
+	
+{insert screenshot}
+
+Using `Kinetic.itemsTo`, `Kinetic.itemsFrom` and `Kinetic.itemsFromTo` you can animate the same properties on multiple objects using a single line of code. For example, you may want to move an array of views down by 50 points:
+
+	```swift
+	let timeline = Kinetic.itemsTo([views], duration: 0.5, options: [ .Shift(0, 50) ]).play()
+	```
+
+###Sequencing###
+
+
+
+###Staggered Animations###
+
+Using a Timeline also provides you with the ability to stagger multiple animations for more interesting effects. For instance, you may have a column of horizontal bars whose widths you want to animate to their final state. You could do this with a basic Timeline instance and increasingly offset their positions relative to the start time, but there's an easier way using `Kinetic.staggerTo`, `Kinetic.staggerFrom` and `Kinetic.staggerFromTo`:
+
+	```swift
+	// squares is an array of UIViews
+	let timeline = Kinetic.staggerTo(squares, duration: 1, options: [ .Width(200) ], stagger: 0.08).spring(tension: 100, friction: 12).play()
+	```
+	
+In a single line, you can animate each item in `squares` from their starting width to a width of 200 using a spring, each offset by 0.08 seconds. The methods `staggerTo`, `staggerFrom`, and `staggerToFrom` will return an instance of Timeline.
+
+{insert screenshot}
+	
+You can also add labels to your timeline to be used for referencing when adding additional tweens or for playback. For example, you may want to include a color change animation for a view in your timeline and want other tweens to take place relative to that position. First create a label at the time you want to reference and then add your tweens relative to or offset from that label:
+
+	```swift
+	let resize = Kinetic.to(square, duration: 1, options: [ .Size(150,100) ]).ease(Easing.inOutCubic)
+	let color = Kinetic.to(square, duration: 0.75, options: [ .BackgroundColor(UIColor.blueColor()) ])
+		
+	timeline.addLabel("colorChange", position: 1.3)
+	timeline.add(color, relativeToLabel: "colorChange", offset: 0)
+	timeline.add(resize, relativeToLabel: "colorChange", offset: 0.5)
+	```
+
+Refer to the example project for more detailed examples of using a Timeline.
+
