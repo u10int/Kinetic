@@ -45,9 +45,7 @@ public class TweenManager {
 			}
 			tween.id = counter
 		}
-		
 		tweens[tween.id] = tween
-		print("adding tween, id: \(tween.id)")
 		
 		if displayLink == nil {
 			displayLink = CADisplayLink(target: self, selector: "update:")

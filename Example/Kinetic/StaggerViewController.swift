@@ -43,13 +43,6 @@ class StaggerViewController: ExampleViewController {
 		animation = tween
 	}
 	
-	override func play() {
-		for square in squares {
-			Kinetic.killTweensOf(square)
-		}
-		super.play()
-	}
-	
 	override func reset() {
 		super.reset()
 		
