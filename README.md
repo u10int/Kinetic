@@ -50,10 +50,9 @@ Animating multiple properties of an UIView or CALayer can be done in a single li
 	
 	// move 250pt to the right and set the height to 100pt for 0.5 seconds
 	Kinetic.to(square, duration: 0.5, options: [ .X(250), .Height(100) ]).ease(Easing.inOutQuart).play()
-
 	```
 	
-{insert screenshot}
+![Basic Tween](https://raw.github.com/u10int/Kinetic/blob/master/Example/screenshots/kinetic-tween-basic.gif)
 	
 Animating the same properties on multiple objects is just as quick and easy:
 
@@ -74,7 +73,7 @@ Animating the same properties on multiple objects is just as quick and easy:
 	timeline.play()
 	```
 	
-{insert screenshot}
+![Grouped Tween](https://raw.github.com/u10int/Kinetic/blob/master/Example/screenshots/kinetic-tween-group.gif)
 
 Review the example project for more in-depth and complex animation examples using Kinetic.
 
@@ -269,7 +268,7 @@ Note that if you change the duration of any of the individual tweens, you also h
 	timeline.play()
 	```
 	
-{insert screenshot}
+![Timeline Sequence](https://raw.github.com/u10int/Kinetic/blob/master/Example/screenshots/kinetic-timeline-sequence.gif)
 
 The above timeline will perform each tween sequentially for a total duration of 3 seconds since each tween is 1 second in length.
 
@@ -285,7 +284,7 @@ Instead of having each tween play one after another, you can specify a position 
 	
 This change will play the second tween at 1.5 seconds into the animation, and then the last one immediately after it completes at 2.5 seconds. Therefore, our timeline's new total duration will be 3.5 seconds instead of 3 seconds.
 
-{insert screenshot}
+![Timeline Sequence](https://raw.github.com/u10int/Kinetic/blob/master/Example/screenshots/kinetic-timeline-sequence2.gif)
 
 ###Grouped + Staggered Animations###
 
@@ -297,18 +296,21 @@ Using `Kinetic.itemsTo`, `Kinetic.itemsFrom` and `Kinetic.itemsFromTo` you can a
 	timeline.play()
 	```
 	
-{insert screenshot}
+![Timeline Grouped](https://raw.github.com/u10int/Kinetic/blob/master/Example/screenshots/kinetic-timeline-grouped.gif)
 
 Using a Timeline also provides you with the ability to stagger multiple animations for more interesting effects. For instance, you may have a column of horizontal bars whose widths you want to animate to their final state. You could do this with a basic Timeline instance and increasingly offset their positions relative to the start time, but there's an easier way using `Kinetic.staggerTo`, `Kinetic.staggerFrom` and `Kinetic.staggerFromTo`:
 
 	```swift
 	let squares = [greenSquare, blueSquare, redSquare]
-	let timeline = Kinetic.staggerTo(squares, duration: 1, options: [ .Width(250) ], stagger: 0.08).spring(tension: 100, friction: 12).play()
+	let timeline = Kinetic.staggerTo(squares, duration: 1, options: [ .Width(250) ], stagger: 0.08).spring(tension: 100, friction: 12)
+	timeline.play()
 	```
 	
-In a single line, you can animate each item in `squares` from their starting width to a width of 200 using a spring, each offset by 0.08 seconds. The methods `staggerTo`, `staggerFrom`, and `staggerToFrom` will return an instance of Timeline.
+In a single line, you can animate each item in `squares` from their starting width to a width of 200 using a spring, each offset by 0.08 seconds.
 
-{insert screenshot}
+![Timeline Staggered](https://raw.github.com/u10int/Kinetic/blob/master/Example/screenshots/kinetic-timeline-staggered.gif)
+
+The methods `staggerTo`, `staggerFrom`, and `staggerToFrom` will return an instance of Timeline.
 	
 You can also add labels to your timeline to be used for referencing when adding additional tweens or for playback. For example, you may want to include a color change animation for a view in your timeline and want other tweens to take place relative to that position. First create a label at the time you want to reference and then add your tweens relative to or offset from that label:
 
@@ -320,6 +322,7 @@ You can also add labels to your timeline to be used for referencing when adding 
 	timeline.add(color, relativeToLabel: "colorChange", offset: 0)
 	timeline.add(resize, relativeToLabel: "colorChange", offset: 0.5)
 	```
+	
 ###Time Labels###
 
 You can add any number of time labels to a timeline that can then be used as reference points for specific positions along the timeline. Once a label has been set, you can add tweens to the timeline relative to a specific label using an offset value. Negative offset values will insert the tween that number of seconds before the label:
@@ -334,7 +337,7 @@ You can add any number of time labels to a timeline that can then be used as ref
 	
 	// resize the view 1 second after the color change starts
 	let resize = Kinetic.to(square, duration: 1, options: [ .Size(150,100) ]).ease(Easing.inOutCubic)
-	timeline.add(resize, relativeToLabel: "colorChange", offset: 1)
+	timeline.add(resize, relativeToLabel: "colorChange", offset: 0.5)
 	
 	// move the view 0.25 seconds before the color change starts
 	let move = Kinetic.to(square, duration: 1, options: [ .Position(200,200) ]).ease(Easing.inOutCubic)
@@ -343,7 +346,7 @@ You can add any number of time labels to a timeline that can then be used as ref
 	timeline.play()
 	```
 	
-{insert screenshot}
+![Timeline Labels](https://raw.github.com/u10int/Kinetic/blob/master/Example/screenshots/kinetic-timeline-labels.gif)
 	
 ###Controlling Timelines###
 
