@@ -38,6 +38,8 @@ class ViewController: UIViewController {
 		view.addSubview(tableView)
 		
 		rows.append(BasicTweenViewController())
+		rows.append(BasicFromTweenViewController())
+		rows.append(BasicFromToTweenViewController())
 		rows.append(GroupTweenViewController())
 		rows.append(SequenceViewController())
 		rows.append(TransformViewController())
