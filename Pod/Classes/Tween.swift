@@ -298,6 +298,7 @@ public class Tween: Animation {
 	private func setupProperties(props: [Property], mode: TweenMode) {
 		for prop in props {
 			let propObj = propertyForType(prop)
+			propObj?.mode = mode
 			
 			switch prop {
 			case .X(let x):

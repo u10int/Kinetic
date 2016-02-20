@@ -43,7 +43,7 @@ class TweenUtils {
 			propKey = PropertyKey.Width.rawValue
 		case .Height(_):
 			propKey = PropertyKey.Height.rawValue
-		case .Size(_, _), .Width(_), .Height(_):
+		case .Size(_, _):
 			propKey = PropertyKey.Size.rawValue
 		default:
 			propKey = PropertyKey.Transform.rawValue

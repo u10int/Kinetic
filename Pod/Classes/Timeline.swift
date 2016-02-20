@@ -87,9 +87,6 @@ public class Timeline: Animation {
 			}
 			tween.timeline = self
 			tweens.append(tween)
-			
-			// assign references to prev and next tweens...
-			
 		}
 		
 		return self

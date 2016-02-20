@@ -88,10 +88,6 @@ public class TweenProperty: Equatable {
 	
 	func prepare() {
 		calc()
-		
-//		for tween in currentTweens() {
-//			tween.stop()
-//		}
 	}
 	
 	func reset() {
@@ -194,7 +190,6 @@ public class ValueProperty: TweenProperty {
 	var to: CGFloat = 0
 	var toCalc: CGFloat = 0
 	var current: CGFloat = 0
-//	var delta: CGFloat = 0
 	
 	private var _from: CGFloat = 0
 	private var _to: CGFloat = 0
@@ -204,13 +199,11 @@ public class ValueProperty: TweenProperty {
 		self.from = from
 		self.to = to
 		
-		// cache original values to account for reversed tweens
 		self._from = from
 		self._to = to
 	}
 	
 	override func calc() {
-//		toCalc = from + to
 		toCalc = to
 	}
 }
@@ -248,7 +241,6 @@ public class StructProperty: ValueProperty {
 	
 	override func prepare() {
 		if let value = currentValue {
-			print("prepare: \(property), value=\(value)")
 			if mode == .To {
 				from = value
 			} else if mode == .From {
@@ -316,21 +308,20 @@ public class PointProperty: TweenProperty {
 		super.init(target: target)
 		self.from = from
 		self.to = to
+		
 		self._from = from
 		self._to = to
 	}
 	
 	override func calc() {
 		toCalc = to
-		print("calc: to=\(toCalc)")
 	}
 	
 	override func prepare() {
 		if let origin = currentOrigin, prop = property {
 			if additive {
-				if let target = target, tween = tween, lastProp = TweenManager.sharedInstance.lastPropertyForTarget(target, type: prop) as? PointProperty {
+				if let target = target, lastProp = TweenManager.sharedInstance.lastPropertyForTarget(target, type: prop) as? PointProperty {
 					from = lastProp.to
-					print("tween \(tween.id): setting from \(from)")
 				}
 			} else {
 				if mode == .To {
@@ -363,8 +354,6 @@ public class PointProperty: TweenProperty {
 				break
 			}
 		}
-		
-		print("prepare: from=\(from), to=\(to)")
 		current = from
 		
 		super.prepare()
@@ -375,11 +364,10 @@ public class PointProperty: TweenProperty {
 		let newPoint = point
 		
 		if additive {
-			if let origin = currentOrigin, tween = tween {
+			if let origin = currentOrigin {
 				let delta = CGPoint(x: point.x - current.x, y: point.y - current.y)
 				point.x = origin.x + delta.x
 				point.y = origin.y + delta.y
-//				print("tween \(tween.id) - origin: \(origin), current: \(current), new: \(point), delta: \(delta), from: \(from), to: \(toCalc)")
 			}
 		}
 		
@@ -425,21 +413,20 @@ public class SizeProperty: TweenProperty {
 		super.init(target: target)
 		self.from = from
 		self.to = to
+		
 		self._from = from
 		self._to = to
 	}
 	
 	override func calc() {
-//		toCalc = CGSize(width: from.width + to.width, height: from.height + to.height)
 		toCalc = to
 	}
 	
 	override func prepare() {
 		if let size = currentSize, prop = property {
 			if additive {
-				if let target = target, tween = tween, lastProp = TweenManager.sharedInstance.lastPropertyForTarget(target, type: prop) as? SizeProperty {
+				if let target = target, lastProp = TweenManager.sharedInstance.lastPropertyForTarget(target, type: prop) as? SizeProperty {
 					from = lastProp.to
-					print("tween \(tween.id): setting from \(from)")
 				}
 			} else {
 				if mode == .To {
@@ -512,6 +499,7 @@ public class RectProperty: TweenProperty {
 		super.init(target: target)
 		self.from = from
 		self.to = to
+		
 		self._from = from
 		self._to = to
 	}
@@ -580,13 +568,11 @@ public class TransformProperty: TweenProperty {
 		self.from = from
 		self.to = to
 		
-		// cache original values to account for reversed tweens
 		self._from = from
 		self._to = to
 	}
 	
 	override func calc() {
-//		toCalc = CATransform3DConcat(from, to)
 		toCalc = to
 	}
 	
@@ -652,6 +638,7 @@ public class ColorProperty: TweenProperty {
 		
 		self.from = from
 		self.to = to
+		
 		self._from = from
 		self._to = to
 	}
@@ -716,7 +703,6 @@ public class ObjectProperty: ValueProperty {
 			}
 		}
 		
-		// cache original values to account for reversed tweens
 		self._from = from
 		self._to = to
 		
