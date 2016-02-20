@@ -44,6 +44,12 @@ class TimelineViewController: ExampleViewController {
 		
 		timeline.repeatCount(4).yoyo()
 		
+		timeline.onStart { () -> Void in
+			print("timeline started")
+		}.onComplete { () -> Void in
+			print("timeline done")
+		}
+		
 		animation = timeline
 	}
 	

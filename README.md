@@ -226,6 +226,9 @@ A good use case for this is to setup a UILabel that animates a value change, suc
 
 	```swift
 	let textLabel = UILabel()
+	textLabel.font = UIFont.systemFontOfSize(40)
+	textLabel.textColor = UIColor.blackColor()
+	textLabel.frame = CGRect(x: 50, y: 50, width: 200, height: 50)
 	view.addSubview(textLabel)
 	
 	// our custom object
@@ -233,14 +236,16 @@ A good use case for this is to setup a UILabel that animates a value change, suc
 	
 	// set the initial value of our property, which will be the starting value of the counting animation
 	testObject.value = 50
+	textLabel.text = "\(round(testObject.value))"
 	
 	let increment = Kinetic.to(testObject, duration: duration, options: [ .KeyPath("value", 250) ])
 	increment.ease(Easing.outQuart).onUpdate { () -> Void in
-		self.label.text = "\(round(testObject.value))"
+		textLabel.text = "\(round(testObject.value))"
 	}.onComplete({ () -> Void in
-		self.label.text = "\(round(testObject.value))"
+		textLabel.text = "\(round(testObject.value))"
 	}).play()
 	```
+![Counting Label](Example/screenshots/kinetic-timeline-countlabel.gif)
 	
 Any custom property can be used as long as it's a property of an NSObject and the property has a numerical value.
 
