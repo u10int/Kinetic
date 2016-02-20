@@ -44,7 +44,13 @@ public class TweenProperty: Equatable {
 	weak var target: NSObject!
 	
 	var property: Property?
-	var mode: TweenMode = .To
+	var mode: TweenMode = .To {
+		didSet {
+			if mode != .To {
+				additive = false
+			}
+		}
+	}
 	var tween: Tween?
 	var duration: CFTimeInterval = 1
 	var delay: CFTimeInterval = 0
@@ -335,19 +341,19 @@ public class PointProperty: TweenProperty {
 			case .X(_):
 				if mode == .To {
 					to.y = origin.y
-				} else {
+				} else if mode == .From {
 					from.y = origin.y
 				}
 			case .Y(_):
 				if mode == .To {
 					to.x = origin.x
-				} else {
+				} else if mode == .From {
 					from.x = origin.x
 				}
 			case .Shift(let shiftX, let shiftY):
 				if mode == .To {
 					to = CGPoint(x: origin.x + shiftX, y: origin.y + shiftY)
-				} else {
+				} else if mode == .From {
 					from = CGPoint(x: origin.x + shiftX, y: origin.y + shiftY)
 				}
 			default:
@@ -370,7 +376,7 @@ public class PointProperty: TweenProperty {
 				point.y = origin.y + delta.y
 			}
 		}
-		
+				
 		current = newPoint
 		updateTarget(point)
 	}
@@ -440,13 +446,13 @@ public class SizeProperty: TweenProperty {
 			case .Width(_):
 				if mode == .To {
 					from.height = size.height
-				} else {
+				} else if mode == .From {
 					to.height = size.height
 				}
 			case .Height(_):
 				if mode == .To {
 					from.width = size.width
-				} else {
+				} else if mode == .From {
 					to.width = size.width
 				}
 			default:

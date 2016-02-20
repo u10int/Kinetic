@@ -204,6 +204,7 @@ public class Tween: Animation {
 		
 		for (_, prop) in propertiesByType {
 			_properties.append(prop)
+			prop.mode = mode
 			prop.reset()
 			prop.calc()
 		}
