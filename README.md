@@ -52,7 +52,7 @@ Animating multiple properties of an UIView or CALayer can be done in a single li
 	Kinetic.to(square, duration: 0.5, options: [ .X(250), .Height(100) ]).ease(Easing.inOutQuart).play()
 	```
 	
-![Basic Tween](https://raw.github.com/u10int/Kinetic/blob/master/Example/screenshots/kinetic-tween-basic.gif)
+![Basic Tween](Example/screenshots/kinetic-tween-basic.gif)
 	
 Animating the same properties on multiple objects is just as quick and easy:
 
@@ -73,7 +73,7 @@ Animating the same properties on multiple objects is just as quick and easy:
 	timeline.play()
 	```
 	
-![Grouped Tween](https://raw.github.com/u10int/Kinetic/blob/master/Example/screenshots/kinetic-tween-group.gif)
+![Grouped Tween](Example/screenshots/kinetic-tween-basic-group.gif)
 
 Review the example project for more in-depth and complex animation examples using Kinetic.
 
@@ -268,7 +268,7 @@ Note that if you change the duration of any of the individual tweens, you also h
 	timeline.play()
 	```
 	
-![Timeline Sequence](https://raw.github.com/u10int/Kinetic/blob/master/Example/screenshots/kinetic-timeline-sequence.gif)
+![Timeline Sequence](Example/screenshots/kinetic-timeline-sequence.gif)
 
 The above timeline will perform each tween sequentially for a total duration of 3 seconds since each tween is 1 second in length.
 
@@ -284,7 +284,7 @@ Instead of having each tween play one after another, you can specify a position 
 	
 This change will play the second tween at 1.5 seconds into the animation, and then the last one immediately after it completes at 2.5 seconds. Therefore, our timeline's new total duration will be 3.5 seconds instead of 3 seconds.
 
-![Timeline Sequence](https://raw.github.com/u10int/Kinetic/blob/master/Example/screenshots/kinetic-timeline-sequence2.gif)
+![Timeline Sequence](Example/screenshots/kinetic-timeline-sequence2.gif)
 
 ###Grouped + Staggered Animations###
 
@@ -296,7 +296,7 @@ Using `Kinetic.itemsTo`, `Kinetic.itemsFrom` and `Kinetic.itemsFromTo` you can a
 	timeline.play()
 	```
 	
-![Timeline Grouped](https://raw.github.com/u10int/Kinetic/blob/master/Example/screenshots/kinetic-timeline-grouped.gif)
+![Timeline Grouped](Example/screenshots/kinetic-timeline-grouped.gif)
 
 Using a Timeline also provides you with the ability to stagger multiple animations for more interesting effects. For instance, you may have a column of horizontal bars whose widths you want to animate to their final state. You could do this with a basic Timeline instance and increasingly offset their positions relative to the start time, but there's an easier way using `Kinetic.staggerTo`, `Kinetic.staggerFrom` and `Kinetic.staggerFromTo`:
 
@@ -308,7 +308,7 @@ Using a Timeline also provides you with the ability to stagger multiple animatio
 	
 In a single line, you can animate each item in `squares` from their starting width to a width of 200 using a spring, each offset by 0.08 seconds.
 
-![Timeline Staggered](https://raw.github.com/u10int/Kinetic/blob/master/Example/screenshots/kinetic-timeline-staggered.gif)
+![Timeline Staggered](Example/screenshots/kinetic-timeline-staggered.gif)
 
 The methods `staggerTo`, `staggerFrom`, and `staggerToFrom` will return an instance of Timeline.
 	
@@ -346,7 +346,7 @@ You can add any number of time labels to a timeline that can then be used as ref
 	timeline.play()
 	```
 	
-![Timeline Labels](https://raw.github.com/u10int/Kinetic/blob/master/Example/screenshots/kinetic-timeline-labels.gif)
+![Timeline Labels](Example/screenshots/kinetic-timeline-labels.gif)
 	
 ###Controlling Timelines###
 
