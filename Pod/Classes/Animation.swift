@@ -28,7 +28,6 @@ public class Animation: NSObject {
 	public var delay: CFTimeInterval = 0
 	public var duration: CFTimeInterval = 1.0
 	public var repeatCount: Int = 0
-	
 	public var startTime: CFTimeInterval = 0
 	public var endTime: CFTimeInterval {
 		get {
@@ -53,10 +52,10 @@ public class Animation: NSObject {
 	var repeatDelay: CFTimeInterval = 0
 	var reverseOnComplete = false
 	
-	var startBlock: (() -> Void)?
-	var updateBlock: (() -> Void)?
-	var completionBlock: (() -> Void)?
-	var repeatBlock: (() -> Void)?
+	var startBlock: ((Animation) -> Void)?
+	var updateBlock: ((Animation) -> Void)?
+	var completionBlock: ((Animation) -> Void)?
+	var repeatBlock: ((Animation) -> Void)?
 	
 	private var cycle: Int = 0
 	private var _animating = false
@@ -134,15 +133,11 @@ public class Animation: NSObject {
 	
 	public func forward() -> Animation {
 		_reversed = false
-//		play()
-		
 		return self
 	}
 	
 	public func reverse() -> Animation {
 		_reversed = true
-//		play()
-		
 		return self
 	}
 	
@@ -166,22 +161,22 @@ public class Animation: NSObject {
 	
 	// MARK: Event Handlers
 	
-	public func onStart(callback: (() -> Void)?) -> Animation {
+	public func onStart(callback: ((Animation) -> Void)?) -> Animation {
 		startBlock = callback
 		return self
 	}
 	
-	public func onUpdate(callback: (() -> Void)?) -> Animation {
+	public func onUpdate(callback: ((Animation) -> Void)?) -> Animation {
 		updateBlock = callback
 		return self
 	}
 	
-	public func onComplete(callback: (() -> Void)?) -> Animation {
+	public func onComplete(callback: ((Animation) -> Void)?) -> Animation {
 		completionBlock = callback
 		return self
 	}
 	
-	public func onRepeat(callback: (() -> Void)?) -> Animation {
+	public func onRepeat(callback: ((Animation) -> Void)?) -> Animation {
 		repeatBlock = callback
 		return self
 	}
@@ -206,19 +201,19 @@ public class Animation: NSObject {
 	
 	func started() {
 		_animating = true
-		startBlock?()
+		startBlock?(self)
 	}
 	
 	func completed() -> Bool {
 		var shouldRepeat = false
-		print("DONE: repeatCount=\(repeatCount), cycle=\(cycle)")
+//		print("DONE: repeatCount=\(repeatCount), cycle=\(cycle)")
 		if repeatForever || (repeatCount > 0 && cycle < repeatCount) {
 			shouldRepeat = true
 			cycle++
 		}
 		
 		if shouldRepeat {
-			repeatBlock?()
+			repeatBlock?(self)
 			if reverseOnComplete {
 				if reversed {
 					forward()
@@ -231,7 +226,7 @@ public class Animation: NSObject {
 		} else {
 			_animating = false
 			running = false
-			completionBlock?()
+			completionBlock?(self)
 			return true
 		}
 		

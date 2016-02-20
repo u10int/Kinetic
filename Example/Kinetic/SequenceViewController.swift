@@ -34,11 +34,11 @@ class SequenceViewController: ExampleViewController {
 		
 		let moveX = Kinetic.to(square, duration: 0.5, options: [.X(110)]).ease(Easing.inOutCubic)
 		let moveY = Kinetic.to(square, duration: 0.5, options: [.Y(250), .BackgroundColor(UIColor.orangeColor())]).ease(Easing.inOutCubic)
-		moveY.onStart { () -> Void in
+		moveY.onStart { (animation) -> Void in
 			print("starting moveY")
 		}
 		let resize = Kinetic.to(square, duration: 0.5, options: [.Width(200), .BackgroundColor(UIColor.blueColor())]).ease(Easing.inOutCirc)
-		resize.onStart { () -> Void in
+		resize.onStart { (animation) -> Void in
 			print("starting resize")
 		}
 		

@@ -15,8 +15,7 @@ public enum TweenMode {
 }
 
 public class Tween: Animation {
-	weak var target: NSObject?
-	
+	public weak var target: NSObject?
 	override public var duration: CFTimeInterval {
 		didSet {
 			for prop in properties {
@@ -24,15 +23,13 @@ public class Tween: Animation {
 			}
 		}
 	}
-	public var additive = true
-	
 	override public var totalTime: CFTimeInterval {
 		get {
 			return (elapsed - delay - staggerDelay)
 		}
 	}
+	public var timeline: Timeline?
 	
-//	var repeatCount: Int = 0
 	var properties: [TweenProperty] {
 		get {
 			return _properties
@@ -40,19 +37,8 @@ public class Tween: Animation {
 	}
 	var _properties = [TweenProperty]()
 	
-//	var elapsed: CFTimeInterval = 0
-	var timeline: Timeline?
 	private var timeScale: Float = 1
 	private var staggerDelay: CFTimeInterval = 0
-//	private var cycle: Int = 0
-//	private var repeatForever = false
-//	private var repeatDelay: CFTimeInterval = 0
-//	private var reverseOnComplete = false
-	
-//	private var startBlock: (() -> Void)?
-//	private var updateBlock: (() -> Void)?
-//	private var completionBlock: (() -> Void)?
-//	private var repeatBlock: (() -> Void)?
 	private var propertiesByType = [String: TweenProperty]()
 	private var needsPropertyPrep = false
 	
@@ -227,7 +213,6 @@ public class Tween: Animation {
 		if target is UIView || target is CALayer {
 			
 		}
-//		restart(true)
 	}
 	
 	override func proceed(var dt: CFTimeInterval, force: Bool = false) -> Bool {
@@ -282,43 +267,15 @@ public class Tween: Animation {
 				prop.prepare()
 			}
 			if prop.proceed(dt, reversed: reversed) {
-//				if repeatForever || (repeatCount > 0 && cycle < repeatCount) {
-//					shouldRepeat = true
-//					cycle++
-//				} else {
-//					done = true
-//				}
 				done = true
 			}
 		}
 		needsPropertyPrep = false
-		updateBlock?()
+		updateBlock?(self)
 		
 		if done {
 			return completed()
 		}
-		
-//		if shouldRepeat {
-//			repeatBlock?()
-//			if reverseOnComplete {
-//				if reversed {
-//					play()
-//				} else {
-//					reverse()
-//				}
-//				print("reversed: \(reversed)")
-//				
-//				for prop in properties {
-//					prop.reverse(reversed)
-//				}
-//				
-//			} else {
-//				restart()
-//			}
-//		} else if done {
-//			completed()
-//			return true
-//		}
 		
 		return false
 	}
@@ -340,7 +297,6 @@ public class Tween: Animation {
 	
 	private func setupProperties(props: [Property], mode: TweenMode) {
 		for prop in props {
-			print("adding property for \(prop)")
 			let propObj = propertyForType(prop)
 			
 			switch prop {
@@ -573,62 +529,6 @@ public class Tween: Animation {
 		
 		return nil
 	}
-	
-//	private func adjustedPoint(var point: CGPoint, withValue value: Any, prop: TweenProp) -> CGPoint {
-//		if let value = value as? NSNumber {
-//			if prop == .X {
-//				point.x = CGFloat(value.floatValue)
-//			} else if prop == .Y {
-//				point.y = CGFloat(value.floatValue)
-//			}
-//		} else if let value = value as? CGPoint {
-//			point = value
-//		}
-//		
-//		return point
-//	}
-//	
-//	private func adjustedSize(var size: CGSize, withValue value: Any, prop: TweenProp) -> CGSize {
-//		if let value = value as? NSNumber {
-//			if prop == .Width {
-//				size.width = CGFloat(value.floatValue)
-//			} else if prop == .Height {
-//				size.height = CGFloat(value.floatValue)
-//			}
-//		} else if let value = value as? CGSize {
-//			size = value
-//		}
-//		
-//		return size
-//	}
-//	
-//	private func adjustedTransform(var transform: CATransform3D, withValue value: Any, prop: TweenProp) -> CATransform3D {
-//		if let value = value as? NSNumber {
-//			let val = CGFloat(value.floatValue)
-//			switch prop {
-//			case .ShiftX:
-//				transform = CATransform3DTranslate(transform, val, 0, 0)
-//			case .ShiftY:
-//				transform = CATransform3DTranslate(transform, 0, val, 0)
-//			case .Rotate:
-//				transform = CATransform3DRotate(transform, val, 0, 0, 1)
-//			case .Scale, .ScaleX, .ScaleY:
-//				let x = (prop == .Scale || prop == .ScaleX) ? val : 1
-//				let y = (prop == .Scale || prop == .ScaleY) ? val : 1
-//				transform = CATransform3DScale(transform, x, y, 1)
-//			default:
-//				break
-//			}
-//		} else if let value = value as? CGPoint {
-//			if prop == .ShiftXY {
-//				transform = CATransform3DTranslate(transform, value.x, value.y, 0)
-//			}
-//		} else if let value = value as? CATransform3D {
-//			transform = CATransform3DConcat(transform, value)
-//		}
-//		
-//		return transform
-//	}
 	
 	private func targetOrigin(target: NSObject) -> CGPoint? {
 		var origin: CGPoint?
