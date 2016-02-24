@@ -361,8 +361,6 @@ public class Timeline: Animation {
 					} else if idx == 3 {
 						position += CFTimeInterval(val)!
 					}
-					print(range)
-					print(string.substringWithRange(range))
 				}
 				idx++
 			}

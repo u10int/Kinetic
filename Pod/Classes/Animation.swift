@@ -232,8 +232,4 @@ public class Animation: NSObject {
 		
 		return false
 	}
-	
-	func repeated() {
-		
-	}
 }

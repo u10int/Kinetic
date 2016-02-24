@@ -5,6 +5,9 @@
 //  Created by Nicholas Shipes on 12/18/15.
 //  Copyright © 2015 Urban10 Interactive, LLC. All rights reserved.
 //
+//  Easing.swift used and adapted from Cheetah library under the MIT license, https://github.com/suguru/Cheetah
+//  Created by Suguru Namura on 2015/08/19.
+//  Copyright © 2015年 Suguru Namura.
 
 import UIKit
 
