@@ -27,6 +27,44 @@ public enum Property {
 	case KeyPath(String, CGFloat)
 }
 
+public enum Anchor {
+	case Default
+	case Center
+	case Top
+	case TopLeft
+	case TopRight
+	case Bottom
+	case BottomLeft
+	case BottomRight
+	case Left
+	case Right
+	
+	public func point() -> CGPoint {
+		switch self {
+		case .Center:
+			return CGPoint(x: 0.5, y: 0.5)
+		case .Top:
+			return CGPoint(x: 0.5, y: 0)
+		case .TopLeft:
+			return CGPoint(x: 0, y: 0)
+		case .TopRight:
+			return CGPoint(x: 1, y: 0)
+		case .Bottom:
+			return CGPoint(x: 0.5, y: 1)
+		case .BottomLeft:
+			return CGPoint(x: 0, y: 1)
+		case .BottomRight:
+			return CGPoint(x: 1, y: 1)
+		case .Left:
+			return CGPoint(x: 0, y: 0.5)
+		case .Right:
+			return CGPoint(x: 1, y: 0.5)
+		default:
+			return CGPoint(x: 0.5, y: 0.5)
+		}
+	}
+}
+
 private struct RGBA {
 	var red: CGFloat = 0
 	var green: CGFloat = 0

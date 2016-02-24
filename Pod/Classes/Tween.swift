@@ -131,11 +131,11 @@ public class Tween: Animation {
 		return self
 	}
 	
-	public func anchorPoint(point: CGPoint) -> Tween {
+	public func anchor(anchor: Anchor) -> Tween {
 		if let layer = target as? CALayer {
-			layer.anchorPoint = point
+			layer.anchorPoint = anchor.point()
 		} else if let view = target as? UIView {
-			view.layer.anchorPoint = point
+			view.layer.anchorPoint = anchor.point()
 		}
 		return self
 	}
