@@ -109,19 +109,25 @@ public class TweenProperty: Equatable {
 		
 		elapsed = min(elapsed + dt, end)
 		if elapsed < 0 { elapsed = 0 }
+		
+		func _advance() {
+			time = CGFloat((elapsed - delay) / duration)
+			update()
+		}
 
 		if spring == nil && (!reversed && elapsed >= end) || (reversed && elapsed <= 0) {
+			_advance()
 			return true
 		}
 		
 		if elapsed >= delay {
-			time = CGFloat((elapsed - delay) / duration)
-			update()
+			_advance()
 		}
 		
 		if let spring = spring {
 			return spring.ended
 		}
+		
 		return elapsed >= end
 	}
 	
