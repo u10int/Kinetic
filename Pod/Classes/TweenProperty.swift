@@ -110,18 +110,19 @@ public class TweenProperty: Equatable {
 		elapsed = min(elapsed + dt, end)
 		if elapsed < 0 { elapsed = 0 }
 		
-		func _advance() {
+		func advance() {
 			time = CGFloat((elapsed - delay) / duration)
 			update()
 		}
 
 		if spring == nil && (!reversed && elapsed >= end) || (reversed && elapsed <= 0) {
-			_advance()
+			advance()
 			return true
 		}
 		
+		// start animating if elapsed time has reached or surpassed the delay
 		if elapsed >= delay {
-			_advance()
+			advance()
 		}
 		
 		if let spring = spring {
@@ -293,8 +294,6 @@ public class StructProperty: ValueProperty {
 		if let value = currentValue {
 			if mode == .To {
 				from = value
-			} else if mode == .From {
-				to = value
 			}
 		}
 		super.prepare()
@@ -376,8 +375,6 @@ public class PointProperty: TweenProperty {
 			} else {
 				if mode == .To {
 					from = origin
-				} else if mode == .From {
-					to = origin
 				}
 			}
 			
@@ -481,8 +478,6 @@ public class SizeProperty: TweenProperty {
 			} else {
 				if mode == .To {
 					from = size
-				} else if mode == .From {
-					to = size
 				}
 			}
 			
@@ -507,8 +502,8 @@ public class SizeProperty: TweenProperty {
 	}
 	
 	override func update() {
-		let size = lerpSize(from, to: toCalc)
-		updateTarget(size)
+		let value = lerpSize(from, to: toCalc)
+		updateTarget(value)
 	}
 	
 	override func reset() {
@@ -567,8 +562,6 @@ public class RectProperty: TweenProperty {
 			if let size = currentRect {
 				if mode == .To {
 					from = size
-				} else if mode == .From {
-					to = size
 				}
 			}
 		}
@@ -577,8 +570,8 @@ public class RectProperty: TweenProperty {
 	}
 	
 	override func update() {
-		let size = lerpRect(from, to: to)
-		updateTarget(size)
+		let value = lerpRect(from, to: to)
+		updateTarget(value)
 	}
 	
 	override func reset() {
@@ -643,8 +636,8 @@ public class TransformProperty: TweenProperty {
 	}
 	
 	override func update() {
-		let transform = lerpTransform(from, to: toCalc)
-		updateTarget(transform)
+		let value = lerpTransform(from, to: toCalc)
+		updateTarget(value)
 	}
 	
 	override func reset() {
@@ -702,8 +695,6 @@ public class ColorProperty: TweenProperty {
 			if let color = currentColor {
 				if mode == .To {
 					from = color
-				} else if mode == .From {
-					to = color
 				}
 			}
 		}
@@ -712,8 +703,8 @@ public class ColorProperty: TweenProperty {
 	}
 	
 	override func update() {
-		let color = lerpColor(from, to: to)
-		updateTarget(color)
+		let value = lerpColor(from, to: to)
+		updateTarget(value)
 	}
 	
 	override func reset() {
@@ -747,8 +738,6 @@ public class ObjectProperty: ValueProperty {
 			if let target = target, value = target.valueForKeyPath(keyPath) as? CGFloat {
 				if mode == .To {
 					from = value
-				} else if mode == .From {
-					to = value
 				}
 			}
 		}

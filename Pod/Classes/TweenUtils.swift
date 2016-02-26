@@ -51,4 +51,23 @@ class TweenUtils {
 		
 		return propKey
 	}
+	
+	static func sortProperties(props: [TweenProperty]) -> [TweenProperty] {
+		var sorted = [TweenProperty]()
+		var transform: TransformProperty?
+		
+		for prop in props {
+			if let prop = prop as? TransformProperty {
+				transform = prop
+			} else {
+				sorted.append(prop)
+			}
+		}
+		
+		if let transform = transform {
+			sorted.append(transform)
+		}
+		
+		return sorted
+	}
 }

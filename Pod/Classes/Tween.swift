@@ -160,9 +160,15 @@ public class Tween: Animation {
 		
 		super.play()
 		
-		for prop in properties {
+		// properties must be sorted so that the first in the array is the transform property, if exists
+		// so that each property afterwards isn't set with a transform in place
+		for prop in TweenUtils.sortProperties(properties).reverse() {
 			prop.reset()
 			prop.calc()
+			
+			if prop.mode == .From || prop.mode == .FromTo {
+				prop.update()
+			}
 		}
 		run()
 		
