@@ -28,7 +28,7 @@ public class Tween: Animation {
 			return (elapsed - delay - staggerDelay)
 		}
 	}
-	public var timeline: Timeline?
+	public weak var timeline: Timeline?
 	
 	var properties: [TweenProperty] {
 		get {
