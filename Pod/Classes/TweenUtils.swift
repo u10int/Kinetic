@@ -12,6 +12,9 @@ enum PropertyKey: String {
 	case X = "frame.origin.x"
 	case Y = "frame.origin.y"
 	case Position = "frame.origin"
+	case CenterX = "center.x"
+	case CenterY = "center.y"
+	case Center = "center"
 	case Width = "frame.size.width"
 	case Height = "frame.size.height"
 	case Size = "frame.size"
@@ -39,6 +42,12 @@ class TweenUtils {
 			propKey = PropertyKey.Y.rawValue
 		case .Position(_, _), .Shift(_, _):
 			propKey = PropertyKey.Position.rawValue
+		case .CenterX(_):
+			propKey = PropertyKey.CenterX.rawValue
+		case .CenterY(_):
+			propKey = PropertyKey.CenterY.rawValue
+		case .Center(_, _):
+			propKey = PropertyKey.Center.rawValue
 		case .Width(_):
 			propKey = PropertyKey.Width.rawValue
 		case .Height(_):

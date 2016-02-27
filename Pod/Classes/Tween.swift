@@ -337,6 +337,31 @@ public class Tween: Animation {
 						point.to = CGPoint(x: x, y: y)
 					}
 				}
+			case .CenterX(let x):
+				if let point = propObj as? StructProperty {
+					if mode == .From {
+						point.from = x
+					} else {
+						point.to = x
+					}
+				}
+			case .CenterY(let y):
+				if let point = propObj as? StructProperty {
+					if mode == .From {
+						point.from = y
+					} else {
+						point.to = y
+					}
+				}
+			case .Center(let x, let y):
+				if let point = propObj as? PointProperty {
+					point.targetCenter = true
+					if mode == .From {
+						point.from = CGPoint(x: x, y: y)
+					} else {
+						point.to = CGPoint(x: x, y: y)
+					}
+				}
 			case .Shift(let shiftX, let shiftY):
 				if let point = propObj as? PointProperty, target = target, position = targetOrigin(target) {
 					if mode == .From {
@@ -489,6 +514,13 @@ public class Tween: Animation {
 					if let target = target, origin = targetOrigin(target) {
 						prop = PointProperty(target: target, from: origin, to: origin)
 					}
+				case PropertyKey.Center.rawValue:
+					if let target = target, center = targetCenter(target) {
+						prop = PointProperty(target: target, from: center, to: center)
+						if let pointProp = prop as? PointProperty {
+							pointProp.targetCenter = true
+						}
+					}
 				case PropertyKey.Size.rawValue:
 					if let target = target, size = targetSize(target) {
 						prop = SizeProperty(target: target, from: size, to: size)
@@ -514,6 +546,16 @@ public class Tween: Animation {
 				case PropertyKey.Y.rawValue:
 					if let target = target, frame = targetFrame(target) {
 						let value = CGRectGetMinY(frame)
+						prop = StructProperty(target: target, from: value, to: value)
+					}
+				case PropertyKey.CenterX.rawValue:
+					if let target = target, frame = targetFrame(target) {
+						let value = CGRectGetMidX(frame)
+						prop = StructProperty(target: target, from: value, to: value)
+					}
+				case PropertyKey.CenterY.rawValue:
+					if let target = target, frame = targetFrame(target) {
+						let value = CGRectGetMidY(frame)
 						prop = StructProperty(target: target, from: value, to: value)
 					}
 				case PropertyKey.Width.rawValue:
@@ -553,6 +595,18 @@ public class Tween: Animation {
 		}
 		
 		return origin
+	}
+	
+	private func targetCenter(target: NSObject) -> CGPoint? {
+		var center: CGPoint?
+		
+		if let layer = target as? CALayer {
+			center = layer.position
+		} else if let view = target as? UIView {
+			center = view.center
+		}
+		
+		return center
 	}
 	
 	private func targetSize(target: NSObject) -> CGSize? {

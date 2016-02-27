@@ -12,6 +12,9 @@ public enum Property {
 	case X(CGFloat)
 	case Y(CGFloat)
 	case Position(CGFloat, CGFloat)
+	case CenterX(CGFloat)
+	case CenterY(CGFloat)
+	case Center(CGFloat, CGFloat)
 	case Shift(CGFloat, CGFloat)
 	case Width(CGFloat)
 	case Height(CGFloat)
@@ -278,6 +281,10 @@ public class StructProperty: ValueProperty {
 					return CGRectGetMinX(frame)
 				case .Y(_):
 					return CGRectGetMinY(frame)
+				case .CenterX(_):
+					return CGRectGetMidX(frame)
+				case .CenterY(_):
+					return CGRectGetMidY(frame)
 				case .Width(_):
 					return CGRectGetWidth(frame)
 				case .Height(_):
@@ -338,6 +345,7 @@ public class PointProperty: TweenProperty {
 	var to: CGPoint = CGPointZero
 	var toCalc: CGPoint = CGPointZero
 	var current: CGPoint = CGPointZero
+	var targetCenter: Bool = false
 	
 	var currentOrigin: CGPoint? {
 		get {
@@ -345,6 +353,16 @@ public class PointProperty: TweenProperty {
 				return view.frame.origin
 			} else if let layer = target as? CALayer {
 				return layer.frame.origin
+			}
+			return nil
+		}
+	}
+	var currentCenter: CGPoint? {
+		get {
+			if let view = target as? UIView {
+				return view.center
+			} else if let layer = target as? CALayer {
+				return layer.position
 			}
 			return nil
 		}
@@ -367,14 +385,14 @@ public class PointProperty: TweenProperty {
 	}
 	
 	override func prepare() {
-		if let origin = currentOrigin, prop = property {
+		if let origin = currentOrigin, center = currentCenter, prop = property {
 			if additive {
 				if let target = target, lastProp = TweenManager.sharedInstance.lastPropertyForTarget(target, type: prop) as? PointProperty {
 					from = lastProp.to
 				}
 			} else {
 				if mode == .To {
-					from = origin
+					from = (targetCenter) ? center : origin
 				}
 			}
 			
@@ -390,6 +408,18 @@ public class PointProperty: TweenProperty {
 					to.x = origin.x
 				} else if mode == .From {
 					from.x = origin.x
+				}
+			case .CenterX(_):
+				if mode == .To {
+					to.y = center.y
+				} else if mode == .From {
+					from.y = center.y
+				}
+			case .CenterY(_):
+				if mode == .To {
+					to.x = center.x
+				} else if mode == .From {
+					from.x = center.x
 				}
 			case .Shift(let shiftX, let shiftY):
 				if mode == .To {
@@ -411,10 +441,10 @@ public class PointProperty: TweenProperty {
 		let newPoint = point
 		
 		if additive {
-			if let origin = currentOrigin {
+			if let origin = currentOrigin, center = currentCenter {
 				let delta = CGPoint(x: point.x - current.x, y: point.y - current.y)
-				point.x = origin.x + delta.x
-				point.y = origin.y + delta.y
+				point.x = ((targetCenter) ? center.x : origin.x) + delta.x
+				point.y = ((targetCenter) ? center.y : origin.y) + delta.y
 			}
 		}
 				
@@ -429,9 +459,17 @@ public class PointProperty: TweenProperty {
 	
 	private func updateTarget(value: CGPoint) {
 		if let view = target as? UIView {
-			view.frame = CGRect(origin: value, size: view.frame.size)
+			if targetCenter {
+				view.center = value
+			} else {
+				view.frame = CGRect(origin: value, size: view.frame.size)
+			}
 		} else if let layer = target as? CALayer {
-			layer.frame = CGRect(origin: value, size: layer.frame.size)
+			if targetCenter {
+				layer.position = value
+			} else {
+				layer.frame = CGRect(origin: value, size: layer.frame.size)
+			}
 		}
 	}
 }
