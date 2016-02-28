@@ -473,6 +473,40 @@ public class Tween: Animation {
 			}
 		}
 		
+		if let x = propertiesByType[PropertyKey.X.rawValue] as? StructProperty, y = propertiesByType[PropertyKey.Y.rawValue] as? StructProperty, target = target, origin = targetOrigin(target) {
+			let prop = PointProperty(target: target, from: origin, to: origin)
+			prop.from = CGPoint(x: x.from, y: y.from)
+			prop.to = CGPoint(x: x.to, y: y.to)
+			propertiesByType[PropertyKey.Position.rawValue] = prop
+			
+			// delete x and y properties from cache
+			propertiesByType[PropertyKey.X.rawValue] = nil
+			propertiesByType[PropertyKey.Y.rawValue] = nil
+		}
+		
+		if let x = propertiesByType[PropertyKey.X.rawValue] as? StructProperty, centerY = propertiesByType[PropertyKey.CenterY.rawValue] as? StructProperty, target = target, frame = targetFrame(target) {
+			let offset: CGFloat = frame.height / 2
+			let prop = PointProperty(target: target, from: frame.origin, to: frame.origin)
+			prop.from = CGPoint(x: x.from, y: centerY.from - offset)
+			prop.to = CGPoint(x: x.to, y: centerY.to - offset)
+			propertiesByType[PropertyKey.Position.rawValue] = prop
+			
+			// delete x and center.y properties from cache
+			propertiesByType[PropertyKey.X.rawValue] = nil
+			propertiesByType[PropertyKey.CenterY.rawValue] = nil
+		}
+		if let centerX = propertiesByType[PropertyKey.CenterX.rawValue] as? StructProperty, y = propertiesByType[PropertyKey.Y.rawValue] as? StructProperty, target = target, frame = targetFrame(target) {
+			let offset: CGFloat = frame.width / 2
+			let prop = PointProperty(target: target, from: frame.origin, to: frame.origin)
+			prop.from = CGPoint(x: centerX.from - offset, y: y.from)
+			prop.to = CGPoint(x: centerX.to - offset, y: y.to)
+			propertiesByType[PropertyKey.Position.rawValue] = prop
+			
+			// delete center.x and y properties from cache
+			propertiesByType[PropertyKey.CenterX.rawValue] = nil
+			propertiesByType[PropertyKey.Y.rawValue] = nil
+		}
+		
 		// if we have both a SizeProperty and PositionProperty, merge them into a single FrameProperty
 		if let size = propertiesByType[PropertyKey.Size.rawValue] as? SizeProperty, origin = propertiesByType[PropertyKey.Position.rawValue] as? PointProperty, target = target, frame = targetFrame(target) {
 			let prop = RectProperty(target: target, from: frame, to: frame)
