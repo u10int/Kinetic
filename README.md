@@ -7,8 +7,6 @@ Kinetic
 ======
 A flexible tweening library for iOS in Swift2 similar to [GSAP](http://greensock.com/gsap) and inspired by [Cheetah](https://github.com/suguru/Cheetah).
 
-**NOTE** This project is still a work in progress and may not by fully suitable for production usage. More extensive documentation will also be added along the way.
-
 Requirements
 ----
 - iOS 8.0+
@@ -37,6 +35,21 @@ Features
 - Animate multiple objects sequentially, in parallel or staggered in a single animation group
 - Advanced animations using timelines to insert gaps, callbacks and more during an animation
 - Support for animating any NSObject property on your custom objects
+
+## Roadmap
+
+- Support for animating elements along a UIBezierPath
+- Support for animating SVG drawings
+- Support for animating text and characters 
+
+## Author
+
+* [Nicholas Shipes](https://github.com/u10int) ([@u10int](https://twitter.com/u10int))
+
+## License
+
+Kinetic is available under the MIT license. See the LICENSE file for more info.
+
 
 Basic Examples
 ----
@@ -81,8 +94,8 @@ Supported Properties
 ----
 Kinetic has support for animating most visible properties on UIView and CALayer already built-in, but you can also animating any custom key-value property on NSObject:
 
-- `.X(xVal)`, `.Y(yVal)`, `.Position(xVal, yVal)` - animates the frame's origin of the view or layer
-- `.Center(xVal, yVal)` - animates the frame's center of the view or layer
+- `.Position(xVal, yVal)`, `.X(xVal)`, `.Y(yVal)` - animates the frame's origin of the view or layer
+- `.Center(xVal, yVal)`, `.CenterX(xVal)`, `.CenterY(yVal)` - animates the frame's center of the view or layer
 - `.Shift(xOffset, yOffset)` - shifts the frame's current origin by the specified x and y distances (similar to translate but changes the object's origin value instead of using `transform`)
 - `.Width(val)`, `.Height(val)`, `.Size(width, height)` - animates the frame's size of the view or layer
 - `.Alpha(val)` - animates the object's opacity
@@ -370,12 +383,4 @@ If the specified label doesn't exist on the timeline, then the timeline will pla
 Timelines also support the same callback blocks as tweens, so you can use `onStart()`, `onUpdate()`, `onRepeat()` and `onComplete()` for timeline instances as well. You can also have callbacks for individual tween instances within a timeline in conjunction with callbacks on the parent timeline if you want to be notified when a particular tween has started or completed.
 
 Refer to the example project for more detailed examples of using a Timeline.
-
-## Author
-
-* [Nicholas Shipes](https://github.com/u10int) ([@u10int](https://twitter.com/u10int))
-
-## License
-
-Kinetic is available under the MIT license. See the LICENSE file for more info.
 
