@@ -108,6 +108,7 @@ public class Animation: NSObject {
 		}
 		running = true
 		elapsed = 0
+		cycle = 0
 		
 		return self
 	}
@@ -225,6 +226,7 @@ public class Animation: NSObject {
 			}
 		} else {
 			_animating = false
+			_reversed = false
 			running = false
 			completionBlock?(self)
 			return true

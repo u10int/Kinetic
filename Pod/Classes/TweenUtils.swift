@@ -19,6 +19,11 @@ enum PropertyKey: String {
 	case Height = "frame.size.height"
 	case Size = "frame.size"
 	case Frame = "frame"
+	case Translation = "transform.translation"
+	case Scale = "transform.scale"
+	case Rotation = "transform.rotation"
+	case RotationX = "transform.rotation.x"
+	case RotationY = "transform.rotation.y"
 	case Transform = "transform"
 	case Alpha = "alpha"
 	case BackgroundColor = "backgroundColor"
@@ -54,6 +59,16 @@ class TweenUtils {
 			propKey = PropertyKey.Height.rawValue
 		case .Size(_, _):
 			propKey = PropertyKey.Size.rawValue
+		case .Translate(_, _):
+			propKey = PropertyKey.Translation.rawValue
+		case .Scale(_), .ScaleXY(_, _):
+			propKey = PropertyKey.Scale.rawValue
+		case .Rotate(_):
+			propKey = PropertyKey.Rotation.rawValue
+		case .RotateX(_):
+			propKey = PropertyKey.RotationX.rawValue
+		case .RotateY(_):
+			propKey = PropertyKey.RotationY.rawValue
 		default:
 			propKey = PropertyKey.Transform.rawValue
 		}

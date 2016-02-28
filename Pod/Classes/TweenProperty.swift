@@ -23,7 +23,8 @@ public enum Property {
 	case Scale(CGFloat)
 	case ScaleXY(CGFloat, CGFloat)
 	case Rotate(CGFloat)
-	case RotateXY(CGFloat, CGFloat)
+	case RotateX(CGFloat)
+	case RotateY(CGFloat)
 	case Transform(CATransform3D)
 	case Alpha(CGFloat)
 	case BackgroundColor(UIColor)
@@ -67,6 +68,27 @@ public enum Anchor {
 		}
 	}
 }
+
+internal struct Scale {
+	var x: CGFloat
+	var y: CGFloat
+	var z: CGFloat
+}
+internal let ScaleIdentity = Scale(x: 1, y: 1, z: 1)
+
+internal struct Rotation {
+	var angle: CGFloat
+	var x: CGFloat
+	var y: CGFloat
+	var z: CGFloat
+}
+internal let RotationIdentity = Rotation(angle: 0, x: 0, y: 0, z: 0)
+
+internal struct Translation {
+	var x: CGFloat
+	var y: CGFloat
+}
+internal let TranslationIdentity = Translation(x: 0, y: 0)
 
 private struct RGBA {
 	var red: CGFloat = 0
@@ -158,11 +180,7 @@ public class TweenProperty: Equatable {
 	}
 	
 	func update() {
-		
-	}
-	
-	func willStart() {
-		
+		assert(false, "Subclasses of TweenProperty must override `update`")
 	}
 	
 	// MARK: LERP Calculations
@@ -242,7 +260,6 @@ public func ==(lhs: TweenProperty, rhs: TweenProperty) -> Bool {
 public class ValueProperty: TweenProperty {
 	var from: CGFloat = 0
 	var to: CGFloat = 0
-	var toCalc: CGFloat = 0
 	var current: CGFloat = 0
 	
 	private var _from: CGFloat = 0
@@ -258,7 +275,7 @@ public class ValueProperty: TweenProperty {
 	}
 	
 	override func calc() {
-		toCalc = to
+		
 	}
 }
 
@@ -343,7 +360,6 @@ public class StructProperty: ValueProperty {
 public class PointProperty: TweenProperty {
 	var from: CGPoint = CGPointZero
 	var to: CGPoint = CGPointZero
-	var toCalc: CGPoint = CGPointZero
 	var current: CGPoint = CGPointZero
 	var targetCenter: Bool = false
 	
@@ -378,10 +394,6 @@ public class PointProperty: TweenProperty {
 		
 		self._from = from
 		self._to = to
-	}
-	
-	override func calc() {
-		toCalc = to
 	}
 	
 	override func prepare() {
@@ -437,8 +449,8 @@ public class PointProperty: TweenProperty {
 	}
 	
 	override func update() {
-		var point = lerpPoint(from, to: toCalc)
-		let newPoint = point
+		var point = lerpPoint(from, to: to)
+		let value = point
 		
 		if additive {
 			if let origin = currentOrigin, center = currentCenter {
@@ -448,7 +460,7 @@ public class PointProperty: TweenProperty {
 			}
 		}
 				
-		current = newPoint
+		current = value
 		updateTarget(point)
 	}
 	
@@ -477,7 +489,6 @@ public class PointProperty: TweenProperty {
 public class SizeProperty: TweenProperty {
 	var from: CGSize = CGSizeZero
 	var to: CGSize = CGSizeZero
-	var toCalc: CGSize = CGSizeZero
 	var current: CGSize = CGSizeZero
 	
 	var currentSize: CGSize? {
@@ -501,10 +512,6 @@ public class SizeProperty: TweenProperty {
 		
 		self._from = from
 		self._to = to
-	}
-	
-	override func calc() {
-		toCalc = to
 	}
 	
 	override func prepare() {
@@ -540,7 +547,7 @@ public class SizeProperty: TweenProperty {
 	}
 	
 	override func update() {
-		let value = lerpSize(from, to: toCalc)
+		let value = lerpSize(from, to: to)
 		updateTarget(value)
 	}
 	
@@ -561,7 +568,6 @@ public class SizeProperty: TweenProperty {
 public class RectProperty: TweenProperty {
 	var from: CGRect = CGRectZero
 	var to: CGRect = CGRectZero
-	var toCalc: CGRect = CGRectZero
 	var current: CGRect = CGRectZero
 	
 	var currentRect: CGRect? {
@@ -585,10 +591,6 @@ public class RectProperty: TweenProperty {
 		
 		self._from = from
 		self._to = to
-	}
-	
-	override func calc() {
-		toCalc = to
 	}
 	
 	override func prepare() {
@@ -626,10 +628,21 @@ public class RectProperty: TweenProperty {
 	}
 }
 
+// MARK: - Transforms
+
 public class TransformProperty: TweenProperty {
-	var from: CATransform3D = CATransform3DIdentity
-	var to: CATransform3D = CATransform3DIdentity
-	var toCalc: CATransform3D = CATransform3DIdentity
+	var updatesTarget: Bool = true
+	
+	func transformValue() -> CATransform3D {
+		return CATransform3DIdentity
+	}
+}
+
+public class ScaleProperty: TransformProperty {
+	var from: Scale = ScaleIdentity
+	var to: Scale = ScaleIdentity
+	var current: Scale = ScaleIdentity
+	
 	var currentTransform: CATransform3D? {
 		get {
 			if let view = target as? UIView {
@@ -641,62 +654,173 @@ public class TransformProperty: TweenProperty {
 		}
 	}
 	
-	private var _from: CATransform3D = CATransform3DIdentity
-	private var _to: CATransform3D = CATransform3DIdentity
-	
-	init(target: NSObject, from: CATransform3D, to: CATransform3D) {
+	init(target: NSObject, from: Scale, to: Scale) {
 		super.init(target: target)
 		self.from = from
 		self.to = to
-		
-		self._from = from
-		self._to = to
-	}
-	
-	override func calc() {
-		toCalc = to
 	}
 	
 	override func prepare() {
 		if additive {
-			if let transform = currentTransform {
-				if mode == .To {
-					from = transform
-					to = CATransform3DConcat(transform, to)
-				} else if mode == .From {
-					from = CATransform3DConcat(transform, from)
-					to = transform
-				}
-				toCalc = to
+			if let t = currentTransform {
+				from.x = sqrt((t.m11 * t.m11) + (t.m12 * t.m12) + (t.m13 * t.m13))
+				from.y = sqrt((t.m21 * t.m21) + (t.m22 * t.m22) + (t.m23 * t.m23))
 			}
 		}
 		super.prepare()
 	}
 	
 	override func update() {
-		let value = lerpTransform(from, to: toCalc)
-		updateTarget(value)
+		var value = ScaleIdentity
+		value.x = lerpFloat(from.x, to: to.x)
+		value.y = lerpFloat(from.y, to: to.y)
+		value.z = lerpFloat(from.z, to: to.z)
+		current = value
+		
+		if updatesTarget {
+			let transform = CATransform3DMakeScale(value.x, value.y, value.z)
+			updateTarget(transform)
+		}
 	}
 	
-	override func reset() {
-		super.reset()
-		updateTarget(_from)
+	override func transformValue() -> CATransform3D {
+		return CATransform3DMakeScale(current.x, current.y, current.z)
 	}
 	
 	private func updateTarget(value: CATransform3D) {
 		if let view = target as? UIView {
-			view.layer.transform = value
+			return view.layer.transform = value
 		} else if let layer = target as? CALayer {
-			layer.transform = value
+			return layer.transform = value
 		}
 	}
 }
+
+public class RotationProperty: TransformProperty {
+	var from: Rotation = RotationIdentity
+	var to: Rotation = RotationIdentity
+	var current: Rotation = RotationIdentity
+	
+	var currentTransform: CATransform3D? {
+		get {
+			if let view = target as? UIView {
+				return view.layer.transform
+			} else if let layer = target as? CALayer {
+				return layer.transform
+			}
+			return nil
+		}
+	}
+	
+	init(target: NSObject, from: Rotation, to: Rotation) {
+		super.init(target: target)
+		self.from = from
+		self.to = to
+	}
+	
+	override func prepare() {
+		if additive {
+			if let t = currentTransform {
+				from = Rotation(angle: atan2(t.m12, t.m11), x: to.x, y: to.y, z: to.z)
+			}
+		}
+		super.prepare()
+	}
+	
+	override func update() {
+		var value = to
+		value.angle = lerpFloat(from.angle, to: to.angle)
+		current = value
+		
+		if updatesTarget {
+			let transform = CATransform3DMakeRotation(value.angle, value.x, value.y, value.z)
+			updateTarget(transform)
+		}
+	}
+	
+	override func transformValue() -> CATransform3D {
+		return CATransform3DMakeRotation(current.angle, current.x, current.y, current.z)
+	}
+	
+	private func updateTarget(value: CATransform3D) {
+		if let view = target as? UIView {
+			return view.layer.transform = value
+		} else if let layer = target as? CALayer {
+			return layer.transform = value
+		}
+	}
+}
+
+public class TranslationProperty: TransformProperty {
+	var from: Translation = TranslationIdentity
+	var to: Translation = TranslationIdentity
+	var current: Translation = TranslationIdentity
+	
+	var currentTransform: CATransform3D? {
+		get {
+			if let view = target as? UIView {
+				return view.layer.transform
+			} else if let layer = target as? CALayer {
+				return layer.transform
+			}
+			return nil
+		}
+	}
+	
+	init(target: NSObject, from: Translation, to: Translation) {
+		super.init(target: target)
+		self.from = from
+		self.to = to
+	}
+	
+	override func prepare() {
+		if additive {
+			if let t = currentTransform {
+				from.x = sqrt(t.m41 * t.m41)
+				from.y = sqrt(t.m42 * t.m42)
+			}
+		}
+		super.prepare()
+	}
+	
+	override func update() {
+		var value = TranslationIdentity
+		value.x = lerpFloat(from.x, to: to.x)
+		value.y = lerpFloat(from.y, to: to.y)
+		current = value
+		
+		if updatesTarget {
+			var transform = CATransform3DMakeTranslation(value.x, value.y, 0)
+			if let t = currentTransform {
+				let scaleX = sqrt((t.m11 * t.m11) + (t.m12 * t.m12) + (t.m13 * t.m13))
+				let scaleY = sqrt((t.m21 * t.m21) + (t.m22 * t.m22) + (t.m23 * t.m23))
+				let scale = CATransform3DMakeScale(scaleX, scaleY, 1)
+				transform = CATransform3DConcat(scale, transform)
+			}
+			updateTarget(transform)
+		}
+	}
+	
+	override func transformValue() -> CATransform3D {
+		return CATransform3DMakeTranslation(current.x, current.y, 0)
+	}
+	
+	private func updateTarget(value: CATransform3D) {
+		if let view = target as? UIView {
+			return view.layer.transform = value
+		} else if let layer = target as? CALayer {
+			return layer.transform = value
+		}
+	}
+}
+
+// MARK: - Color
 
 public class ColorProperty: TweenProperty {
 	var keyPath: String
 	var from: UIColor = UIColor.blackColor()
 	var to: UIColor = UIColor.blackColor()
-	var toCalc: UIColor = UIColor.blackColor()
+	
 	var currentColor: UIColor? {
 		get {
 			if target.respondsToSelector(Selector(keyPath)) {
@@ -708,9 +832,6 @@ public class ColorProperty: TweenProperty {
 		}
 	}
 	
-	private var _from: UIColor = UIColor.blackColor()
-	private var _to: UIColor = UIColor.blackColor()
-	
 	init(target: NSObject, property: String, from: UIColor, to: UIColor) {
 		self.keyPath = property
 		super.init(target: target)
@@ -719,13 +840,6 @@ public class ColorProperty: TweenProperty {
 		
 		self.from = from
 		self.to = to
-		
-		self._from = from
-		self._to = to
-	}
-	
-	override func calc() {
-		toCalc = to
 	}
 	
 	override func prepare() {
@@ -736,7 +850,6 @@ public class ColorProperty: TweenProperty {
 				}
 			}
 		}
-		
 		super.prepare()
 	}
 	
@@ -747,7 +860,7 @@ public class ColorProperty: TweenProperty {
 	
 	override func reset() {
 		super.reset()
-		updateTarget(_from)
+		updateTarget(from)
 	}
 	
 	private func updateTarget(value: UIColor) {
@@ -767,10 +880,6 @@ public class ObjectProperty: ValueProperty {
 		assert(target.respondsToSelector(Selector(keyPath)), "Target for CustomProperty must contain a public property {\(keyPath)}")
 	}
 	
-	override func calc() {
-		toCalc = to
-	}
-	
 	override func prepare() {
 		if additive {
 			if let target = target, value = target.valueForKeyPath(keyPath) as? CGFloat {
@@ -779,15 +888,11 @@ public class ObjectProperty: ValueProperty {
 				}
 			}
 		}
-		
-		self._from = from
-		self._to = to
-		
 		super.prepare()
 	}
 	
 	override func update() {
-		let value = lerpFloat(from, to: toCalc)
+		let value = lerpFloat(from, to: to)
 		updateTarget(value)
 	}
 	
@@ -803,3 +908,57 @@ public class ObjectProperty: ValueProperty {
 	}
 }
 
+internal class Transformation: TweenProperty {
+	var transforms = [TransformProperty]()
+	override var easing: Ease {
+		didSet {
+			for t in transforms {
+				t.easing = easing
+			}
+		}
+	}
+	override var spring: Spring? {
+		didSet {
+			for t in transforms {
+				t.spring = spring
+			}
+		}
+	}
+	
+	override func prepare() {
+		for t in transforms {
+			t.updatesTarget = false
+			t.prepare()
+		}
+		super.prepare()
+	}
+	
+	override func proceed(dt: CFTimeInterval, reversed: Bool) -> Bool {
+		for t in transforms {
+			t.proceed(dt, reversed: reversed)
+		}
+		return super.proceed(dt, reversed: reversed)
+	}
+	
+	override func update() {
+		var value = CATransform3DIdentity
+		for t in transforms {
+			value = CATransform3DConcat(value, t.transformValue())
+		}
+		
+		updateTarget(value)
+	}
+	
+	override func reset() {
+		super.reset()
+		//		updateTarget(_from)
+	}
+	
+	private func updateTarget(value: CATransform3D) {
+		if let view = target as? UIView {
+			view.layer.transform = value
+		} else if let layer = target as? CALayer {
+			layer.transform = value
+		}
+	}
+}
