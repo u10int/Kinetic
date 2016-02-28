@@ -15,7 +15,11 @@ public enum TweenMode {
 }
 
 public class Tween: Animation {
-	public weak var target: NSObject?
+	public var target: NSObject? {
+		get {
+			return tweenObject.target
+		}
+	}
 	override public var duration: CFTimeInterval {
 		didSet {
 			for prop in properties {
@@ -37,6 +41,7 @@ public class Tween: Animation {
 	}
 	var _properties = [TweenProperty]()
 	
+	var tweenObject: TweenObject
 	private var timeScale: Float = 1
 	private var staggerDelay: CFTimeInterval = 0
 	private var propertiesByType = [String: TweenProperty]()
@@ -45,7 +50,7 @@ public class Tween: Animation {
 	// MARK: Lifecycle
 	
 	required public init(target: NSObject, from: [Property]?, to: [Property]?, mode: TweenMode = .To) {
-		self.target = target
+		self.tweenObject = TweenObject(target: target)
 		super.init()
 		
 		prepare(from: from, to: to, mode: mode)
@@ -362,7 +367,7 @@ public class Tween: Animation {
 					}
 				}
 			case .Shift(let shiftX, let shiftY):
-				if let point = propObj as? PointProperty, target = target, position = targetOrigin(target) {
+				if let point = propObj as? PointProperty, position = tweenObject.origin {
 					if mode == .From {
 						point.from.x = position.x + shiftX
 						point.from.y = position.y + shiftY
@@ -480,8 +485,8 @@ public class Tween: Animation {
 			combineTransforms()
 		}
 		
-		if let x = propertiesByType[PropertyKey.X.rawValue] as? StructProperty, y = propertiesByType[PropertyKey.Y.rawValue] as? StructProperty, target = target, origin = targetOrigin(target) {
-			let prop = PointProperty(target: target, from: origin, to: origin)
+		if let x = propertiesByType[PropertyKey.X.rawValue] as? StructProperty, y = propertiesByType[PropertyKey.Y.rawValue] as? StructProperty, origin = tweenObject.origin {
+			let prop = PointProperty(target: tweenObject, from: origin, to: origin)
 			prop.from = CGPoint(x: x.from, y: y.from)
 			prop.to = CGPoint(x: x.to, y: y.to)
 			propertiesByType[PropertyKey.Position.rawValue] = prop
@@ -491,9 +496,9 @@ public class Tween: Animation {
 			propertiesByType[PropertyKey.Y.rawValue] = nil
 		}
 		
-		if let x = propertiesByType[PropertyKey.X.rawValue] as? StructProperty, centerY = propertiesByType[PropertyKey.CenterY.rawValue] as? StructProperty, target = target, frame = targetFrame(target) {
+		if let x = propertiesByType[PropertyKey.X.rawValue] as? StructProperty, centerY = propertiesByType[PropertyKey.CenterY.rawValue] as? StructProperty, frame = tweenObject.frame {
 			let offset: CGFloat = frame.height / 2
-			let prop = PointProperty(target: target, from: frame.origin, to: frame.origin)
+			let prop = PointProperty(target: tweenObject, from: frame.origin, to: frame.origin)
 			prop.from = CGPoint(x: x.from, y: centerY.from - offset)
 			prop.to = CGPoint(x: x.to, y: centerY.to - offset)
 			propertiesByType[PropertyKey.Position.rawValue] = prop
@@ -502,9 +507,9 @@ public class Tween: Animation {
 			propertiesByType[PropertyKey.X.rawValue] = nil
 			propertiesByType[PropertyKey.CenterY.rawValue] = nil
 		}
-		if let centerX = propertiesByType[PropertyKey.CenterX.rawValue] as? StructProperty, y = propertiesByType[PropertyKey.Y.rawValue] as? StructProperty, target = target, frame = targetFrame(target) {
+		if let centerX = propertiesByType[PropertyKey.CenterX.rawValue] as? StructProperty, y = propertiesByType[PropertyKey.Y.rawValue] as? StructProperty, frame = tweenObject.frame {
 			let offset: CGFloat = frame.width / 2
-			let prop = PointProperty(target: target, from: frame.origin, to: frame.origin)
+			let prop = PointProperty(target: tweenObject, from: frame.origin, to: frame.origin)
 			prop.from = CGPoint(x: centerX.from - offset, y: y.from)
 			prop.to = CGPoint(x: centerX.to - offset, y: y.to)
 			propertiesByType[PropertyKey.Position.rawValue] = prop
@@ -515,8 +520,8 @@ public class Tween: Animation {
 		}
 		
 		// if we have both a SizeProperty and PositionProperty, merge them into a single FrameProperty
-		if let size = propertiesByType[PropertyKey.Size.rawValue] as? SizeProperty, origin = propertiesByType[PropertyKey.Position.rawValue] as? PointProperty, target = target, frame = targetFrame(target) {
-			let prop = RectProperty(target: target, from: frame, to: frame)
+		if let size = propertiesByType[PropertyKey.Size.rawValue] as? SizeProperty, origin = propertiesByType[PropertyKey.Position.rawValue] as? PointProperty, frame = tweenObject.frame {
+			let prop = RectProperty(target: tweenObject, from: frame, to: frame)
 			prop.from = CGRect(origin: origin.from, size: size.from)
 			prop.to = CGRect(origin: origin.to, size: size.to)
 			propertiesByType[PropertyKey.Frame.rawValue] = prop
@@ -534,78 +539,70 @@ public class Tween: Animation {
 			if prop == nil {
 				switch key {
 				case PropertyKey.Position.rawValue:
-					if let target = target, origin = targetOrigin(target) {
-						prop = PointProperty(target: target, from: origin, to: origin)
+					if let origin = tweenObject.origin {
+						prop = PointProperty(target: tweenObject, from: origin, to: origin)
 					}
 				case PropertyKey.Center.rawValue:
-					if let target = target, center = targetCenter(target) {
-						prop = PointProperty(target: target, from: center, to: center)
+					if let center = tweenObject.center {
+						prop = PointProperty(target: tweenObject, from: center, to: center)
 						if let pointProp = prop as? PointProperty {
 							pointProp.targetCenter = true
 						}
 					}
 				case PropertyKey.Size.rawValue:
-					if let target = target, size = targetSize(target) {
-						prop = SizeProperty(target: target, from: size, to: size)
+					if let size = tweenObject.size {
+						prop = SizeProperty(target: tweenObject, from: size, to: size)
 					}
 				case PropertyKey.Transform.rawValue:
-					if let target = target {
-						prop = Transformation(target: target)
-					}
+					prop = Transformation(target: tweenObject)
 				case PropertyKey.Alpha.rawValue:
-					if let target = target, alpha = targetAlpha(target) {
+					if let alpha = tweenObject.alpha {
 						let key = (target is CALayer) ? "opacity" : "alpha"
-						prop = ObjectProperty(target: target, keyPath: key, from: alpha, to: alpha)
+						prop = ObjectProperty(target: tweenObject, keyPath: key, from: alpha, to: alpha)
 					}
 				case PropertyKey.BackgroundColor.rawValue:
-					if let target = target, color = targetColor(target, keyPath: "backgroundColor") {
-						prop = ColorProperty(target: target, property: "backgroundColor", from: color, to: color)
+					if let color = tweenObject.backgroundColor {
+						prop = ColorProperty(target: tweenObject, property: "backgroundColor", from: color, to: color)
 					}
 				case PropertyKey.X.rawValue:
-					if let target = target, frame = targetFrame(target) {
+					if let frame = tweenObject.frame {
 						let value = CGRectGetMinX(frame)
-						prop = StructProperty(target: target, from: value, to: value)
+						prop = StructProperty(target: tweenObject, from: value, to: value)
 					}
 				case PropertyKey.Y.rawValue:
-					if let target = target, frame = targetFrame(target) {
+					if let frame = tweenObject.frame {
 						let value = CGRectGetMinY(frame)
-						prop = StructProperty(target: target, from: value, to: value)
+						prop = StructProperty(target: tweenObject, from: value, to: value)
 					}
 				case PropertyKey.CenterX.rawValue:
-					if let target = target, frame = targetFrame(target) {
+					if let frame = tweenObject.frame {
 						let value = CGRectGetMidX(frame)
-						prop = StructProperty(target: target, from: value, to: value)
+						prop = StructProperty(target: tweenObject, from: value, to: value)
 					}
 				case PropertyKey.CenterY.rawValue:
-					if let target = target, frame = targetFrame(target) {
+					if let frame = tweenObject.frame {
 						let value = CGRectGetMidY(frame)
-						prop = StructProperty(target: target, from: value, to: value)
+						prop = StructProperty(target: tweenObject, from: value, to: value)
 					}
 				case PropertyKey.Width.rawValue:
-					if let target = target, frame = targetFrame(target) {
+					if let frame = tweenObject.frame {
 						let value = CGRectGetWidth(frame)
-						prop = StructProperty(target: target, from: value, to: value)
+						prop = StructProperty(target: tweenObject, from: value, to: value)
 					}
 				case PropertyKey.Height.rawValue:
-					if let target = target, frame = targetFrame(target) {
+					if let frame = tweenObject.frame {
 						let value = CGRectGetHeight(frame)
-						prop = StructProperty(target: target, from: value, to: value)
+						prop = StructProperty(target: tweenObject, from: value, to: value)
 					}
 				case PropertyKey.Translation.rawValue:
-					if let target = target {
-						prop = TranslationProperty(target: target, from: TranslationIdentity, to: TranslationIdentity)
-					}
+					prop = TranslationProperty(target: tweenObject, from: TranslationIdentity, to: TranslationIdentity)
 				case PropertyKey.Scale.rawValue:
-					if let target = target {
-						prop = ScaleProperty(target: target, from: ScaleIdentity, to: ScaleIdentity)
-					}
+					prop = ScaleProperty(target: tweenObject, from: ScaleIdentity, to: ScaleIdentity)
 				case PropertyKey.Rotation.rawValue, PropertyKey.RotationX.rawValue, PropertyKey.RotationY.rawValue:
-					if let target = target {
-						prop = RotationProperty(target: target, from: RotationIdentity, to: RotationIdentity)
-					}
+					prop = RotationProperty(target: tweenObject, from: RotationIdentity, to: RotationIdentity)
 				default:
-					if let target = target, value = target.valueForKeyPath(key) as? CGFloat {
-						prop = ObjectProperty(target: target, keyPath: key, from: value, to: value)
+					if let target = tweenObject.target, value = target.valueForKeyPath(key) as? CGFloat {
+						prop = ObjectProperty(target: tweenObject, keyPath: key, from: value, to: value)
 					}
 				}
 				
@@ -640,89 +637,5 @@ public class Tween: Animation {
 				propertiesByType[key] = nil
 			}
 		}
-	}
-	
-	private func targetOrigin(target: NSObject) -> CGPoint? {
-		var origin: CGPoint?
-		
-		if let layer = target as? CALayer {
-			origin = layer.frame.origin
-		} else if let view = target as? UIView {
-			origin = view.frame.origin
-		}
-		
-		return origin
-	}
-	
-	private func targetCenter(target: NSObject) -> CGPoint? {
-		var center: CGPoint?
-		
-		if let layer = target as? CALayer {
-			center = layer.position
-		} else if let view = target as? UIView {
-			center = view.center
-		}
-		
-		return center
-	}
-	
-	private func targetSize(target: NSObject) -> CGSize? {
-		var size: CGSize?
-		
-		if let layer = target as? CALayer {
-			size = layer.bounds.size
-		} else if let view = target as? UIView {
-			size = view.frame.size
-		}
-		
-		return size
-	}
-	
-	private func targetFrame(target: NSObject) -> CGRect? {
-		var frame: CGRect?
-		
-		if let layer = target as? CALayer {
-			frame = layer.frame
-		} else if let view = target as? UIView {
-			frame = view.frame
-		}
-		
-		return frame
-	}
-	
-	private func targetTransform(target: NSObject) -> CATransform3D? {
-		var transform: CATransform3D?
-		
-		if let layer = target as? CALayer {
-			transform = layer.transform
-		} else if let view = target as? UIView {
-			transform = view.layer.transform
-		}
-		
-		return transform
-	}
-	
-	private func targetAlpha(target: NSObject) -> CGFloat? {
-		var alpha: CGFloat?
-		
-		if let layer = target as? CALayer {
-			alpha = CGFloat(layer.opacity)
-		} else if let view = target as? UIView {
-			alpha = view.alpha
-		}
-		
-		return alpha
-	}
-	
-	private func targetColor(target: NSObject, keyPath: String) -> UIColor? {
-		var color: UIColor?
-		
-		if target.respondsToSelector(Selector(keyPath)) {
-			if let c = target.valueForKeyPath(keyPath) as? UIColor {
-				color = c
-			}
-		}
-		
-		return color
 	}
 }

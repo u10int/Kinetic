@@ -104,8 +104,7 @@ private struct RGBA {
 }
 
 public class TweenProperty: Equatable {
-	weak var target: NSObject!
-	
+	var tweenObject: TweenObject
 	var property: Property?
 	var mode: TweenMode = .To {
 		didSet {
@@ -124,8 +123,8 @@ public class TweenProperty: Equatable {
 	var spring: Spring?
 	var additive: Bool = true
 	
-	init(target: NSObject) {
-		self.target = target
+	init(target: TweenObject) {
+		self.tweenObject = target
 	}
 	
 	func proceed(dt: CFTimeInterval, reversed: Bool = false) -> Bool {
@@ -262,16 +261,10 @@ public class ValueProperty: TweenProperty {
 	var to: CGFloat = 0
 	var current: CGFloat = 0
 	
-	private var _from: CGFloat = 0
-	private var _to: CGFloat = 0
-	
-	init(target: NSObject, from: CGFloat, to: CGFloat) {
+	init(target: TweenObject, from: CGFloat, to: CGFloat) {
 		super.init(target: target)
 		self.from = from
 		self.to = to
-		
-		self._from = from
-		self._to = to
 	}
 	
 	override func calc() {
@@ -280,19 +273,9 @@ public class ValueProperty: TweenProperty {
 }
 
 public class StructProperty: ValueProperty {
-	var currentFrame: CGRect? {
-		get {
-			if let view = target as? UIView {
-				return view.frame
-			} else if let layer = target as? CALayer {
-				return layer.frame
-			}
-			return nil
-		}
-	}
 	var currentValue: CGFloat? {
 		get {
-			if let frame = currentFrame, prop = property {
+			if let frame = tweenObject.frame, prop = property {
 				switch prop {
 				case .X(_):
 					return CGRectGetMinX(frame)
@@ -330,11 +313,11 @@ public class StructProperty: ValueProperty {
 	
 	override func reset() {
 		super.reset()
-		updateTarget(_from)
+		updateTarget(from)
 	}
 	
 	private func updateTarget(value: CGFloat) {
-		if var frame = currentFrame, let prop = property {
+		if var frame = tweenObject.frame, let prop = property {
 			switch prop {
 			case .X(_):
 				frame.origin.x = value
@@ -348,11 +331,7 @@ public class StructProperty: ValueProperty {
 				break
 			}
 			
-			if let view = target as? UIView {
-				return view.frame = frame
-			} else if let layer = target as? CALayer {
-				return layer.frame = frame
-			}
+			tweenObject.frame = frame
 		}
 	}
 }
@@ -363,43 +342,16 @@ public class PointProperty: TweenProperty {
 	var current: CGPoint = CGPointZero
 	var targetCenter: Bool = false
 	
-	var currentOrigin: CGPoint? {
-		get {
-			if let view = target as? UIView {
-				return view.frame.origin
-			} else if let layer = target as? CALayer {
-				return layer.frame.origin
-			}
-			return nil
-		}
-	}
-	var currentCenter: CGPoint? {
-		get {
-			if let view = target as? UIView {
-				return view.center
-			} else if let layer = target as? CALayer {
-				return layer.position
-			}
-			return nil
-		}
-	}
-	
-	private var _from: CGPoint = CGPointZero
-	private var _to: CGPoint = CGPointZero
-	
-	init(target: NSObject, from: CGPoint, to: CGPoint) {
+	init(target: TweenObject, from: CGPoint, to: CGPoint) {
 		super.init(target: target)
 		self.from = from
 		self.to = to
-		
-		self._from = from
-		self._to = to
 	}
 	
 	override func prepare() {
-		if let origin = currentOrigin, center = currentCenter, prop = property {
+		if let origin = tweenObject.origin, center = tweenObject.center, prop = property {
 			if additive {
-				if let target = target, lastProp = TweenManager.sharedInstance.lastPropertyForTarget(target, type: prop) as? PointProperty {
+				if let target = tweenObject.target, lastProp = TweenManager.sharedInstance.lastPropertyForTarget(target, type: prop) as? PointProperty {
 					from = lastProp.to
 				}
 			} else {
@@ -453,7 +405,7 @@ public class PointProperty: TweenProperty {
 		let value = point
 		
 		if additive {
-			if let origin = currentOrigin, center = currentCenter {
+			if let origin = tweenObject.origin, center = tweenObject.center {
 				let delta = CGPoint(x: point.x - current.x, y: point.y - current.y)
 				point.x = ((targetCenter) ? center.x : origin.x) + delta.x
 				point.y = ((targetCenter) ? center.y : origin.y) + delta.y
@@ -466,22 +418,14 @@ public class PointProperty: TweenProperty {
 	
 	override func reset() {
 		super.reset()
-		updateTarget(_from)
+		updateTarget(from)
 	}
 	
 	private func updateTarget(value: CGPoint) {
-		if let view = target as? UIView {
-			if targetCenter {
-				view.center = value
-			} else {
-				view.frame = CGRect(origin: value, size: view.frame.size)
-			}
-		} else if let layer = target as? CALayer {
-			if targetCenter {
-				layer.position = value
-			} else {
-				layer.frame = CGRect(origin: value, size: layer.frame.size)
-			}
+		if targetCenter {
+			tweenObject.center = value
+		} else {
+			tweenObject.origin = value
 		}
 	}
 }
@@ -491,33 +435,16 @@ public class SizeProperty: TweenProperty {
 	var to: CGSize = CGSizeZero
 	var current: CGSize = CGSizeZero
 	
-	var currentSize: CGSize? {
-		get {
-			if let view = target as? UIView {
-				return view.bounds.size
-			} else if let layer = target as? CALayer {
-				return layer.bounds.size
-			}
-			return nil
-		}
-	}
-	
-	private var _from: CGSize = CGSizeZero
-	private var _to: CGSize = CGSizeZero
-	
-	init(target: NSObject, from: CGSize, to: CGSize) {
+	init(target: TweenObject, from: CGSize, to: CGSize) {
 		super.init(target: target)
 		self.from = from
 		self.to = to
-		
-		self._from = from
-		self._to = to
 	}
 	
 	override func prepare() {
-		if let size = currentSize, prop = property {
+		if let size = tweenObject.size, prop = property {
 			if additive {
-				if let target = target, lastProp = TweenManager.sharedInstance.lastPropertyForTarget(target, type: prop) as? SizeProperty {
+				if let target = tweenObject.target, lastProp = TweenManager.sharedInstance.lastPropertyForTarget(target, type: prop) as? SizeProperty {
 					from = lastProp.to
 				}
 			} else {
@@ -553,15 +480,11 @@ public class SizeProperty: TweenProperty {
 	
 	override func reset() {
 		super.reset()
-		updateTarget(_from)
+		updateTarget(from)
 	}
 	
 	private func updateTarget(value: CGSize) {
-		if let view = target as? UIView {
-			view.bounds = CGRect(origin: CGPointZero, size: value)
-		} else if let layer = target as? CALayer {
-			layer.bounds = CGRect(origin: CGPointZero, size: value)
-		}
+		tweenObject.size = value
 	}
 }
 
@@ -570,36 +493,19 @@ public class RectProperty: TweenProperty {
 	var to: CGRect = CGRectZero
 	var current: CGRect = CGRectZero
 	
-	var currentRect: CGRect? {
-		get {
-			if let view = target as? UIView {
-				return view.frame
-			} else if let layer = target as? CALayer {
-				return layer.frame
-			}
-			return nil
-		}
-	}
-	
-	private var _from: CGRect = CGRectZero
-	private var _to: CGRect = CGRectZero
-	
-	init(target: NSObject, from: CGRect, to: CGRect) {
+	init(target: TweenObject, from: CGRect, to: CGRect) {
 		super.init(target: target)
 		self.from = from
 		self.to = to
-		
-		self._from = from
-		self._to = to
 	}
 	
 	override func prepare() {
 		if additive {
-			if let target = target, prop = property, lastProp = TweenManager.sharedInstance.lastPropertyForTarget(target, type: prop) as? RectProperty {
+			if let target = tweenObject.target, prop = property, lastProp = TweenManager.sharedInstance.lastPropertyForTarget(target, type: prop) as? RectProperty {
 				from = lastProp.to
 			}
 		} else {
-			if let size = currentRect {
+			if let size = tweenObject.frame {
 				if mode == .To {
 					from = size
 				}
@@ -616,15 +522,11 @@ public class RectProperty: TweenProperty {
 	
 	override func reset() {
 		super.reset()
-		updateTarget(_from)
+		updateTarget(from)
 	}
 	
 	private func updateTarget(value: CGRect) {
-		if let view = target as? UIView {
-			view.frame = value
-		} else if let layer = target as? CALayer {
-			layer.frame = value
-		}
+		tweenObject.frame = value
 	}
 }
 
@@ -643,18 +545,7 @@ public class ScaleProperty: TransformProperty {
 	var to: Scale = ScaleIdentity
 	var current: Scale = ScaleIdentity
 	
-	var currentTransform: CATransform3D? {
-		get {
-			if let view = target as? UIView {
-				return view.layer.transform
-			} else if let layer = target as? CALayer {
-				return layer.transform
-			}
-			return nil
-		}
-	}
-	
-	init(target: NSObject, from: Scale, to: Scale) {
+	init(target: TweenObject, from: Scale, to: Scale) {
 		super.init(target: target)
 		self.from = from
 		self.to = to
@@ -662,7 +553,7 @@ public class ScaleProperty: TransformProperty {
 	
 	override func prepare() {
 		if additive {
-			if let t = currentTransform {
+			if let t = tweenObject.transform {
 				from.x = sqrt((t.m11 * t.m11) + (t.m12 * t.m12) + (t.m13 * t.m13))
 				from.y = sqrt((t.m21 * t.m21) + (t.m22 * t.m22) + (t.m23 * t.m23))
 			}
@@ -688,11 +579,7 @@ public class ScaleProperty: TransformProperty {
 	}
 	
 	private func updateTarget(value: CATransform3D) {
-		if let view = target as? UIView {
-			return view.layer.transform = value
-		} else if let layer = target as? CALayer {
-			return layer.transform = value
-		}
+		tweenObject.transform = value
 	}
 }
 
@@ -701,18 +588,7 @@ public class RotationProperty: TransformProperty {
 	var to: Rotation = RotationIdentity
 	var current: Rotation = RotationIdentity
 	
-	var currentTransform: CATransform3D? {
-		get {
-			if let view = target as? UIView {
-				return view.layer.transform
-			} else if let layer = target as? CALayer {
-				return layer.transform
-			}
-			return nil
-		}
-	}
-	
-	init(target: NSObject, from: Rotation, to: Rotation) {
+	init(target: TweenObject, from: Rotation, to: Rotation) {
 		super.init(target: target)
 		self.from = from
 		self.to = to
@@ -720,7 +596,7 @@ public class RotationProperty: TransformProperty {
 	
 	override func prepare() {
 		if additive {
-			if let t = currentTransform {
+			if let t = tweenObject.transform {
 				from = Rotation(angle: atan2(t.m12, t.m11), x: to.x, y: to.y, z: to.z)
 			}
 		}
@@ -743,11 +619,7 @@ public class RotationProperty: TransformProperty {
 	}
 	
 	private func updateTarget(value: CATransform3D) {
-		if let view = target as? UIView {
-			return view.layer.transform = value
-		} else if let layer = target as? CALayer {
-			return layer.transform = value
-		}
+		tweenObject.transform = value
 	}
 }
 
@@ -756,18 +628,7 @@ public class TranslationProperty: TransformProperty {
 	var to: Translation = TranslationIdentity
 	var current: Translation = TranslationIdentity
 	
-	var currentTransform: CATransform3D? {
-		get {
-			if let view = target as? UIView {
-				return view.layer.transform
-			} else if let layer = target as? CALayer {
-				return layer.transform
-			}
-			return nil
-		}
-	}
-	
-	init(target: NSObject, from: Translation, to: Translation) {
+	init(target: TweenObject, from: Translation, to: Translation) {
 		super.init(target: target)
 		self.from = from
 		self.to = to
@@ -775,7 +636,7 @@ public class TranslationProperty: TransformProperty {
 	
 	override func prepare() {
 		if additive {
-			if let t = currentTransform {
+			if let t = tweenObject.transform {
 				from.x = sqrt(t.m41 * t.m41)
 				from.y = sqrt(t.m42 * t.m42)
 			}
@@ -791,7 +652,7 @@ public class TranslationProperty: TransformProperty {
 		
 		if updatesTarget {
 			var transform = CATransform3DMakeTranslation(value.x, value.y, 0)
-			if let t = currentTransform {
+			if let t = tweenObject.transform {
 				let scaleX = sqrt((t.m11 * t.m11) + (t.m12 * t.m12) + (t.m13 * t.m13))
 				let scaleY = sqrt((t.m21 * t.m21) + (t.m22 * t.m22) + (t.m23 * t.m23))
 				let scale = CATransform3DMakeScale(scaleX, scaleY, 1)
@@ -806,11 +667,7 @@ public class TranslationProperty: TransformProperty {
 	}
 	
 	private func updateTarget(value: CATransform3D) {
-		if let view = target as? UIView {
-			return view.layer.transform = value
-		} else if let layer = target as? CALayer {
-			return layer.transform = value
-		}
+		tweenObject.transform = value
 	}
 }
 
@@ -821,22 +678,13 @@ public class ColorProperty: TweenProperty {
 	var from: UIColor = UIColor.blackColor()
 	var to: UIColor = UIColor.blackColor()
 	
-	var currentColor: UIColor? {
-		get {
-			if target.respondsToSelector(Selector(keyPath)) {
-				if let color = target.valueForKeyPath(keyPath) as? UIColor {
-					return color
-				}
-			}
-			return nil
-		}
-	}
-	
-	init(target: NSObject, property: String, from: UIColor, to: UIColor) {
+	init(target: TweenObject, property: String, from: UIColor, to: UIColor) {
 		self.keyPath = property
 		super.init(target: target)
 		
-		assert(target.respondsToSelector(Selector(property)), "Target for ColorProperty must contain a public property {\(property)}")
+		if let target = tweenObject.target {
+			assert(target.respondsToSelector(Selector(property)), "Target for ColorProperty must contain a public property {\(property)}")
+		}
 		
 		self.from = from
 		self.to = to
@@ -844,7 +692,7 @@ public class ColorProperty: TweenProperty {
 	
 	override func prepare() {
 		if additive {
-			if let color = currentColor {
+			if let color = tweenObject.colorForKeyPath(keyPath) {
 				if mode == .To {
 					from = color
 				}
@@ -864,25 +712,27 @@ public class ColorProperty: TweenProperty {
 	}
 	
 	private func updateTarget(value: UIColor) {
-		if let target = target {
-			target.setValue(value, forKeyPath: keyPath)
-		}
+		tweenObject.setColor(value, forKeyPath: keyPath)
 	}
 }
+
+// MARK: Custom Objects
 
 public class ObjectProperty: ValueProperty {
 	var keyPath: String
 	
-	init(target: NSObject, keyPath: String, from: CGFloat, to: CGFloat) {
+	init(target: TweenObject, keyPath: String, from: CGFloat, to: CGFloat) {
 		self.keyPath = keyPath
 		super.init(target: target, from: from, to: to)
 		
-		assert(target.respondsToSelector(Selector(keyPath)), "Target for CustomProperty must contain a public property {\(keyPath)}")
+		if let target = tweenObject.target {
+			assert(target.respondsToSelector(Selector(keyPath)), "Target for CustomProperty must contain a public property {\(keyPath)}")
+		}
 	}
 	
 	override func prepare() {
 		if additive {
-			if let target = target, value = target.valueForKeyPath(keyPath) as? CGFloat {
+			if let target = tweenObject.target, value = target.valueForKeyPath(keyPath) as? CGFloat {
 				if mode == .To {
 					from = value
 				}
@@ -902,7 +752,7 @@ public class ObjectProperty: ValueProperty {
 	}
 	
 	private func updateTarget(value: CGFloat) {
-		if let target = target {
+		if let target = tweenObject.target {
 			target.setValue(value, forKeyPath: keyPath)
 		}
 	}
@@ -951,14 +801,10 @@ internal class Transformation: TweenProperty {
 	
 	override func reset() {
 		super.reset()
-		//		updateTarget(_from)
+//		updateTarget(from)
 	}
 	
 	private func updateTarget(value: CATransform3D) {
-		if let view = target as? UIView {
-			view.layer.transform = value
-		} else if let layer = target as? CALayer {
-			layer.transform = value
-		}
+		tweenObject.transform = value
 	}
 }
