@@ -13,6 +13,7 @@ class TweenObject {
 	
 	init(target: NSObject) {
 		self.target = target
+		antialiasing = true
 	}
 	
 	var origin: CGPoint? {
@@ -131,6 +132,24 @@ class TweenObject {
 				} else if let view = target as? UIView {
 					view.layer.anchorPoint = value
 				}
+			}
+		}
+	}
+	
+	var antialiasing: Bool {
+		get {
+			if let layer = target as? CALayer {
+				return layer.allowsEdgeAntialiasing
+			} else if let view = target as? UIView {
+				return view.layer.allowsEdgeAntialiasing
+			}
+			return false
+		}
+		set(newValue) {
+			if let layer = target as? CALayer {
+				layer.allowsEdgeAntialiasing = newValue
+			} else if let view = target as? UIView {
+				view.layer.allowsEdgeAntialiasing = newValue
 			}
 		}
 	}

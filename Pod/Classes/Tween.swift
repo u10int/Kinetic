@@ -46,6 +46,7 @@ public class Tween: Animation {
 	private var staggerDelay: CFTimeInterval = 0
 	private var propertiesByType = [String: TweenProperty]()
 	private var needsPropertyPrep = false
+
 	
 	// MARK: Lifecycle
 	
@@ -126,6 +127,11 @@ public class Tween: Animation {
 	
 	public func anchor(anchor: Anchor) -> Tween {
 		tweenObject.anchorPoint = anchor.point()
+		return self
+	}
+	
+	public func antialiasing(enable: Bool) -> Tween {
+		tweenObject.antialiasing = enable
 		return self
 	}
 	

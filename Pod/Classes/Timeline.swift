@@ -202,6 +202,13 @@ public class Timeline: Animation {
 		return self
 	}
 	
+	public func antialiasing(enable: Bool) -> Timeline {
+		for tween in tweens {
+			tween.antialiasing(enable)
+		}
+		return self
+	}
+	
 	override public func play() -> Timeline {
 		guard !active else { return self }
 		
