@@ -76,6 +76,10 @@ internal struct Scale {
 }
 internal let ScaleIdentity = Scale(x: 1, y: 1, z: 1)
 
+internal func ScaleEqualToScale(s1: Scale, s2: Scale) -> Bool {
+	return (s1.x == s2.x && s1.y == s2.y && s1.z == s2.z)
+}
+
 internal struct Rotation {
 	var angle: CGFloat
 	var x: CGFloat
@@ -84,11 +88,19 @@ internal struct Rotation {
 }
 internal let RotationIdentity = Rotation(angle: 0, x: 0, y: 0, z: 0)
 
+internal func RotationEqualToRotation(r1: Rotation, r2: Rotation) -> Bool {
+	return (r1.angle == r2.angle && r1.x == r2.x && r1.y == r2.y && r1.z == r2.z)
+}
+
 internal struct Translation {
 	var x: CGFloat
 	var y: CGFloat
 }
 internal let TranslationIdentity = Translation(x: 0, y: 0)
+
+internal func TranslationEqualToTranslation(t1: Translation, t2: Translation) -> Bool {
+	return (t1.x == t2.x && t1.y == t2.y)
+}
 
 private struct RGBA {
 	var red: CGFloat = 0
@@ -518,6 +530,31 @@ public class TransformProperty: TweenProperty {
 	func transformValue() -> CATransform3D {
 		return CATransform3DIdentity
 	}
+	
+	func concat(transform: CATransform3D) -> CATransform3D {
+		var t = transform
+		
+		if let currentScale = tweenObject.scale {
+			if self is ScaleProperty == false && !ScaleEqualToScale(currentScale, s2: ScaleIdentity) {
+				let scale = CATransform3DMakeScale(currentScale.x, currentScale.y, 1)
+				t = CATransform3DConcat(scale, t)
+			}
+		}
+		if let currentRotation = tweenObject.rotation {
+			if self is RotationProperty == false && !RotationEqualToRotation(currentRotation, r2: RotationIdentity) {
+				let rotation = CATransform3DMakeRotation(currentRotation.angle, currentRotation.x, currentRotation.y, currentRotation.z)
+				t = CATransform3DConcat(rotation, t)
+			}
+		}
+		if let currentTranslation = tweenObject.translation {
+			if self is TranslationProperty == false && !TranslationEqualToTranslation(currentTranslation, t2: TranslationIdentity) {
+				let translation = CATransform3DMakeTranslation(currentTranslation.x, currentTranslation.y, 0)
+				t = CATransform3DConcat(translation, t)
+			}
+		}
+		
+		return t
+	}
 }
 
 public class ScaleProperty: TransformProperty {
@@ -533,9 +570,8 @@ public class ScaleProperty: TransformProperty {
 	
 	override func prepare() {
 		if additive {
-			if let t = tweenObject.transform {
-				from.x = sqrt((t.m11 * t.m11) + (t.m12 * t.m12) + (t.m13 * t.m13))
-				from.y = sqrt((t.m21 * t.m21) + (t.m22 * t.m22) + (t.m23 * t.m23))
+			if let currentScale = tweenObject.scale {
+				from = currentScale
 			}
 		}
 		super.prepare()
@@ -576,8 +612,8 @@ public class RotationProperty: TransformProperty {
 	
 	override func prepare() {
 		if additive {
-			if let t = tweenObject.transform {
-				from = Rotation(angle: atan2(t.m12, t.m11), x: to.x, y: to.y, z: to.z)
+			if let currentRotation = tweenObject.rotation {
+				from = Rotation(angle: currentRotation.angle, x: to.x, y: to.y, z: to.z)
 			}
 		}
 		super.prepare()
@@ -616,9 +652,8 @@ public class TranslationProperty: TransformProperty {
 	
 	override func prepare() {
 		if additive {
-			if let t = tweenObject.transform {
-				from.x = sqrt(t.m41 * t.m41)
-				from.y = sqrt(t.m42 * t.m42)
+			if let currentTranslation = tweenObject.translation {
+				from = currentTranslation
 			}
 		}
 		super.prepare()
@@ -632,12 +667,7 @@ public class TranslationProperty: TransformProperty {
 		
 		if updatesTarget {
 			var transform = CATransform3DMakeTranslation(value.x, value.y, 0)
-			if let t = tweenObject.transform {
-				let scaleX = sqrt((t.m11 * t.m11) + (t.m12 * t.m12) + (t.m13 * t.m13))
-				let scaleY = sqrt((t.m21 * t.m21) + (t.m22 * t.m22) + (t.m23 * t.m23))
-				let scale = CATransform3DMakeScale(scaleX, scaleY, 1)
-				transform = CATransform3DConcat(scale, transform)
-			}
+			transform = concat(transform)
 			updateTarget(transform)
 		}
 	}

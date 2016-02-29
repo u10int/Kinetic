@@ -95,6 +95,48 @@ class TweenObject {
 		}
 	}
 	
+	var alpha: CGFloat? {
+		get {
+			if let layer = target as? CALayer {
+				return CGFloat(layer.opacity)
+			} else if let view = target as? UIView {
+				return view.alpha
+			}
+			return nil
+		}
+		set(newValue) {
+			if let value = newValue {
+				if let layer = target as? CALayer {
+					layer.opacity = Float(value)
+				} else if let view = target as? UIView {
+					view.alpha = value
+				}
+			}
+		}
+	}
+	
+	var anchorPoint: CGPoint? {
+		get {
+			if let layer = target as? CALayer {
+				return layer.anchorPoint
+			} else if let view = target as? UIView {
+				return view.layer.anchorPoint
+			}
+			return nil
+		}
+		set(newValue) {
+			if let value = newValue {
+				if let layer = target as? CALayer {
+					layer.anchorPoint = value
+				} else if let view = target as? UIView {
+					view.layer.anchorPoint = value
+				}
+			}
+		}
+	}
+	
+	// MARK: Transforms 
+	
 	var transform: CATransform3D? {
 		get {
 			if let layer = target as? CALayer {
@@ -115,22 +157,67 @@ class TweenObject {
 		}
 	}
 	
-	var alpha: CGFloat? {
+	var translation: Translation? {
 		get {
-			if let layer = target as? CALayer {
-				return CGFloat(layer.opacity)
-			} else if let view = target as? UIView {
-				return view.alpha
+			if let t = transform {
+				var value = TranslationIdentity
+				value.x = sqrt(t.m41 * t.m41)
+				value.y = sqrt(t.m42 * t.m42)
+				
+				return value
 			}
 			return nil
 		}
+	}
+	var scale: Scale? {
+		get {
+			if let t = transform {
+				var value = ScaleIdentity
+				value.x = sqrt((t.m11 * t.m11) + (t.m12 * t.m12) + (t.m13 * t.m13))
+				value.y = sqrt((t.m21 * t.m21) + (t.m22 * t.m22) + (t.m23 * t.m23))
+				
+				return value
+			}
+			return nil
+		}
+	}
+	var rotation: Rotation? {
+		get {
+			if let t = transform {
+				var value = RotationIdentity
+				value.angle = atan2(t.m12, t.m11)
+				
+				return value
+			}
+			return nil
+		}
+	}
+	
+	var perspective: CGFloat {
+		get {
+			var targetLayer: CALayer?
+			if let layer = target as? CALayer {
+				targetLayer = layer
+			} else if let view = target as? UIView {
+				targetLayer = view.layer
+			}
+			
+			if let layer = targetLayer, transform = layer.superlayer?.sublayerTransform {
+				return transform.m34
+			}
+			return 0
+		}
 		set(newValue) {
-			if let value = newValue {
-				if let layer = target as? CALayer {
-					layer.opacity = Float(value)
-				} else if let view = target as? UIView {
-					view.alpha = value
-				}
+			var targetLayer: CALayer?
+			if let layer = target as? CALayer {
+				targetLayer = layer
+			} else if let view = target as? UIView {
+				targetLayer = view.layer
+			}
+			
+			if let layer = targetLayer, var transform = layer.superlayer?.sublayerTransform {
+				transform.m34 = newValue
+				layer.superlayer?.sublayerTransform = transform
 			}
 		}
 	}

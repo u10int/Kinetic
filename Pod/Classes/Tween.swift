@@ -120,28 +120,12 @@ public class Tween: Animation {
 	}
 	
 	override public func perspective(value: CGFloat) -> Tween {
-		var layer: CALayer?
-		
-		if let targetLayer = target as? CALayer {
-			layer = targetLayer
-		} else if let view = target as? UIView {
-			layer = view.layer
-		}
-		
-		if let layer = layer, var transform = layer.superlayer?.sublayerTransform {
-			transform.m34 = value
-			layer.superlayer?.sublayerTransform = transform
-		}
-		
+		tweenObject.perspective = value
 		return self
 	}
 	
 	public func anchor(anchor: Anchor) -> Tween {
-		if let layer = target as? CALayer {
-			layer.anchorPoint = anchor.point()
-		} else if let view = target as? UIView {
-			view.layer.anchorPoint = anchor.point()
-		}
+		tweenObject.anchorPoint = anchor.point()
 		return self
 	}
 	

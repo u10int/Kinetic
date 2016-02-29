@@ -103,8 +103,8 @@ Kinetic has support for animating most visible properties on UIView and CALayer 
 - `.Scale(val)` - animates the scale of the object equally for all axes (x, y and z)
 - `.ScaleXY(scaleX, scaleY)` - animates the scale of the object in the x and y axes
 - `.Rotate(val)` - animates the rotation of the object two-dimensionally in the z axes
-- `.RotateXY(rotateX, rotateY)` - animates the rotation of the object in the x and y axes (for three-dimensional rotation)
-- `.Transform(transform)` - animates the object to the specified CATransform3D value
+- `.RotateX(rotateX)` - animates the rotation of the object in the x axes (for three-dimensional rotation)
+- `.RotateY(rotateY)` - animates the rotation of the object in the y axes (for three-dimensional rotation)
 - `.BackgroundColor(color)` - animates the background color of the view or layer
 - `.KeyPath(key, val)` - animates a custom property on an NSObject instance for the specified key path
 
