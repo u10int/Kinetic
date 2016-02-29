@@ -35,6 +35,13 @@ public class Timeline: Animation {
 			return (endTime * CFTimeInterval(repeatCount + 1)) + (repeatDelay * CFTimeInterval(repeatCount))
 		}
 	}
+	public var antialiasing: Bool = true {
+		didSet {
+			for tween in tweens {
+				tween.antialiasing = antialiasing
+			}
+		}
+	}
 	
 	private var labels = [String: CFTimeInterval]()
 	
@@ -198,13 +205,6 @@ public class Timeline: Animation {
 	override public func perspective(value: CGFloat) -> Timeline {
 		for tween in tweens {
 			tween.perspective(value)
-		}
-		return self
-	}
-	
-	public func antialiasing(enable: Bool) -> Timeline {
-		for tween in tweens {
-			tween.antialiasing(enable)
 		}
 		return self
 	}

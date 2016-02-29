@@ -27,6 +27,14 @@ public class Tween: Animation {
 			}
 		}
 	}
+	public var antialiasing: Bool {
+		get {
+			return tweenObject.antialiasing
+		}
+		set(newValue) {
+			tweenObject.antialiasing = newValue
+		}
+	}
 	override public var totalTime: CFTimeInterval {
 		get {
 			return (elapsed - delay - staggerDelay)
@@ -127,11 +135,6 @@ public class Tween: Animation {
 	
 	public func anchor(anchor: Anchor) -> Tween {
 		tweenObject.anchorPoint = anchor.point()
-		return self
-	}
-	
-	public func antialiasing(enable: Bool) -> Tween {
-		tweenObject.antialiasing = enable
 		return self
 	}
 	
