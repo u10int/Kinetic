@@ -56,5 +56,6 @@ class TimelineViewController: ExampleViewController {
 	override func reset() {
 		super.reset()
 		square.frame = CGRectMake(50, 50, 50, 50)
+		square.backgroundColor = UIColor.redColor()
 	}
 }
