@@ -311,11 +311,6 @@ public class StructProperty: ValueProperty {
 		updateTarget(value)
 	}
 	
-	override func reset() {
-		super.reset()
-		updateTarget(from)
-	}
-	
 	private func updateTarget(value: CGFloat) {
 		if var frame = tweenObject.frame, let prop = property {
 			switch prop {
@@ -416,11 +411,6 @@ public class PointProperty: TweenProperty {
 		updateTarget(point)
 	}
 	
-	override func reset() {
-		super.reset()
-		updateTarget(from)
-	}
-	
 	private func updateTarget(value: CGPoint) {
 		if targetCenter {
 			tweenObject.center = value
@@ -478,11 +468,6 @@ public class SizeProperty: TweenProperty {
 		updateTarget(value)
 	}
 	
-	override func reset() {
-		super.reset()
-		updateTarget(from)
-	}
-	
 	private func updateTarget(value: CGSize) {
 		tweenObject.size = value
 	}
@@ -518,11 +503,6 @@ public class RectProperty: TweenProperty {
 	override func update() {
 		let value = lerpRect(from, to: to)
 		updateTarget(value)
-	}
-	
-	override func reset() {
-		super.reset()
-		updateTarget(from)
 	}
 	
 	private func updateTarget(value: CGRect) {
@@ -706,11 +686,6 @@ public class ColorProperty: TweenProperty {
 		updateTarget(value)
 	}
 	
-	override func reset() {
-		super.reset()
-		updateTarget(from)
-	}
-	
 	private func updateTarget(value: UIColor) {
 		tweenObject.setColor(value, forKeyPath: keyPath)
 	}
@@ -744,11 +719,6 @@ public class ObjectProperty: ValueProperty {
 	override func update() {
 		let value = lerpFloat(from, to: to)
 		updateTarget(value)
-	}
-	
-	override func reset() {
-		super.reset()
-		updateTarget(from)
 	}
 	
 	private func updateTarget(value: CGFloat) {
@@ -797,11 +767,6 @@ internal class Transformation: TweenProperty {
 		}
 		
 		updateTarget(value)
-	}
-	
-	override func reset() {
-		super.reset()
-//		updateTarget(from)
 	}
 	
 	private func updateTarget(value: CATransform3D) {
