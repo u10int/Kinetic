@@ -26,7 +26,13 @@ public class Animation: NSObject {
 		}
 	}
 	public var delay: CFTimeInterval = 0
-	public var duration: CFTimeInterval = 1.0
+	public var duration: CFTimeInterval = 1.0 {
+		didSet {
+			if duration == 0 {
+				duration = 0.001
+			}
+		}
+	}
 	public var repeatCount: Int = 0
 	public var startTime: CFTimeInterval = 0
 	public var endTime: CFTimeInterval {

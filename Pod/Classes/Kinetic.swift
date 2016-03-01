@@ -36,7 +36,7 @@ public func fromTo(item: NSObject, duration: CFTimeInterval, from: [Property], t
 public func set(item: NSObject, options: [Property]) -> Tween {
 	let tween = Tween(target: item, from: nil, to: options, mode: .To)
 	tween.duration = 0
-	TweenManager.sharedInstance.cache(tween, target: item)
+	tween.seek(tween.duration)
 	
 	return tween
 }
@@ -53,8 +53,12 @@ public func itemsFromTo(items: [NSObject], duration: CFTimeInterval, from: [Prop
 	return staggerFromTo(items, duration: duration, from: from, to: to, stagger: 0)
 }
 
-public func itemsSet(items: [NSObject], options: [Property]) -> Timeline {
-	return staggerTo(items, duration: 0, options: options, stagger: 0)
+public func itemsSet(items: [NSObject], options: [Property]) {
+	for (_, item) in items.enumerate() {
+		let tween = Tween(target: item, from: nil, to: options, mode: .To)
+		tween.duration = 0
+		tween.seek(tween.duration)
+	}
 }
 
 public func staggerTo(items: [NSObject], duration: CFTimeInterval, options: [Property], stagger: CFTimeInterval) -> Timeline {

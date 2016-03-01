@@ -126,7 +126,7 @@ public class TweenProperty: Equatable {
 		}
 	}
 	var tween: Tween?
-	var duration: CFTimeInterval = 1
+	var duration: CFTimeInterval = 0
 	var delay: CFTimeInterval = 0
 	var elapsed: CFTimeInterval = 0
 	var dt: CFTimeInterval = 0
@@ -585,7 +585,8 @@ public class ScaleProperty: TransformProperty {
 		current = value
 		
 		if updatesTarget {
-			let transform = CATransform3DMakeScale(value.x, value.y, value.z)
+			var transform = CATransform3DMakeScale(value.x, value.y, value.z)
+			transform = concat(transform)
 			updateTarget(transform)
 		}
 	}
@@ -625,7 +626,8 @@ public class RotationProperty: TransformProperty {
 		current = value
 		
 		if updatesTarget {
-			let transform = CATransform3DMakeRotation(value.angle, value.x, value.y, value.z)
+			var transform = CATransform3DMakeRotation(value.angle, value.x, value.y, value.z)
+			transform = concat(transform)
 			updateTarget(transform)
 		}
 	}
@@ -760,6 +762,13 @@ public class ObjectProperty: ValueProperty {
 
 internal class Transformation: TweenProperty {
 	var transforms = [TransformProperty]()
+	override var duration: CFTimeInterval {
+		didSet {
+			for t in transforms {
+				t.duration = duration
+			}
+		}
+	}
 	override var easing: Ease {
 		didSet {
 			for t in transforms {
@@ -772,6 +781,14 @@ internal class Transformation: TweenProperty {
 			for t in transforms {
 				t.spring = spring
 			}
+		}
+	}
+	
+	override func seek(time: CFTimeInterval) {
+		super.seek(time)
+		
+		for t in transforms {
+			t.seek(time)
 		}
 	}
 	
@@ -793,9 +810,9 @@ internal class Transformation: TweenProperty {
 	override func update() {
 		var value = CATransform3DIdentity
 		for t in transforms {
+			t.update()
 			value = CATransform3DConcat(value, t.transformValue())
 		}
-		
 		updateTarget(value)
 	}
 	

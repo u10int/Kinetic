@@ -167,11 +167,13 @@ class TweenObject {
 		}
 		set(newValue) {
 			if let value = newValue {
-				if let layer = target as? CALayer {
-					layer.transform = value
-				} else if let view = target as? UIView {
-					view.layer.transform = value
-				}
+				performBlockByDisablingActions({ [unowned self] in
+					if let layer = self.target as? CALayer {
+						layer.transform = value
+					} else if let view = self.target as? UIView {
+						view.layer.transform = value
+					}
+				})
 			}
 		}
 	}
@@ -306,5 +308,14 @@ class TweenObject {
 				}
 			}
 		}
+	}
+	
+	// MARK: Private Methods
+	
+	private func performBlockByDisablingActions(block: () -> Void) {
+		CATransaction.begin()
+		CATransaction.setDisableActions(true)
+		block()
+		CATransaction.commit()
 	}
 }
