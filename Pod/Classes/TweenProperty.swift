@@ -69,39 +69,6 @@ public enum Anchor {
 	}
 }
 
-internal struct Scale {
-	var x: CGFloat
-	var y: CGFloat
-	var z: CGFloat
-}
-internal let ScaleIdentity = Scale(x: 1, y: 1, z: 1)
-
-internal func ScaleEqualToScale(s1: Scale, s2: Scale) -> Bool {
-	return (s1.x == s2.x && s1.y == s2.y && s1.z == s2.z)
-}
-
-internal struct Rotation {
-	var angle: CGFloat
-	var x: CGFloat
-	var y: CGFloat
-	var z: CGFloat
-}
-internal let RotationIdentity = Rotation(angle: 0, x: 0, y: 0, z: 0)
-
-internal func RotationEqualToRotation(r1: Rotation, r2: Rotation) -> Bool {
-	return (r1.angle == r2.angle && r1.x == r2.x && r1.y == r2.y && r1.z == r2.z)
-}
-
-internal struct Translation {
-	var x: CGFloat
-	var y: CGFloat
-}
-internal let TranslationIdentity = Translation(x: 0, y: 0)
-
-internal func TranslationEqualToTranslation(t1: Translation, t2: Translation) -> Bool {
-	return (t1.x == t2.x && t1.y == t2.y)
-}
-
 private struct RGBA {
 	var red: CGFloat = 0
 	var green: CGFloat = 0
@@ -525,161 +492,128 @@ public class RectProperty: TweenProperty {
 // MARK: - Transforms
 
 public class TransformProperty: TweenProperty {
-	var updatesTarget: Bool = true
+	var from = Transform()
+	var to = Transform()
+	var current = Transform()
+	var propsByMode = [TweenMode: [Property]]()
 	
-	func transformValue() -> CATransform3D {
-		return CATransform3DIdentity
+	private var propOrder = [String]()
+	
+	func addProp(prop: Property, mode: TweenMode) {
+		if propsByMode[mode] == nil {
+			propsByMode[mode] = [Property]()
+		}
+		propsByMode[mode]?.append(prop)
 	}
 	
-	func concat(transform: CATransform3D) -> CATransform3D {
-		var t = transform
+	override func prepare() {
+		var scaleFrom = false, scaleTo = false
+		var rotateFrom = false, rotateTo = false
+		var translateFrom = false, translateTo = false
 		
-		if let currentScale = tweenObject.scale {
-			if self is ScaleProperty == false && !ScaleEqualToScale(currentScale, s2: ScaleIdentity) {
-				let scale = CATransform3DMakeScale(currentScale.x, currentScale.y, 1)
-				t = CATransform3DConcat(scale, t)
+		for (mode, props) in propsByMode {
+			propOrder.removeAll()
+			
+			for prop in props {
+				switch prop {
+				case .Translate(_, _):
+					if mode == .From {
+						translateFrom = true
+					} else {
+						translateTo = true
+					}
+					propOrder.append(Translation.key)
+				case .Scale(_), .ScaleXY(_, _):
+					if mode == .From {
+						scaleFrom = true
+					} else {
+						scaleTo = true
+					}
+					propOrder.append(Scale.key)
+				case .Rotate(_), .RotateX(_), .RotateY(_):
+					if mode == .From {
+						rotateFrom = true
+					} else {
+						rotateTo = true
+					}
+					propOrder.append(Rotation.key)
+				default:
+					let _ = to
+				}
 			}
 		}
-		if let currentRotation = tweenObject.rotation {
-			if self is RotationProperty == false && !RotationEqualToRotation(currentRotation, r2: RotationIdentity) {
-				let rotation = CATransform3DMakeRotation(currentRotation.angle, currentRotation.x, currentRotation.y, currentRotation.z)
-				t = CATransform3DConcat(rotation, t)
+		
+		// if we dont' have a transform property specified for either `from` or `to`, then we need to set it to their current values
+		if let scale = tweenObject.scale {
+			if !scaleFrom {
+				from.scale = scale
+			}
+			if !scaleTo {
+				to.scale = scale
 			}
 		}
-		if let currentTranslation = tweenObject.translation {
-			if self is TranslationProperty == false && !TranslationEqualToTranslation(currentTranslation, t2: TranslationIdentity) {
-				let translation = CATransform3DMakeTranslation(currentTranslation.x, currentTranslation.y, 0)
-				t = CATransform3DConcat(translation, t)
+		if let rotation = tweenObject.rotation {
+			if !rotateFrom {
+				from.rotation = rotation
+			}
+			if !rotateTo {
+				to.rotation = rotation
+			}
+		}
+		if let translation = tweenObject.translation {
+			if !translateFrom {
+				from.translation = translation
+			}
+			if !translateTo {
+				to.translation = translation
+			}
+		}
+		
+		super.prepare()
+	}
+	
+	override func update() {
+		var t = Transform()
+		
+		t.scale.x = lerpFloat(from.scale.x, to: to.scale.x)
+		t.scale.y = lerpFloat(from.scale.y, to: to.scale.y)
+		t.scale.z = lerpFloat(from.scale.z, to: to.scale.z)
+		
+		t.rotation.angle = lerpFloat(from.rotation.angle, to: to.rotation.angle)
+		t.rotation.x = to.rotation.x
+		t.rotation.y = to.rotation.y
+		t.rotation.z = to.rotation.z
+		
+		t.translation.x = lerpFloat(from.translation.x, to: to.translation.x)
+		t.translation.y = lerpFloat(from.translation.y, to: to.translation.y)
+		
+		current = t
+//		print(t)
+		
+		updateTarget(t)
+	}
+	
+	private func updateTarget(value: Transform) {
+		tweenObject.transform = transformValue(value)
+	}
+	
+	private func transformValue(value: Transform) -> CATransform3D {
+		var t = CATransform3DIdentity
+		// make sure transforms are combined in the order in which they're specified for the tween
+		for key in propOrder {
+			switch key {
+			case Scale.key:
+				t = CATransform3DScale(t, value.scale.x, value.scale.y, value.scale.z)
+			case Rotation.key:
+				t = CATransform3DRotate(t, value.rotation.angle, value.rotation.x, value.rotation.y, value.rotation.z)
+			case Translation.key:
+				t = CATransform3DTranslate(t, value.translation.x, value.translation.y, 0)
+			default:
+				let _ = t
 			}
 		}
 		
 		return t
-	}
-}
-
-public class ScaleProperty: TransformProperty {
-	var from: Scale = ScaleIdentity
-	var to: Scale = ScaleIdentity
-	var current: Scale = ScaleIdentity
-	
-	init(target: TweenObject, from: Scale, to: Scale) {
-		super.init(target: target)
-		self.from = from
-		self.to = to
-	}
-	
-	override func prepare() {
-		if additive {
-			if let currentScale = tweenObject.scale {
-				from = currentScale
-			}
-		}
-		super.prepare()
-	}
-	
-	override func update() {
-		var value = ScaleIdentity
-		value.x = lerpFloat(from.x, to: to.x)
-		value.y = lerpFloat(from.y, to: to.y)
-		value.z = lerpFloat(from.z, to: to.z)
-		current = value
-		
-		if updatesTarget {
-			var transform = CATransform3DMakeScale(value.x, value.y, value.z)
-			transform = concat(transform)
-			updateTarget(transform)
-		}
-	}
-	
-	override func transformValue() -> CATransform3D {
-		return CATransform3DMakeScale(current.x, current.y, current.z)
-	}
-	
-	private func updateTarget(value: CATransform3D) {
-		tweenObject.transform = value
-	}
-}
-
-public class RotationProperty: TransformProperty {
-	var from: Rotation = RotationIdentity
-	var to: Rotation = RotationIdentity
-	var current: Rotation = RotationIdentity
-	
-	init(target: TweenObject, from: Rotation, to: Rotation) {
-		super.init(target: target)
-		self.from = from
-		self.to = to
-	}
-	
-	override func prepare() {
-		if additive {
-			if let currentRotation = tweenObject.rotation {
-				from = Rotation(angle: currentRotation.angle, x: to.x, y: to.y, z: to.z)
-			}
-		}
-		super.prepare()
-	}
-	
-	override func update() {
-		var value = to
-		value.angle = lerpFloat(from.angle, to: to.angle)
-		current = value
-		
-		if updatesTarget {
-			var transform = CATransform3DMakeRotation(value.angle, value.x, value.y, value.z)
-			transform = concat(transform)
-			updateTarget(transform)
-		}
-	}
-	
-	override func transformValue() -> CATransform3D {
-		return CATransform3DMakeRotation(current.angle, current.x, current.y, current.z)
-	}
-	
-	private func updateTarget(value: CATransform3D) {
-		tweenObject.transform = value
-	}
-}
-
-public class TranslationProperty: TransformProperty {
-	var from: Translation = TranslationIdentity
-	var to: Translation = TranslationIdentity
-	var current: Translation = TranslationIdentity
-	
-	init(target: TweenObject, from: Translation, to: Translation) {
-		super.init(target: target)
-		self.from = from
-		self.to = to
-	}
-	
-	override func prepare() {
-		if additive {
-			if let currentTranslation = tweenObject.translation {
-				from = currentTranslation
-			}
-		}
-		super.prepare()
-	}
-	
-	override func update() {
-		var value = TranslationIdentity
-		value.x = lerpFloat(from.x, to: to.x)
-		value.y = lerpFloat(from.y, to: to.y)
-		current = value
-		
-		if updatesTarget {
-			var transform = CATransform3DMakeTranslation(value.x, value.y, 0)
-			transform = concat(transform)
-			updateTarget(transform)
-		}
-	}
-	
-	override func transformValue() -> CATransform3D {
-		return CATransform3DMakeTranslation(current.x, current.y, 0)
-	}
-	
-	private func updateTarget(value: CATransform3D) {
-		tweenObject.transform = value
 	}
 }
 
@@ -757,66 +691,5 @@ public class ObjectProperty: ValueProperty {
 		if let target = tweenObject.target {
 			target.setValue(value, forKeyPath: keyPath)
 		}
-	}
-}
-
-internal class Transformation: TweenProperty {
-	var transforms = [TransformProperty]()
-	override var duration: CFTimeInterval {
-		didSet {
-			for t in transforms {
-				t.duration = duration
-			}
-		}
-	}
-	override var easing: Ease {
-		didSet {
-			for t in transforms {
-				t.easing = easing
-			}
-		}
-	}
-	override var spring: Spring? {
-		didSet {
-			for t in transforms {
-				t.spring = spring
-			}
-		}
-	}
-	
-	override func seek(time: CFTimeInterval) {
-		super.seek(time)
-		
-		for t in transforms {
-			t.seek(time)
-		}
-	}
-	
-	override func prepare() {
-		for t in transforms {
-			t.updatesTarget = false
-			t.prepare()
-		}
-		super.prepare()
-	}
-	
-	override func proceed(dt: CFTimeInterval, reversed: Bool) -> Bool {
-		for t in transforms {
-			t.proceed(dt, reversed: reversed)
-		}
-		return super.proceed(dt, reversed: reversed)
-	}
-	
-	override func update() {
-		var value = CATransform3DIdentity
-		for t in transforms {
-			t.update()
-			value = CATransform3DConcat(value, t.transformValue())
-		}
-		updateTarget(value)
-	}
-	
-	private func updateTarget(value: CATransform3D) {
-		tweenObject.transform = value
 	}
 }

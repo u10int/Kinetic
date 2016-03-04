@@ -134,7 +134,11 @@ public class Tween: Animation {
 	}
 	
 	public func anchor(anchor: Anchor) -> Tween {
-		tweenObject.anchorPoint = anchor.point()
+		return anchorPoint(anchor.point())
+	}
+	
+	public func anchorPoint(point: CGPoint) -> Tween {
+		tweenObject.anchorPoint = point
 		return self
 	}
 	
@@ -394,51 +398,51 @@ public class Tween: Animation {
 					}
 				}
 			case .Translate(let shiftX, let shiftY):
-				if let transform = propObj as? TranslationProperty {
+				if let transform = propObj as? TransformProperty {
 					if mode == .From {
-						transform.from = Translation(x: shiftX, y: shiftY)
+						transform.from.translation = Translation(x: shiftX, y: shiftY)
 					} else {
-						transform.to = Translation(x: shiftX, y: shiftY)
+						transform.to.translation = Translation(x: shiftX, y: shiftY)
 					}
 				}
 			case .Scale(let scale):
-				if let transform = propObj as? ScaleProperty {
+				if let transform = propObj as? TransformProperty {
 					if mode == .From {
-						transform.from = Scale(x: scale, y: scale, z: 1)
+						transform.from.scale = Scale(x: scale, y: scale, z: 1)
 					} else {
-						transform.to = Scale(x: scale, y: scale, z: 1)
+						transform.to.scale = Scale(x: scale, y: scale, z: 1)
 					}
 				}
 			case .ScaleXY(let scaleX, let scaleY):
-				if let transform = propObj as? ScaleProperty {
+				if let transform = propObj as? TransformProperty {
 					if mode == .From {
-						transform.from = Scale(x: scaleX, y: scaleY, z: 1)
+						transform.from.scale = Scale(x: scaleX, y: scaleY, z: 1)
 					} else {
-						transform.to = Scale(x: scaleX, y: scaleY, z: 1)
+						transform.to.scale = Scale(x: scaleX, y: scaleY, z: 1)
 					}
 				}
 			case .Rotate(let angle):
-				if let transform = propObj as? RotationProperty {
+				if let transform = propObj as? TransformProperty {
 					if mode == .From {
-						transform.from = Rotation(angle: angle, x: 0, y: 0, z: 1)
+						transform.from.rotation = Rotation(angle: angle, x: 0, y: 0, z: 1)
 					} else {
-						transform.to = Rotation(angle: angle, x: 0, y: 0, z: 1)
+						transform.to.rotation = Rotation(angle: angle, x: 0, y: 0, z: 1)
 					}
 				}
 			case .RotateX(let angle):
-				if let transform = propObj as? RotationProperty {
+				if let transform = propObj as? TransformProperty {
 					if mode == .From {
-						transform.from = Rotation(angle: angle, x: 1, y: 0, z: 0)
+						transform.from.rotation = Rotation(angle: angle, x: 1, y: 0, z: 0)
 					} else {
-						transform.to = Rotation(angle: angle, x: 1, y: 0, z: 0)
+						transform.to.rotation = Rotation(angle: angle, x: 1, y: 0, z: 0)
 					}
 				}
 			case .RotateY(let angle):
-				if let transform = propObj as? RotationProperty {
+				if let transform = propObj as? TransformProperty {
 					if mode == .From {
-						transform.from = Rotation(angle: angle, x: 0, y: 1, z: 0)
+						transform.from.rotation = Rotation(angle: angle, x: 0, y: 1, z: 0)
 					} else {
-						transform.to = Rotation(angle: angle, x: 0, y: 1, z: 0)
+						transform.to.rotation = Rotation(angle: angle, x: 0, y: 1, z: 0)
 					}
 				}
 			case .Alpha(let alpha):
@@ -470,12 +474,10 @@ public class Tween: Animation {
 					
 				}
 			}
-		}
-		
-		// if we have more than one TransformProperty to animate, we need to combine them into a single Transformation instance so that they are animated properly and in the order
-		// in which they are passed in the Tween options
-		if transformProperties().count > 1 {
-			combineTransforms()
+			
+			if let transform = propObj as? TransformProperty {
+				transform.addProp(prop, mode: mode)
+			}
 		}
 		
 		if let x = propertiesByType[PropertyKey.X.rawValue] as? StructProperty, y = propertiesByType[PropertyKey.Y.rawValue] as? StructProperty, origin = tweenObject.origin {
@@ -547,7 +549,7 @@ public class Tween: Animation {
 						prop = SizeProperty(target: tweenObject, from: size, to: size)
 					}
 				case PropertyKey.Transform.rawValue:
-					prop = Transformation(target: tweenObject)
+					prop = TransformProperty(target: tweenObject)
 				case PropertyKey.Alpha.rawValue:
 					if let alpha = tweenObject.alpha {
 						let key = (target is CALayer) ? "opacity" : "alpha"
@@ -587,12 +589,6 @@ public class Tween: Animation {
 						let value = CGRectGetHeight(frame)
 						prop = StructProperty(target: tweenObject, from: value, to: value)
 					}
-				case PropertyKey.Translation.rawValue:
-					prop = TranslationProperty(target: tweenObject, from: TranslationIdentity, to: TranslationIdentity)
-				case PropertyKey.Scale.rawValue:
-					prop = ScaleProperty(target: tweenObject, from: ScaleIdentity, to: ScaleIdentity)
-				case PropertyKey.Rotation.rawValue, PropertyKey.RotationX.rawValue, PropertyKey.RotationY.rawValue:
-					prop = RotationProperty(target: tweenObject, from: RotationIdentity, to: RotationIdentity)
 				default:
 					if let target = tweenObject.target, value = target.valueForKeyPath(key) as? CGFloat {
 						prop = ObjectProperty(target: tweenObject, keyPath: key, from: value, to: value)
@@ -620,15 +616,5 @@ public class Tween: Animation {
 		}
 		
 		return transforms
-	}
-	
-	private func combineTransforms() {
-		if let transformation = propertyForType(.Transform(CATransform3DIdentity)) as? Transformation {
-			for (key, t) in transformProperties() {
-				transformation.transforms.append(t)
-				// remove initial transform property from properties cache since it's now controlled by a central Transformation property
-				propertiesByType[key] = nil
-			}
-		}
 	}
 }

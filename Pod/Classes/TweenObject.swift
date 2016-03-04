@@ -28,7 +28,9 @@ class TweenObject {
 		set(newValue) {
 			if let value = newValue {
 				if let layer = target as? CALayer {
-					layer.frame.origin = value
+					performBlockByDisablingActions({ () -> Void in
+						layer.frame.origin = value
+					})
 				} else if let view = target as? UIView {
 					view.frame.origin = value
 				}
@@ -48,7 +50,9 @@ class TweenObject {
 		set(newValue) {
 			if let value = newValue {
 				if let layer = target as? CALayer {
-					layer.position = value
+					performBlockByDisablingActions({ () -> Void in
+						layer.position = value
+					})
 				} else if let view = target as? UIView {
 					view.center = value
 				}
@@ -68,7 +72,9 @@ class TweenObject {
 		set(newValue) {
 			if let value = newValue {
 				if let layer = target as? CALayer {
-					layer.bounds.size = value
+					performBlockByDisablingActions({ () -> Void in
+						layer.bounds.size = value
+					})
 				} else if let view = target as? UIView {
 					view.frame.size = value
 				}
@@ -88,7 +94,9 @@ class TweenObject {
 		set(newValue) {
 			if let value = newValue {
 				if let layer = target as? CALayer {
-					layer.frame = value
+					performBlockByDisablingActions({ () -> Void in
+						layer.frame = value
+					})
 				} else if let view = target as? UIView {
 					view.frame = value
 				}
@@ -108,7 +116,9 @@ class TweenObject {
 		set(newValue) {
 			if let value = newValue {
 				if let layer = target as? CALayer {
-					layer.opacity = Float(value)
+					performBlockByDisablingActions({ () -> Void in
+						layer.opacity = Float(value)
+					})
 				} else if let view = target as? UIView {
 					view.alpha = value
 				}
@@ -181,9 +191,12 @@ class TweenObject {
 	var translation: Translation? {
 		get {
 			if let t = transform {
-				var value = TranslationIdentity
+				var value = Translation.zero
 				value.x = sqrt(t.m41 * t.m41)
 				value.y = sqrt(t.m42 * t.m42)
+				
+				value.x = t.m41
+				value.y = t.m42
 				
 				return value
 			}
@@ -193,9 +206,12 @@ class TweenObject {
 	var scale: Scale? {
 		get {
 			if let t = transform {
-				var value = ScaleIdentity
+				var value = Scale.zero
 				value.x = sqrt((t.m11 * t.m11) + (t.m12 * t.m12) + (t.m13 * t.m13))
 				value.y = sqrt((t.m21 * t.m21) + (t.m22 * t.m22) + (t.m23 * t.m23))
+				
+//				value.x = t.m11
+//				value.y = t.m22
 				
 				return value
 			}
@@ -205,8 +221,15 @@ class TweenObject {
 	var rotation: Rotation? {
 		get {
 			if let t = transform {
-				var value = RotationIdentity
+				var value = Rotation.zero
 				value.angle = atan2(t.m12, t.m11)
+				value.z = 1
+				
+				// x rotation
+//				value.angle = acos(t.m11)
+				
+				// y rotation
+//				value.angle = asin(t.m12)
 				
 				return value
 			}
@@ -257,7 +280,9 @@ class TweenObject {
 		set(newValue) {
 			if let value = newValue {
 				if let layer = target as? CALayer {
-					layer.backgroundColor = value.CGColor
+					performBlockByDisablingActions({ () -> Void in
+						layer.backgroundColor = value.CGColor
+					})
 				} else if let view = target as? UIView {
 					view.backgroundColor = value
 				}
@@ -275,7 +300,9 @@ class TweenObject {
 		set(newValue) {
 			if let value = newValue {
 				if let layer = target as? CAShapeLayer {
-					layer.fillColor = value.CGColor
+					performBlockByDisablingActions({ () -> Void in
+						layer.fillColor = value.CGColor
+					})
 				}
 			}
 		}
