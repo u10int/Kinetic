@@ -169,8 +169,9 @@ public class Tween: Animation {
 			prop.calc()
 			
 			if prop.mode == .From || prop.mode == .FromTo {
-				prop.update()
+				prop.seek(0)
 			}
+			needsPropertyPrep = false
 		}
 		run()
 		

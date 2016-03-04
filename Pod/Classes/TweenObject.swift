@@ -195,8 +195,13 @@ class TweenObject {
 				value.x = sqrt(t.m41 * t.m41)
 				value.y = sqrt(t.m42 * t.m42)
 				
-				value.x = t.m41
-				value.y = t.m42
+				let inv = CATransform3DInvert(t)
+				value.x = inv.m41 * -1
+				value.y = inv.m42 * -1
+				
+//				value.x = (value.x * inv.m11) + (value.y * inv.m21) + (0 * inv.m31) + inv.m41;
+//				value.y = (value.x * inv.m12) + (value.y * inv.m22) + (0 * inv.m32) + inv.m42;
+//				value.z = (value.x * inv.m13) + (value.y * inv.m23) + (0 * inv.m33) + inv.m43;
 				
 				return value
 			}
