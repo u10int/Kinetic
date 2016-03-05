@@ -178,11 +178,7 @@ public class Tween: Animation, TweenType {
 			prop.calc()
 			
 			if prop.mode == .From || prop.mode == .FromTo {
-				if needsPropertyPrep {
-					prop.prepare()
-				}
 				prop.seek(0)
-				needsPropertyPrep = false
 			}
 		}
 		run()
@@ -228,13 +224,21 @@ public class Tween: Animation, TweenType {
 			setupProperties(to, mode: .To)
 		}
 		
+		needsPropertyPrep = true
 		for (_, prop) in propertiesByType {
 			_properties.append(prop)
 			prop.mode = mode
 			prop.reset()
 			prop.calc()
+			
+			if prop.mode == .From || prop.mode == .FromTo {
+				if needsPropertyPrep {
+					prop.prepare()
+				}
+				prop.seek(0)
+				needsPropertyPrep = false
+			}
 		}
-		needsPropertyPrep = true
 		
 		// set anchor point and adjust position if target is UIView or CALayer
 		if target is UIView || target is CALayer {
