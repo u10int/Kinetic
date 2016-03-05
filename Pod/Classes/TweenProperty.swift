@@ -137,7 +137,6 @@ public class TweenProperty: Equatable {
 	
 	func seek(time: CFTimeInterval) {
 		elapsed = delay + time
-		prepare()
 		proceed(0)
 	}
 	
@@ -515,34 +514,6 @@ public class TransformProperty: TweenProperty {
 		for (mode, props) in propsByMode {
 			propOrder.removeAll()
 			
-//			// add existing transform props if not .zero
-//			if mode == .From {
-//				if let scale = tweenObject.scale {
-//					if !scaleFrom {
-//						from.scale = scale
-//					}
-//					if !scaleTo {
-//						to.scale = scale
-//					}
-//				}
-//				if let rotation = tweenObject.rotation {
-//					if !rotateFrom {
-//						from.rotation = rotation
-//					}
-//					if !rotateTo {
-//						to.rotation = rotation
-//					}
-//				}
-//				if let translation = tweenObject.translation {
-//					if !translateFrom {
-//						from.translation = translation
-//					}
-//					if !translateTo {
-//						to.translation = translation
-//					}
-//				}
-//			}
-			
 			for prop in props {
 				switch prop {
 				case .Translate(_, _):
@@ -598,8 +569,8 @@ public class TransformProperty: TweenProperty {
 			}
 		}
 		
-		print("PREPARE: \(tweenObject.target) - from - \(from)")
-		print("PREPARE: \(tweenObject.target) - to - \(to)")
+//		print("PREPARE: \(tweenObject.target) - from - \(from)")
+//		print("PREPARE: \(tweenObject.target) - to - \(to)")
 		
 		super.prepare()
 	}
@@ -620,10 +591,7 @@ public class TransformProperty: TweenProperty {
 		t.translation.y = lerpFloat(from.translation.y, to: to.translation.y)
 		
 		current = t
-//		print("-----------")
-//		print(t)
-//		print("UPDATE: from - \(from)")
-//		print("UPDATE: to - \(to)")
+//		print("\(tweenObject.target) - \(t)")
 		
 		updateTarget(t)
 	}
@@ -634,6 +602,7 @@ public class TransformProperty: TweenProperty {
 	
 	private func transformValue(value: Transform) -> CATransform3D {
 		var t = CATransform3DIdentity
+		var removeTranslationForRotate = false
 		
 		// apply any existing transforms that aren't specified in this tween
 		if !propOrder.contains(Scale.key) {
@@ -644,6 +613,7 @@ public class TransformProperty: TweenProperty {
 		}
 		if !propOrder.contains(Translation.key) {
 			t = CATransform3DTranslate(t, value.translation.x, value.translation.y, 0)
+			removeTranslationForRotate = true
 		}
 		
 		// make sure transforms are combined in the order in which they're specified for the tween
@@ -652,13 +622,28 @@ public class TransformProperty: TweenProperty {
 			case Scale.key:
 				t = CATransform3DScale(t, value.scale.x, value.scale.y, value.scale.z)
 			case Rotation.key:
+				// if we have a translation, remove the translation before applying the rotation
+				if let translation = tweenObject.translation {
+					if removeTranslationForRotate && translation != Translation.zero {
+						t = CATransform3DTranslate(t, -value.translation.x, -value.translation.y, 0)
+					}
+				}
+				
 				t = CATransform3DRotate(t, value.rotation.angle, value.rotation.x, value.rotation.y, value.rotation.z)
+				
+				// add translation back
+				if let translation = tweenObject.translation {
+					if removeTranslationForRotate && translation != Translation.zero {
+						t = CATransform3DTranslate(t, value.translation.x, value.translation.y, 0)
+					}
+				}
 			case Translation.key:
 				t = CATransform3DTranslate(t, value.translation.x, value.translation.y, 0)
 			default:
 				let _ = t
 			}
 		}
+//		print("\(tweenObject.target) - \(t)")
 		
 		return t
 	}
