@@ -85,11 +85,14 @@ public class TweenManager {
 			lastLoopTime = displayLink.timestamp
 		}
 		
+		CATransaction.begin()
+		CATransaction.setDisableActions(true)
 		for (_, tween) in tweens {
 			if tween.proceed(dt) {
 				tween.kill()
 			}
 		}
+		CATransaction.commit()
 		
 		if tweens.count == 0 {
 			stop()
@@ -121,6 +124,16 @@ public class TweenManager {
 		if props.count > 1 {
 			return props[props.count - 2]
 		}
+		return nil
+	}
+	
+	func lastTransformPropertyForTarget(target: NSObject) -> TransformProperty? {
+		if let tweens = tweensOfTarget(target)?.reverse() {
+			for tween in tweens {
+				
+			}
+		}
+		
 		return nil
 	}
 	
