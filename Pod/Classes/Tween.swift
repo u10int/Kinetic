@@ -14,7 +14,16 @@ public enum TweenMode {
 	case FromTo
 }
 
-public class Tween: Animation {
+public protocol TweenType: AnimationType {
+	var antialiasing: Bool { get set }
+	weak var timeline: Timeline? { get set }
+	
+	func perspective(value: CGFloat) -> TweenType
+	func anchor(anchor: Anchor) -> TweenType
+	func anchorPoint(point: CGPoint) -> TweenType
+}
+
+public class Tween: Animation, TweenType {
 	public var target: NSObject? {
 		get {
 			return tweenObject.target
@@ -128,16 +137,16 @@ public class Tween: Animation {
 		return self
 	}
 	
-	override public func perspective(value: CGFloat) -> Tween {
+	public func perspective(value: CGFloat) -> TweenType {
 		tweenObject.perspective = value
 		return self
 	}
 	
-	public func anchor(anchor: Anchor) -> Tween {
+	public func anchor(anchor: Anchor) -> TweenType {
 		return anchorPoint(anchor.point())
 	}
 	
-	public func anchorPoint(point: CGPoint) -> Tween {
+	public func anchorPoint(point: CGPoint) -> TweenType {
 		tweenObject.anchorPoint = point
 		return self
 	}
@@ -169,9 +178,12 @@ public class Tween: Animation {
 			prop.calc()
 			
 			if prop.mode == .From || prop.mode == .FromTo {
+				if needsPropertyPrep {
+					prop.prepare()
+				}
 				prop.seek(0)
+				needsPropertyPrep = false
 			}
-			needsPropertyPrep = false
 		}
 		run()
 		

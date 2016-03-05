@@ -202,7 +202,7 @@ public class Timeline: Animation {
 		return self
 	}
 	
-	override public func perspective(value: CGFloat) -> Timeline {
+	public func perspective(value: CGFloat) -> Timeline {
 		for tween in tweens {
 			tween.perspective(value)
 		}

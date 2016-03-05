@@ -8,7 +8,42 @@
 
 import UIKit
 
-public class Animation: NSObject {
+public protocol AnimationType: AnyObject {
+	var active: Bool { get }
+	var paused: Bool { get }
+	var animating: Bool { get }
+	var reversed: Bool { get }
+	var delay: CFTimeInterval { get set }
+	var duration: CFTimeInterval { get set }
+	var repeatCount: Int { get set }
+	var startTime: CFTimeInterval { get set }
+	var endTime: CFTimeInterval { get }
+	var totalTime: CFTimeInterval { get }
+	var totalDuration: CFTimeInterval { get }
+	var elapsed: CFTimeInterval { get }
+	
+	func ease(easing: Ease) -> Animation
+	func spring(tension tension: Double, friction: Double) -> Animation
+	func delay(delay: CFTimeInterval) -> Animation
+	func repeatCount(count: Int) -> Animation
+	func repeatDelay(delay: CFTimeInterval) -> Animation
+	func forever() -> Animation
+	func yoyo() -> Animation
+	
+	func play() -> Animation
+	func stop()
+	func pause()
+	func resume()
+	func seek(time: CFTimeInterval) -> Animation
+	func forward() -> Animation
+	func reverse() -> Animation
+	func restart(includeDelay: Bool)
+	func progress() -> CGFloat
+	func time() -> CFTimeInterval
+	func kill()
+}
+
+public class Animation: NSObject, AnimationType {
 	public var active: Bool {
 		get {
 			return running
@@ -99,10 +134,6 @@ public class Animation: NSObject {
 	
 	public func yoyo() -> Animation {
 		reverseOnComplete = true
-		return self
-	}
-	
-	public func perspective(value: CGFloat) -> Animation {
 		return self
 	}
 	
