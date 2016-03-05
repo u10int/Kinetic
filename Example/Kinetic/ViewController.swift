@@ -27,7 +27,7 @@ class ViewController: UIViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		
-		title = "Kinetic Examples"
+		title = "Kinetic"
 		view.backgroundColor = UIColor.whiteColor()
 		
 		tableView = UITableView()
@@ -48,6 +48,7 @@ class ViewController: UIViewController {
 		rows.append(StaggerViewController())
 		rows.append(TimelineViewController())
 		rows.append(CountingLabelViewController())
+		rows.append(PreloaderViewController())
 	}
 	
 	override func viewWillAppear(animated: Bool) {

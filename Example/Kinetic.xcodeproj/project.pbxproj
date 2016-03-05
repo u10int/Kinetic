@@ -10,6 +10,7 @@
 		2B27BF501C78E7D000D9CE11 /* CountingLabelViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B27BF4F1C78E7D000D9CE11 /* CountingLabelViewController.swift */; };
 		2B27BF521C78F25200D9CE11 /* BasicFromTweenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B27BF511C78F25200D9CE11 /* BasicFromTweenViewController.swift */; };
 		2B27BF541C78F4D000D9CE11 /* BasicFromToTweenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B27BF531C78F4D000D9CE11 /* BasicFromToTweenViewController.swift */; };
+		2BA6B7BC1C85240B00650FF6 /* PreloaderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BA6B7BB1C85240B00650FF6 /* PreloaderViewController.swift */; };
 		2BA850591C761CB000956185 /* AdditiveViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BA8504E1C761CB000956185 /* AdditiveViewController.swift */; };
 		2BA8505A1C761CB000956185 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BA8504F1C761CB000956185 /* AppDelegate.swift */; };
 		2BA8505B1C761CB000956185 /* BasicTweenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BA850501C761CB000956185 /* BasicTweenViewController.swift */; };
@@ -43,6 +44,7 @@
 		2B27BF4F1C78E7D000D9CE11 /* CountingLabelViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CountingLabelViewController.swift; sourceTree = "<group>"; };
 		2B27BF511C78F25200D9CE11 /* BasicFromTweenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BasicFromTweenViewController.swift; sourceTree = "<group>"; };
 		2B27BF531C78F4D000D9CE11 /* BasicFromToTweenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BasicFromToTweenViewController.swift; sourceTree = "<group>"; };
+		2BA6B7BB1C85240B00650FF6 /* PreloaderViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreloaderViewController.swift; sourceTree = "<group>"; };
 		2BA8504E1C761CB000956185 /* AdditiveViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AdditiveViewController.swift; sourceTree = "<group>"; };
 		2BA8504F1C761CB000956185 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2BA850501C761CB000956185 /* BasicTweenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BasicTweenViewController.swift; sourceTree = "<group>"; };
@@ -135,6 +137,7 @@
 				2B27BF4F1C78E7D000D9CE11 /* CountingLabelViewController.swift */,
 				2BA850511C761CB000956185 /* ExampleViewController.swift */,
 				2BA850521C761CB000956185 /* GroupTweenViewController.swift */,
+				2BA6B7BB1C85240B00650FF6 /* PreloaderViewController.swift */,
 				2BA850531C761CB000956185 /* PhysicsViewController.swift */,
 				2BA850541C761CB000956185 /* SequenceViewController.swift */,
 				2BA850551C761CB000956185 /* StaggerViewController.swift */,
@@ -394,6 +397,7 @@
 				2BA8505B1C761CB000956185 /* BasicTweenViewController.swift in Sources */,
 				2BA8505D1C761CB000956185 /* GroupTweenViewController.swift in Sources */,
 				2B27BF521C78F25200D9CE11 /* BasicFromTweenViewController.swift in Sources */,
+				2BA6B7BC1C85240B00650FF6 /* PreloaderViewController.swift in Sources */,
 				2BA850601C761CB000956185 /* StaggerViewController.swift in Sources */,
 				2BA8505C1C761CB000956185 /* ExampleViewController.swift in Sources */,
 				2BA850631C761CB000956185 /* ViewController.swift in Sources */,
