@@ -18,12 +18,9 @@ To run the example project, clone the repo, open the `Kinetic.xcworkspace` and r
 
 ## Installation
 
-Kinetic is available through [CocoaPods](http://cocoapods.org). To install
-it, simply add the following line to your Podfile:
+- **CocoaPods**: add `pod "Kinetic"` to your `Podfile`
 
-```ruby
-pod "Kinetic"
-```
+- **Carthage**: add `github "u10int/Kinetic" "master"` to your `Cartfile`
 
 Features
 ----

@@ -25,7 +25,6 @@
 
 ## OS
 .DS_Store
-.DS_Store?
 ._*
 .Spotlight-V100
 .Trashes
@@ -34,8 +33,11 @@ Thumbs.db
 *.swp
 *.lock
 
-## Xcode
+## Build generated
 build/
+DerivedData
+
+## Various settings
 *.pbxuser
 !default.pbxuser
 *.mode1v3
@@ -45,19 +47,28 @@ build/
 *.perspectivev3
 !default.perspectivev3
 xcuserdata
-*.xccheckout
-profile
-*.moved-aside
-DerivedData
+
+## Obj-C/Swift specific
 *.hmap
 *.ipa
-*~.nib
+
+## Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+# Swift Package Manager
+# Packages/
+.build/
 
 ## CocoaPods
-Pods
+Pods/
+
+# Carthage
+Carthage/Build
 
 ## Ignore docs directory
 docs/
 
-## Ignore Fastlane snapshots
+## fastlane
+fastlane/report.xml
 fastlane/screenshots/
