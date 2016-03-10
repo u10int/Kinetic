@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import WatchdogInspector
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -14,6 +15,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 	func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
 		window = UIWindow(frame: UIScreen.mainScreen().bounds)
+		
+		TWWatchdogInspector.start()
 		
 		let controller = ViewController()
 		window?.rootViewController = UINavigationController(rootViewController: controller)

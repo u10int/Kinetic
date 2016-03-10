@@ -3,11 +3,12 @@ use_frameworks!
 
 target 'Kinetic_Example', :exclusive => true do
   pod 'Kinetic', :path => '../'
+  pod 'WatchdogInspector'
 end
 
 target 'Kinetic_Tests', :exclusive => true do
   pod 'Kinetic', :path => '../'
 
   pod 'Quick', '~> 0.8.0'
-  pod 'Nimble', '3.0.0'
+  pod 'Nimble', :git => 'https://github.com/Quick/Nimble.git'
 end

@@ -92,8 +92,7 @@ class PreloaderViewController: ExampleViewController {
 		dot.bounds = CGRect(x: 0, y: 0, width: 15, height: 15)
 		dot.position = CGPoint(x: preloaderView.bounds.width / 2, y: preloaderView.bounds.height / 2)
 		dot.path = UIBezierPath(ovalInRect: dot.bounds).CGPath
-		dot.fillColor = UIColor.redColor().CGColor
-		dot.strokeColor = UIColor.blackColor().CGColor
+		dot.fillColor = UIColor(red:0.533, green:0.807, blue:0.004, alpha:1).CGColor
 		dots.append(dot)
 		
 		return dot
