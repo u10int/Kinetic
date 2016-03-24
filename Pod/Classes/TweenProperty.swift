@@ -28,6 +28,9 @@ public enum Property {
 	case Transform(CATransform3D)
 	case Alpha(CGFloat)
 	case BackgroundColor(UIColor)
+	case FillColor(UIColor)
+	case StrokeColor(UIColor)
+	case TintColor(UIColor)
 	case KeyPath(String, CGFloat)
 }
 

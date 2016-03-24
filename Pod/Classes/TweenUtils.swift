@@ -22,6 +22,9 @@ enum PropertyKey: String {
 	case Transform = "transform"
 	case Alpha = "alpha"
 	case BackgroundColor = "backgroundColor"
+	case FillColor = "fillColor"
+	case StrokeColor = "strokeColor"
+	case TintColor = "tintColor"
 }
 
 class TweenUtils {
@@ -36,6 +39,12 @@ class TweenUtils {
 			propKey = PropertyKey.Alpha.rawValue
 		case .BackgroundColor(_):
 			propKey = PropertyKey.BackgroundColor.rawValue
+		case .FillColor(_):
+			propKey = PropertyKey.FillColor.rawValue
+		case .StrokeColor(_):
+			propKey = PropertyKey.StrokeColor.rawValue
+		case .TintColor(_):
+			propKey = PropertyKey.TintColor.rawValue
 		case .X(_):
 			propKey = PropertyKey.X.rawValue
 		case .Y(_):

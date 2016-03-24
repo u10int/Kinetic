@@ -284,6 +284,22 @@ class TweenObject {
 		}
 	}
 	
+	var tintColor: UIColor? {
+		get {
+			if let view = target as? UIView {
+				return view.tintColor
+			}
+			return nil
+		}
+		set(newValue) {
+			if let value = newValue {
+				if let view = target as? UIView {
+					view.tintColor = value
+				}
+			}
+		}
+	}
+	
 	var fillColor: UIColor? {
 		get {
 			if let layer = target as? CAShapeLayer, color = layer.fillColor {
@@ -294,7 +310,24 @@ class TweenObject {
 		set(newValue) {
 			if let value = newValue {
 				if let layer = target as? CAShapeLayer {
+					print("setting fill color to \(value)")
 					layer.fillColor = value.CGColor
+				}
+			}
+		}
+	}
+	
+	var strokeColor: UIColor? {
+		get {
+			if let layer = target as? CAShapeLayer, color = layer.strokeColor {
+				return UIColor(CGColor: color)
+			}
+			return nil
+		}
+		set(newValue) {
+			if let value = newValue {
+				if let layer = target as? CAShapeLayer {
+					layer.strokeColor = value.CGColor
 				}
 			}
 		}
@@ -319,8 +352,10 @@ class TweenObject {
 	
 	func setColor(color: UIColor, forKeyPath keyPath: String) {
 		if let target = target {
+			print("object.setColor: color=\(color), keyPath=\(keyPath)")
 			if target.respondsToSelector(Selector(keyPath)) {
 				if let layer = target as? CALayer {
+					print("setting color on CALayer")
 					layer.setValue(color.CGColor, forKeyPath: keyPath)
 				} else {
 					target.setValue(color, forKeyPath: keyPath)

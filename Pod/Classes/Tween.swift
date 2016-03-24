@@ -478,6 +478,30 @@ public class Tween: Animation, TweenType {
 						currentColor.to = color
 					}
 				}
+			case .FillColor(let color):
+				if let currentColor = propObj as? ColorProperty {
+					if mode == .From {
+						currentColor.from = color
+					} else {
+						currentColor.to = color
+					}
+				}
+			case .StrokeColor(let color):
+				if let currentColor = propObj as? ColorProperty {
+					if mode == .From {
+						currentColor.from = color
+					} else {
+						currentColor.to = color
+					}
+				}
+			case .TintColor(let color):
+				if let currentColor = propObj as? ColorProperty {
+					if mode == .From {
+						currentColor.from = color
+					} else {
+						currentColor.to = color
+					}
+				}
 			case .KeyPath(_, let value):
 				if let custom = propObj as? ObjectProperty {
 					if mode == .From {
@@ -575,6 +599,18 @@ public class Tween: Animation, TweenType {
 				case PropertyKey.BackgroundColor.rawValue:
 					if let color = tweenObject.backgroundColor {
 						prop = ColorProperty(target: tweenObject, property: "backgroundColor", from: color, to: color)
+					}
+				case PropertyKey.FillColor.rawValue:
+					if let color = tweenObject.fillColor {
+						prop = ColorProperty(target: tweenObject, property: "fillColor", from: color, to: color)
+					}
+				case PropertyKey.StrokeColor.rawValue:
+					if let color = tweenObject.strokeColor {
+						prop = ColorProperty(target: tweenObject, property: "strokeColor", from: color, to: color)
+					}
+				case PropertyKey.TintColor.rawValue:
+					if let color = tweenObject.tintColor {
+						prop = ColorProperty(target: tweenObject, property: "tintColor", from: color, to: color)
 					}
 				case PropertyKey.X.rawValue:
 					if let frame = tweenObject.frame {
