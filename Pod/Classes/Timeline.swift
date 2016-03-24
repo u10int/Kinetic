@@ -8,6 +8,15 @@
 
 import UIKit
 
+internal class TimelineCallback {
+	var block: () -> Void
+	var called = false
+	
+	init(block: () -> Void) {
+		self.block = block
+	}
+}
+
 public enum TweenAlign {
 	case Normal
 	case Sequence
@@ -44,6 +53,7 @@ public class Timeline: Animation {
 	}
 	
 	private var labels = [String: CFTimeInterval]()
+	private var callbacks = [CFTimeInterval: TimelineCallback]()
 	
 	// MARK: Lifecycle
 	
@@ -121,6 +131,20 @@ public class Timeline: Animation {
 		}
 		
 		labels[label] = pos
+		
+		return self
+	}
+	
+	public func addCallback(block: () -> Void, position: AnyObject = 0) -> Timeline {
+		var pos: CFTimeInterval = 0
+		
+		if let time = position as? CFTimeInterval {
+			pos = time
+		} else if let label = position as? NSString {
+			pos = timeFromString(label, relativeToTime: endTime)
+		}
+		
+		callbacks[pos] = TimelineCallback(block: block)
 		
 		return self
 	}
@@ -291,6 +315,9 @@ public class Timeline: Animation {
 		for tween in tweens {
 			tween.restart(includeDelay)
 		}
+		for (t, callback) in callbacks {
+			callback.called = false
+		}
 	}
 	
 	override public func kill() {
@@ -316,6 +343,16 @@ public class Timeline: Animation {
 			dt *= -1
 		}
 		elapsed += dt
+		
+		// check for callbacks
+		if callbacks.count > 0 {
+			for (t, callback) in callbacks {
+				if elapsed >= t && !callback.called {
+					callback.block()
+					callback.called = true
+				}
+			}
+		}
 		
 		if elapsed < (delay + repeatDelay) {
 			if reversed {
