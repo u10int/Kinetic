@@ -186,6 +186,13 @@ public class Tween: Animation, TweenType {
 		return self
 	}
 	
+	override public func resume() {
+		super.resume()
+		if !running {
+			run()
+		}
+	}
+	
 	override public func reverse() -> Tween {
 		super.reverse()
 		run()
@@ -201,26 +208,19 @@ public class Tween: Animation, TweenType {
 	}
 	
 	override public func seek(time: CFTimeInterval) -> Tween {
-		var seekTime = time
+		super.seek(time)
 		
-		// seek time must be restricted to the duration of the timeline minus repeats and repeatDelays
-		// so if the provided time is greater than the timeline's duration, we need to adjust the seek time first
-		if timeline == nil && seekTime > duration {
-			let cycles = CFTimeInterval(Int(seekTime / duration))
-			// if cycles value is odd, then the current state should be reversed
-			let reverse = fmod(Double(cycles), 2) != 0 && reverseOnComplete
-			
-			if reverse {
-				seekTime = duration - (seekTime - (duration * cycles))
-			} else {
-				seekTime -= (duration * cycles)
+		let elapsedTime = elapsedTimeFromSeekTime(time)
+		elapsed = delay + staggerDelay + elapsedTime
+		
+		for prop in TweenUtils.sortProperties(properties).reverse() {
+			if needsPropertyPrep {
+				prop.prepare()
 			}
+			prop.seek(elapsedTime)
 		}
+		needsPropertyPrep = false
 		
-		elapsed = delay + staggerDelay + seekTime
-		for prop in properties {
-			prop.seek(seekTime)
-		}
 		return self
 	}
 	

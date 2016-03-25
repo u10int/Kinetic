@@ -77,7 +77,7 @@ public class Animation: NSObject, AnimationType {
 	}
 	public var totalTime: CFTimeInterval {
 		get {
-			return runningTime
+			return min(runningTime, totalDuration)
 		}
 	}
 	public var totalDuration: CFTimeInterval {
@@ -145,14 +145,16 @@ public class Animation: NSObject, AnimationType {
 			return self
 		}
 		running = true
-		elapsed = 0
-		runningTime = 0
-		cycle = 0
+		paused = false
+//		elapsed = 0
+//		runningTime = 0
+//		cycle = 0
 		
 		return self
 	}
 	
 	public func stop() {
+		reset()
 		kill()
 	}
 	
@@ -163,11 +165,13 @@ public class Animation: NSObject, AnimationType {
 	
 	public func resume() {
 		paused = false
-		_animating = false
+		_animating = true
 	}
 	
 	public func seek(time: CFTimeInterval) -> Animation {
-		elapsed = delay + time
+		let adjustedTime = elapsedTimeFromSeekTime(time)
+		elapsed = delay + adjustedTime
+		runningTime = time
 		return self
 	}
 	
@@ -182,6 +186,7 @@ public class Animation: NSObject, AnimationType {
 	}
 	
 	public func restart(includeDelay: Bool = false) {
+		reset()
 		elapsed = includeDelay ? 0 : delay
 		play()
 	}
@@ -209,8 +214,7 @@ public class Animation: NSObject, AnimationType {
 	}
 	
 	public func kill() {
-		running = false
-		_animating = false
+		reset()
 	}
 	
 	// MARK: Event Handlers
@@ -237,6 +241,14 @@ public class Animation: NSObject, AnimationType {
 	
 	// MARK: Internal Methods
 	
+	func reset() {
+		_animating = false
+		running = false
+		elapsed = 0
+		runningTime = 0
+		cycle = 0
+	}
+	
 	func proceed(var dt: CFTimeInterval, force: Bool = false) -> Bool {
 		if !running {
 			return true
@@ -252,6 +264,30 @@ public class Animation: NSObject, AnimationType {
 		return false
 	}
 	
+	func elapsedTimeFromSeekTime(time: CFTimeInterval) -> CFTimeInterval {
+		var adjustedTime = time
+		
+		// seek time must be restricted to the duration of the timeline minus repeats and repeatDelays
+		// so if the provided time is greater than the timeline's duration, we need to adjust the seek time first
+		if adjustedTime > duration {
+			// update cycles count
+			cycle = Int(adjustedTime / duration)
+			
+			adjustedTime -= (duration * CFTimeInterval(cycle))
+			
+			// if cycles value is odd, then the current state should be reversed
+			let isReversed = fmod(Double(cycle), 2) != 0 && reverseOnComplete
+			if isReversed {
+				adjustedTime = duration - adjustedTime
+				reverse()
+			} else {
+				forward()
+			}
+		}
+		
+		return adjustedTime
+	}
+	
 	func started() {
 		_animating = true
 		startBlock?(self)
@@ -259,7 +295,6 @@ public class Animation: NSObject, AnimationType {
 	
 	func completed() -> Bool {
 		var shouldRepeat = false
-//		print("DONE: repeatCount=\(repeatCount), cycle=\(cycle)")
 		if repeatForever || (repeatCount > 0 && cycle < repeatCount) {
 			shouldRepeat = true
 			cycle++

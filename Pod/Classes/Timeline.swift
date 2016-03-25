@@ -245,7 +245,7 @@ public class Timeline: Animation {
 		guard !active else { return self }
 		
 		super.play()
-		TweenManager.sharedInstance.add(self)
+		run()
 		
 		for tween in tweens {
 			tween.play()
@@ -284,32 +284,22 @@ public class Timeline: Animation {
 	
 	override public func resume() {
 		super.resume()
+		if !running {
+			run()
+		}
+		
 		for tween in tweens {
 			tween.resume()
 		}
 	}
 	
 	override public func seek(time: CFTimeInterval) -> Timeline {
-		var seekTime = time
+		super.seek(time)
 		
-		// seek time must be restricted to the duration of the timeline minus repeats and repeatDelays
-		// so if the provided time is greater than the timeline's duration, we need to adjust the seek time first
-		if seekTime > duration {
-			let cycles = CFTimeInterval(Int(seekTime / duration))
-			// if cycles value is odd, then the current state should be reversed
-			let reverse = fmod(Double(cycles), 2) != 0 && reverseOnComplete
-			
-			if reverse {
-				seekTime = duration - (seekTime - (duration * cycles))
-			} else {
-				seekTime -= (duration * cycles)
-			}
-		}
-		super.seek(seekTime)
-		
+		let elapsedTime = elapsedTimeFromSeekTime(time)
 		for tween in tweens {
-			let tweenSeek = seekTime - tween.startTime
-			if tweenSeek >= 0 {
+			let tweenSeek = elapsedTime - tween.startTime
+			if tweenSeek >= 0 && tweenSeek <= tween.totalDuration {
 				tween.seek(tweenSeek)
 			}
 		}
@@ -350,6 +340,13 @@ public class Timeline: Animation {
 	}
 	
 	// MARK: Internal Methods
+	
+	override func reset() {
+		super.reset()
+		for tween in tweens {
+			tween.reset()
+		}
+	}
 	
 	override func proceed(var dt: CFTimeInterval, force: Bool = false) -> Bool {
 		if !running {
@@ -407,6 +404,11 @@ public class Timeline: Animation {
 	}
 	
 	// MARK: Private Methods
+	
+	private func run() {
+		running = true
+		TweenManager.sharedInstance.add(self)
+	}
 	
 	private func timeFromString(string: NSString, relativeToTime time: CFTimeInterval = 0) -> CFTimeInterval {
 		var position: CFTimeInterval = time
