@@ -77,7 +77,7 @@ public class Animation: NSObject, AnimationType {
 	}
 	public var totalTime: CFTimeInterval {
 		get {
-			return (elapsed - delay)
+			return runningTime
 		}
 	}
 	public var totalDuration: CFTimeInterval {
@@ -89,6 +89,7 @@ public class Animation: NSObject, AnimationType {
 	
 	var id: UInt32 = 0
 	var running = false
+	var runningTime: CFTimeInterval = 0
 	var repeatForever = false
 	var repeatDelay: CFTimeInterval = 0
 	var reverseOnComplete = false
@@ -145,6 +146,7 @@ public class Animation: NSObject, AnimationType {
 		}
 		running = true
 		elapsed = 0
+		runningTime = 0
 		cycle = 0
 		
 		return self
@@ -188,8 +190,23 @@ public class Animation: NSObject, AnimationType {
 		return CGFloat(elapsed / (delay + duration))
 	}
 	
+	public func setProgress(progress: CGFloat) -> Animation {
+		seek(duration * CFTimeInterval(progress))
+		return self
+	}
+	
+	public func totalProgress() -> CGFloat {
+		return CGFloat(totalTime / totalDuration)
+	}
+	
+	public func setTotalProgress(progress: CGFloat) -> Animation {
+		seek(totalDuration * CFTimeInterval(progress))
+		return self
+	}
+	
 	public func time() -> CFTimeInterval {
-		return totalTime - (CFTimeInterval(cycle) * (duration + repeatDelay))
+//		return totalTime - (CFTimeInterval(cycle) * (duration + repeatDelay))
+		return (elapsed - delay)
 	}
 	
 	public func kill() {
@@ -229,10 +246,9 @@ public class Animation: NSObject, AnimationType {
 			return false
 		}
 		
-		if reversed {
-			dt *= -1
-		}
-		elapsed += dt
+		let multiplier: CFTimeInterval = reversed ? -1 : 1
+		elapsed += (dt * multiplier)
+		runningTime += dt
 		
 		return false
 	}

@@ -201,6 +201,7 @@ public class Tween: Animation, TweenType {
 	}
 	
 	override public func seek(time: CFTimeInterval) -> Tween {
+		let cycles = Int(time / duration)
 		elapsed += delay + staggerDelay + time
 		for prop in properties {
 			prop.seek(time)
@@ -259,16 +260,16 @@ public class Tween: Animation, TweenType {
 		
 		// if tween belongs to a timeline, don't start animating until the timeline's playhead reaches the tween's startTime
 		if let timeline = timeline {
-			if (!timeline.reversed && timeline.totalTime < startTime) || (timeline.reversed && timeline.totalTime > endTime) {
+			if (!timeline.reversed && timeline.time() < startTime) || (timeline.reversed && timeline.time() > endTime) {
 				return false
 			}
 		}
 		
 		let end = delay + duration
-		if reversed {
-			dt *= -1
-		}
-		elapsed = min(elapsed + dt, end)
+		let multiplier: CFTimeInterval = reversed ? -1 : 1
+		elapsed = min(elapsed + (dt * multiplier), end)
+		runningTime += dt
+		
 		if elapsed < 0 {
 			elapsed = 0
 		}
@@ -297,7 +298,7 @@ public class Tween: Animation, TweenType {
 			if needsPropertyPrep {
 				prop.prepare()
 			}
-			if prop.proceed(dt, reversed: reversed) {
+			if prop.proceed(dt * multiplier, reversed: reversed) {
 				done = true
 			}
 		}

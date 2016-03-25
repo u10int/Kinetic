@@ -11,6 +11,8 @@ import Kinetic
 
 class TimelineViewController: ExampleViewController {
 	var square: UIView!
+	var progressValue: UILabel!
+	var progressSlider: UISlider!
 	
 	override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
 		super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
@@ -32,6 +34,36 @@ class TimelineViewController: ExampleViewController {
 		square.backgroundColor = UIColor.redColor()
 		view.addSubview(square)
 		
+		let progressLabel = UILabel()
+		progressLabel.translatesAutoresizingMaskIntoConstraints = false
+		progressLabel.font = UIFont.systemFontOfSize(16)
+		progressLabel.textColor = UIColor(white: 0.1, alpha: 1)
+		progressLabel.text = "Tension"
+		view.addSubview(progressLabel)
+		
+		progressValue = UILabel()
+		progressValue.translatesAutoresizingMaskIntoConstraints = false
+		progressValue.font = UIFont.boldSystemFontOfSize(16)
+		progressValue.textColor = UIColor(white: 0.1, alpha: 1)
+		progressValue.text = "0%"
+		view.addSubview(progressValue)
+		
+		progressSlider = UISlider()
+		progressSlider.translatesAutoresizingMaskIntoConstraints = false
+		progressSlider.minimumValue = 0.0
+		progressSlider.maximumValue = 1.0
+		progressSlider.addTarget(self, action: #selector(TimelineViewController.progressChanged(_:)), forControlEvents: .ValueChanged)
+		view.addSubview(progressSlider)
+		
+		// layout
+		let views = ["progress": progressSlider, "progressLabel": progressLabel, "progressValue": progressValue]
+		let horizontalConstraints = NSLayoutConstraint.constraintsWithVisualFormat("H:|-20-[progressLabel(80)]-10-[progress]-10-[progressValue(40)]-20-|", options: .AlignAllCenterY, metrics: nil, views: views)
+		let verticalConstraint = NSLayoutConstraint(item: progressLabel, attribute: .Bottom, relatedBy: .Equal, toItem: playButton, attribute: .Top, multiplier: 1, constant: -50)
+		
+		view.addConstraints(horizontalConstraints)
+		view.addConstraint(verticalConstraint)
+		
+		// animation
 		let move = Kinetic.to(square, duration: 1, options: [.Position(200,200)]).ease(Easing.inOutCubic)
 		let resize = Kinetic.to(square, duration: 1, options: [.Size(150,100)]).ease(Easing.inOutCubic)
 		let color = Kinetic.to(square, duration: 0.75, options: [.BackgroundColor(UIColor.blueColor())])
@@ -44,9 +76,11 @@ class TimelineViewController: ExampleViewController {
 		
 		timeline.repeatCount(4).yoyo()
 		
-		timeline.onStart { (animation) -> Void in
+		timeline.onStart { (animation) in
 			print("timeline started")
-		}.onComplete { (animation) -> Void in
+		}.onUpdate { (animation) in
+			self.progressSlider.value = Float(animation.progress())
+		}.onComplete { (animation) in
 			print("timeline done")
 		}
 		
@@ -57,5 +91,13 @@ class TimelineViewController: ExampleViewController {
 		super.reset()
 		square.frame = CGRectMake(50, 50, 50, 50)
 		square.backgroundColor = UIColor.redColor()
+	}
+	
+	func progressChanged(sender: UISlider) {
+		progressValue.text = "\(sender.value)"
+		
+		if let timeline = animation as? Timeline {
+			timeline.setTotalProgress(CGFloat(sender.value))
+		}
 	}
 }

@@ -36,7 +36,8 @@ public class Timeline: Animation {
 	}
 	override public var totalTime: CFTimeInterval {
 		get {
-			return (elapsed - delay)
+//			return (elapsed - delay)
+			return runningTime
 		}
 	}
 	override public var totalDuration: CFTimeInterval {
@@ -339,10 +340,11 @@ public class Timeline: Animation {
 			kill()
 		}
 		
-		if reversed {
-			dt *= -1
-		}
-		elapsed += dt
+		let multiplier: CFTimeInterval = reversed ? -1 : 1
+		elapsed += (dt * multiplier)
+		runningTime += dt
+		
+//		print("timeline: proceed - totalTime=\(totalTime), totalDuration=\(totalDuration)")
 		
 		// check for callbacks
 		if callbacks.count > 0 {

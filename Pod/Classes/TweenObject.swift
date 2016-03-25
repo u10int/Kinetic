@@ -352,10 +352,8 @@ class TweenObject {
 	
 	func setColor(color: UIColor, forKeyPath keyPath: String) {
 		if let target = target {
-			print("object.setColor: color=\(color), keyPath=\(keyPath)")
 			if target.respondsToSelector(Selector(keyPath)) {
 				if let layer = target as? CALayer {
-					print("setting color on CALayer")
 					layer.setValue(color.CGColor, forKeyPath: keyPath)
 				} else {
 					target.setValue(color, forKeyPath: keyPath)
