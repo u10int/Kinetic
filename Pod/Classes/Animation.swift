@@ -191,20 +191,20 @@ public class Animation: NSObject, AnimationType {
 		play()
 	}
 	
-	public func progress() -> CGFloat {
-		return min(CGFloat(elapsed / (delay + duration)), 1)
+	public func progress() -> Float {
+		return min(Float(elapsed / (delay + duration)), 1)
 	}
 	
-	public func setProgress(progress: CGFloat) -> Animation {
+	public func setProgress(progress: Float) -> Animation {
 		seek(duration * CFTimeInterval(progress))
 		return self
 	}
 	
-	public func totalProgress() -> CGFloat {
-		return min(CGFloat(totalTime / totalDuration), 1)
+	public func totalProgress() -> Float {
+		return min(Float(totalTime / totalDuration), 1)
 	}
 	
-	public func setTotalProgress(progress: CGFloat) -> Animation {
+	public func setTotalProgress(progress: Float) -> Animation {
 		seek(totalDuration * CFTimeInterval(progress))
 		return self
 	}
