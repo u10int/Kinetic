@@ -173,7 +173,13 @@ public class TweenProperty: Equatable {
 			spring.proceed(dt / duration)
 			return from + (to - from) * CGFloat(spring.current)
 		}
-		return easing(t: time, b: from, c: to - from)
+		
+		var value = easing(t: time, b: from, c: to - from)
+		// deal with floating point precision issues when updating the last time interval
+		if time == 1.0 {
+			value = to
+		}
+		return value
 	}
 	
 	func lerpPoint(from: CGPoint, to: CGPoint) -> CGPoint {
