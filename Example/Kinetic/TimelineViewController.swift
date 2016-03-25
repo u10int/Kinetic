@@ -100,7 +100,7 @@ class TimelineViewController: ExampleViewController {
 		progressValue.text = "\(Int(round(sender.value * 100)))%"
 		
 		if let timeline = animation as? Timeline {
-			timeline.setTotalProgress(CGFloat(sender.value))
+			timeline.setTotalProgress(Float(sender.value))
 		}
 	}
 	

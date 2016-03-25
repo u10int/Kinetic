@@ -38,7 +38,10 @@ public protocol AnimationType: AnyObject {
 	func forward() -> Animation
 	func reverse() -> Animation
 	func restart(includeDelay: Bool)
-	func progress() -> CGFloat
+	func progress() -> Float
+	func setProgress(progress: Float) -> Animation
+	func totalProgress() -> Float
+	func setTotalProgress(progress: Float) -> Animation
 	func time() -> CFTimeInterval
 	func kill()
 }
