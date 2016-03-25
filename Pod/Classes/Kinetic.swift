@@ -12,7 +12,6 @@ import UIKit
 public func to(item: NSObject, duration: CFTimeInterval, options: [Property]) -> Tween {
 	let tween = Tween(target: item, from: nil, to: options, mode: .To)
 	tween.duration = duration
-	TweenManager.sharedInstance.cache(tween, target: item)
 	
 	return tween
 }
@@ -20,7 +19,6 @@ public func to(item: NSObject, duration: CFTimeInterval, options: [Property]) ->
 public func from(item: NSObject, duration: CFTimeInterval, options: [Property]) -> Tween {
 	let tween = Tween(target: item, from: options, to: nil, mode: .From)
 	tween.duration = duration
-	TweenManager.sharedInstance.cache(tween, target: item)
 	
 	return tween
 }
@@ -28,7 +26,6 @@ public func from(item: NSObject, duration: CFTimeInterval, options: [Property]) 
 public func fromTo(item: NSObject, duration: CFTimeInterval, from: [Property], to: [Property]) -> Tween {
 	let tween = Tween(target: item, from: from, to: to, mode: .FromTo)
 	tween.duration = duration
-	TweenManager.sharedInstance.cache(tween, target: item)
 	
 	return tween
 }
@@ -68,7 +65,6 @@ public func staggerTo(items: [NSObject], duration: CFTimeInterval, options: [Pro
 		let tween = Tween(target: item, from: nil, to: options, mode: .To)
 		tween.duration = duration
 		timeline.add(tween, position: stagger * CFTimeInterval(idx))
-		TweenManager.sharedInstance.cache(tween, target: item)
 	}
 	
 	return timeline
@@ -81,7 +77,6 @@ public func staggerFrom(items: [NSObject], duration: CFTimeInterval, options: [P
 		let tween = Tween(target: item, from: options, to: nil, mode: .To)
 		tween.duration = duration
 		timeline.add(tween, position: stagger * CFTimeInterval(idx))
-		TweenManager.sharedInstance.cache(tween, target: item)
 	}
 	
 	return timeline
@@ -94,7 +89,6 @@ public func staggerFromTo(items: [NSObject], duration: CFTimeInterval, from: [Pr
 		let tween = Tween(target: item, from: from, to: to, mode: .FromTo)
 		tween.duration = duration
 		timeline.add(tween, position: stagger * CFTimeInterval(idx))
-		TweenManager.sharedInstance.cache(tween, target: item)
 	}
 	
 	return timeline

@@ -103,7 +103,20 @@ public class TweenManager {
 		if tweenCache[target] == nil {
 			tweenCache[target] = [Tween]()
 		}
-		tweenCache[target]?.append(tween)
+		if let tweens = tweenCache[target] where tweens.contains(tween) == false {
+			tweenCache[target]?.append(tween)
+		}
+	}
+	
+	func removeFromCache(tween: Tween, target: NSObject) {
+		if let index = tweenCache[target]?.indexOf(tween) {
+			tweenCache[target]?.removeAtIndex(index)
+		}
+		
+		// remove object reference if all tweens have been removed from cache
+		if tweenCache[target]?.count == 0 {
+			removeFromCache(target)
+		}
 	}
 	
 	func removeFromCache(target: NSObject) {

@@ -70,6 +70,10 @@ public class Timeline: Animation {
 		add(tweens, position: 0, align: align)
 	}
 	
+	deinit {
+		kill()
+	}
+	
 	// MARK: Public Methods
 	
 	public func add(tween: Tween) -> Timeline {
@@ -336,7 +340,11 @@ public class Timeline: Animation {
 	
 	override public func kill() {
 		super.kill()
+		
 		TweenManager.sharedInstance.remove(self)
+		for tween in tweens {
+			tween.kill()
+		}
 	}
 	
 	// MARK: Internal Methods

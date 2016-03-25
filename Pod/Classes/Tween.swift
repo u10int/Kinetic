@@ -71,7 +71,12 @@ public class Tween: Animation, TweenType {
 		self.tweenObject = TweenObject(target: target)
 		super.init()
 		
+		TweenManager.sharedInstance.cache(self, target: target)
 		prepare(from: from, to: to, mode: mode)
+	}
+	
+	deinit {
+		kill()
 	}
 	
 	// MARK: Animation Overrides
@@ -118,7 +123,11 @@ public class Tween: Animation, TweenType {
 	
 	override public func kill() {
 		super.kill()
+		
 		TweenManager.sharedInstance.remove(self)
+		if let target = target {
+			TweenManager.sharedInstance.removeFromCache(self, target: target)
+		}
 	}
 	
 	// MARK: Public Methods
@@ -170,6 +179,10 @@ public class Tween: Animation, TweenType {
 		guard !active else { return self }
 		
 		super.play()
+		
+		if let target = target {
+			TweenManager.sharedInstance.cache(self, target: target)
+		}
 		
 		// properties must be sorted so that the first in the array is the transform property, if exists
 		// so that each property afterwards isn't set with a transform in place
