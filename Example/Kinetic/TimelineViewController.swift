@@ -38,7 +38,7 @@ class TimelineViewController: ExampleViewController {
 		progressLabel.translatesAutoresizingMaskIntoConstraints = false
 		progressLabel.font = UIFont.systemFontOfSize(16)
 		progressLabel.textColor = UIColor(white: 0.1, alpha: 1)
-		progressLabel.text = "Tension"
+		progressLabel.text = "Position"
 		view.addSubview(progressLabel)
 		
 		progressValue = UILabel()
@@ -57,7 +57,7 @@ class TimelineViewController: ExampleViewController {
 		
 		// layout
 		let views = ["progress": progressSlider, "progressLabel": progressLabel, "progressValue": progressValue]
-		let horizontalConstraints = NSLayoutConstraint.constraintsWithVisualFormat("H:|-20-[progressLabel(80)]-10-[progress]-10-[progressValue(40)]-20-|", options: .AlignAllCenterY, metrics: nil, views: views)
+		let horizontalConstraints = NSLayoutConstraint.constraintsWithVisualFormat("H:|-20-[progressLabel(60)]-10-[progress]-10-[progressValue(50)]-20-|", options: .AlignAllCenterY, metrics: nil, views: views)
 		let verticalConstraint = NSLayoutConstraint(item: progressLabel, attribute: .Bottom, relatedBy: .Equal, toItem: playButton, attribute: .Top, multiplier: 1, constant: -50)
 		
 		view.addConstraints(horizontalConstraints)
@@ -79,7 +79,8 @@ class TimelineViewController: ExampleViewController {
 		timeline.onStart { (animation) in
 			print("timeline started")
 		}.onUpdate { (animation) in
-			self.progressSlider.value = Float(animation.progress())
+			let progress = Float(animation.totalProgress())
+			self.updateProgress(progress)
 		}.onComplete { (animation) in
 			print("timeline done")
 		}
@@ -91,13 +92,20 @@ class TimelineViewController: ExampleViewController {
 		super.reset()
 		square.frame = CGRectMake(50, 50, 50, 50)
 		square.backgroundColor = UIColor.redColor()
+		updateProgress(0)
 	}
 	
 	func progressChanged(sender: UISlider) {
-		progressValue.text = "\(sender.value)"
+		animation?.pause()
+		progressValue.text = "\(Int(round(sender.value * 100)))%"
 		
 		if let timeline = animation as? Timeline {
 			timeline.setTotalProgress(CGFloat(sender.value))
 		}
+	}
+	
+	func updateProgress(value: Float) {
+		self.progressSlider.value = value
+		self.progressValue.text = "\(Int(round(value * 100)))%"
 	}
 }

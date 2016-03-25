@@ -201,10 +201,25 @@ public class Tween: Animation, TweenType {
 	}
 	
 	override public func seek(time: CFTimeInterval) -> Tween {
-		let cycles = Int(time / duration)
-		elapsed += delay + staggerDelay + time
+		var seekTime = time
+		
+		// seek time must be restricted to the duration of the timeline minus repeats and repeatDelays
+		// so if the provided time is greater than the timeline's duration, we need to adjust the seek time first
+		if timeline == nil && seekTime > duration {
+			let cycles = CFTimeInterval(Int(seekTime / duration))
+			// if cycles value is odd, then the current state should be reversed
+			let reverse = fmod(Double(cycles), 2) != 0 && reverseOnComplete
+			
+			if reverse {
+				seekTime = duration - (seekTime - (duration * cycles))
+			} else {
+				seekTime -= (duration * cycles)
+			}
+		}
+		
+		elapsed = delay + staggerDelay + seekTime
 		for prop in properties {
-			prop.seek(time)
+			prop.seek(seekTime)
 		}
 		return self
 	}

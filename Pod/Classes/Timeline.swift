@@ -34,9 +34,16 @@ public class Timeline: Animation {
 			return time
 		}
 	}
+	override public var duration: CFTimeInterval {
+		get {
+			return endTime
+		}
+		set(newValue) {
+			
+		}
+	}
 	override public var totalTime: CFTimeInterval {
 		get {
-//			return (elapsed - delay)
 			return runningTime
 		}
 	}
@@ -283,9 +290,25 @@ public class Timeline: Animation {
 	}
 	
 	override public func seek(time: CFTimeInterval) -> Timeline {
-		super.seek(time)
+		var seekTime = time
+		
+		// seek time must be restricted to the duration of the timeline minus repeats and repeatDelays
+		// so if the provided time is greater than the timeline's duration, we need to adjust the seek time first
+		if seekTime > duration {
+			let cycles = CFTimeInterval(Int(seekTime / duration))
+			// if cycles value is odd, then the current state should be reversed
+			let reverse = fmod(Double(cycles), 2) != 0 && reverseOnComplete
+			
+			if reverse {
+				seekTime = duration - (seekTime - (duration * cycles))
+			} else {
+				seekTime -= (duration * cycles)
+			}
+		}
+		super.seek(seekTime)
+		
 		for tween in tweens {
-			let tweenSeek = time - tween.startTime
+			let tweenSeek = seekTime - tween.startTime
 			if tweenSeek >= 0 {
 				tween.seek(tweenSeek)
 			}
@@ -341,11 +364,9 @@ public class Timeline: Animation {
 		}
 		
 		let multiplier: CFTimeInterval = reversed ? -1 : 1
-		elapsed += (dt * multiplier)
+		elapsed = min(elapsed + (dt * multiplier), endTime)
 		runningTime += dt
-		
-//		print("timeline: proceed - totalTime=\(totalTime), totalDuration=\(totalDuration)")
-		
+				
 		// check for callbacks
 		if callbacks.count > 0 {
 			for (t, callback) in callbacks {
@@ -374,6 +395,8 @@ public class Timeline: Animation {
 				done = false
 			}
 		}
+		
+		updateBlock?(self)
 		
 		// make sure we don't consider timeline done if we currently don't have any tweens playing
 		done = (elapsed <= delay || elapsed >= endTime)

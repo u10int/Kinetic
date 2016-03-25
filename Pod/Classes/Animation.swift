@@ -167,7 +167,7 @@ public class Animation: NSObject, AnimationType {
 	}
 	
 	public func seek(time: CFTimeInterval) -> Animation {
-		elapsed += delay + time
+		elapsed = delay + time
 		return self
 	}
 	
@@ -187,7 +187,7 @@ public class Animation: NSObject, AnimationType {
 	}
 	
 	public func progress() -> CGFloat {
-		return CGFloat(elapsed / (delay + duration))
+		return min(CGFloat(elapsed / (delay + duration)), 1)
 	}
 	
 	public func setProgress(progress: CGFloat) -> Animation {
@@ -196,7 +196,7 @@ public class Animation: NSObject, AnimationType {
 	}
 	
 	public func totalProgress() -> CGFloat {
-		return CGFloat(totalTime / totalDuration)
+		return min(CGFloat(totalTime / totalDuration), 1)
 	}
 	
 	public func setTotalProgress(progress: CGFloat) -> Animation {
@@ -205,7 +205,6 @@ public class Animation: NSObject, AnimationType {
 	}
 	
 	public func time() -> CFTimeInterval {
-//		return totalTime - (CFTimeInterval(cycle) * (duration + repeatDelay))
 		return (elapsed - delay)
 	}
 	
