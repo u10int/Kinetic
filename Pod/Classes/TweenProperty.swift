@@ -86,7 +86,7 @@ private struct RGBA {
 }
 
 public class TweenProperty: Equatable {
-	var tweenObject: TweenObject
+	unowned var tweenObject: TweenObject
 	var property: Property?
 	var mode: TweenMode = .To {
 		didSet {
@@ -95,7 +95,6 @@ public class TweenProperty: Equatable {
 			}
 		}
 	}
-	var tween: Tween?
 	var duration: CFTimeInterval = 0
 	var delay: CFTimeInterval = 0
 	var elapsed: CFTimeInterval = 0

@@ -106,6 +106,12 @@ public class Animation: NSObject, AnimationType {
 	private var _animating = false
 	private var _reversed = false
 	
+	// MARK: Lifecycle
+	
+	deinit {
+		
+	}
+	
 	// MARK: Options
 	
 	public func ease(easing: Ease) -> Animation {
@@ -223,22 +229,30 @@ public class Animation: NSObject, AnimationType {
 	// MARK: Event Handlers
 	
 	public func onStart(callback: ((Animation) -> Void)?) -> Animation {
-		startBlock = callback
+		startBlock = { [weak self] (animation) in
+			callback?(animation)
+		}
 		return self
 	}
 	
 	public func onUpdate(callback: ((Animation) -> Void)?) -> Animation {
-		updateBlock = callback
+		updateBlock = { [weak self] (animation) in
+			callback?(animation)
+		}
 		return self
 	}
 	
 	public func onComplete(callback: ((Animation) -> Void)?) -> Animation {
-		completionBlock = callback
+		completionBlock = { [weak self] (animation) in
+			callback?(animation)
+		}
 		return self
 	}
 	
 	public func onRepeat(callback: ((Animation) -> Void)?) -> Animation {
-		repeatBlock = callback
+		repeatBlock = { [weak self] (animation) in
+			callback?(animation)
+		}
 		return self
 	}
 	

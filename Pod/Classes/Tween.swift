@@ -77,6 +77,8 @@ public class Tween: Animation, TweenType {
 	
 	deinit {
 		kill()
+		_properties.removeAll()
+		tweenObject.target = nil
 	}
 	
 	// MARK: Animation Overrides
@@ -678,7 +680,6 @@ public class Tween: Animation, TweenType {
 				}
 				
 				prop?.property = type
-				prop?.tween = self
 				propertiesByType[key] = prop
 			}
 			

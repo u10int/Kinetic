@@ -109,13 +109,15 @@ public class TweenManager {
 	}
 	
 	func removeFromCache(tween: Tween, target: NSObject) {
-		if let index = tweenCache[target]?.indexOf(tween) {
-			tweenCache[target]?.removeAtIndex(index)
-		}
-		
-		// remove object reference if all tweens have been removed from cache
-		if tweenCache[target]?.count == 0 {
-			removeFromCache(target)
+		if let tweens = tweenCache[target] {
+			if let index = tweens.indexOf(tween) {
+				tweenCache[target]?.removeAtIndex(index)
+			}
+			
+			// remove object reference if all tweens have been removed from cache
+			if tweenCache[target]?.count == 0 {
+				removeFromCache(target)
+			}
 		}
 	}
 	
