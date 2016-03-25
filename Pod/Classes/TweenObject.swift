@@ -219,8 +219,8 @@ class TweenObject {
 				value.angle = atan2(t.m12, t.m11)
 				value.z = 1
 				
-				let inv = CATransform3DInvert(t)
-				
+//				let inv = CATransform3DInvert(t)
+//				
 				// x rotation
 //				value.angle = acos(t.m11)
 				

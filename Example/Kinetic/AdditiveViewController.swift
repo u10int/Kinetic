@@ -34,7 +34,7 @@ class AdditiveViewController: ExampleViewController {
 		square.backgroundColor = UIColor.redColor()
 		view.addSubview(square)
 		
-		let tapRecognizer = UITapGestureRecognizer(target: self, action: "handleTap:")
+		let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(AdditiveViewController.handleTap(_:)))
 		view.addGestureRecognizer(tapRecognizer)
 		
 		timeline = Timeline()

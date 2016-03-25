@@ -40,7 +40,8 @@ public class TweenManager {
 		}
 		
 		if tween.id == 0 {
-			if ++counter == 0 {
+			counter += 1
+			if counter == 0 {
 				counter = 1
 			}
 			tween.id = counter
@@ -48,7 +49,7 @@ public class TweenManager {
 		tweens[tween.id] = tween
 		
 		if displayLink == nil {
-			displayLink = CADisplayLink(target: self, selector: "update:")
+			displayLink = CADisplayLink(target: self, selector: #selector(TweenManager.update(_:)))
 			lastLoopTime = CACurrentMediaTime()
 			displayLink?.addToRunLoop(NSRunLoop.currentRunLoop(), forMode: NSRunLoopCommonModes)
 		}
@@ -139,16 +140,6 @@ public class TweenManager {
 		if props.count > 1 {
 			return props[props.count - 2]
 		}
-		return nil
-	}
-	
-	func lastTransformPropertyForTarget(target: NSObject) -> TransformProperty? {
-		if let tweens = tweensOfTarget(target)?.reverse() {
-			for tween in tweens {
-				
-			}
-		}
-		
 		return nil
 	}
 	

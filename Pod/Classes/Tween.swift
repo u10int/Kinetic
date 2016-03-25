@@ -277,7 +277,7 @@ public class Tween: Animation, TweenType {
 		}
 	}
 	
-	override func proceed(var dt: CFTimeInterval, force: Bool = false) -> Bool {
+	override func proceed(dt: CFTimeInterval, force: Bool = false) -> Bool {
 		if target == nil || !running {
 			return true
 		}

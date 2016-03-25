@@ -59,9 +59,9 @@ class PreloaderViewController: ExampleViewController {
 			if idx < dotCount {
 //				timeline.add(Kinetic.from(dot, duration: 0.5, options: [ .Alpha(0), .Scale(0.01) ]).ease(Easing.outQuart), position: Float(idx) * 0.1)
 				timeline.add(Kinetic.to(dot, duration: 2, options: [ .Rotate(deg2rad(rotation - 360)) ]).ease(Easing.inOutQuart), position: Float(idx) * 0.15)
-				timeline.addCallback({ 
+				timeline.addCallback(Float(idx) * 0.15 + 1.5, block: {
 					Kinetic.to(dot, duration: 0.5, options: [ .FillColor(UIColor.orangeColor()) ]).play()
-				}, position: Float(idx) * 0.15 + 1.5)
+				})
 			}
 		}
 		

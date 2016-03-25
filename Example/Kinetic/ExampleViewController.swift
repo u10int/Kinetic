@@ -35,31 +35,31 @@ class ExampleViewController: UIViewController {
 		playButton = UIButton(type: .RoundedRect)
 		playButton.translatesAutoresizingMaskIntoConstraints = false
 		playButton.setTitle("Play", forState: .Normal)
-		playButton.addTarget(self, action: "play", forControlEvents: .TouchUpInside)
+		playButton.addTarget(self, action: #selector(ExampleViewController.play), forControlEvents: .TouchUpInside)
 		view.addSubview(playButton)
 		
 		stopButton = UIButton(type: .RoundedRect)
 		stopButton.translatesAutoresizingMaskIntoConstraints = false
 		stopButton.setTitle("Stop", forState: .Normal)
-		stopButton.addTarget(self, action: "stop", forControlEvents: .TouchUpInside)
+		stopButton.addTarget(self, action: #selector(ExampleViewController.stop), forControlEvents: .TouchUpInside)
 		view.addSubview(stopButton)
 		
 		pauseButton = UIButton(type: .RoundedRect)
 		pauseButton.translatesAutoresizingMaskIntoConstraints = false
 		pauseButton.setTitle("Pause", forState: .Normal)
-		pauseButton.addTarget(self, action: "pause", forControlEvents: .TouchUpInside)
+		pauseButton.addTarget(self, action: #selector(ExampleViewController.pause), forControlEvents: .TouchUpInside)
 		view.addSubview(pauseButton)
 		
 		resumeButton = UIButton(type: .RoundedRect)
 		resumeButton.translatesAutoresizingMaskIntoConstraints = false
 		resumeButton.setTitle("Resume", forState: .Normal)
-		resumeButton.addTarget(self, action: "resume", forControlEvents: .TouchUpInside)
+		resumeButton.addTarget(self, action: #selector(ExampleViewController.resume), forControlEvents: .TouchUpInside)
 		view.addSubview(resumeButton)
 		
 		resetButton = UIButton(type: .RoundedRect)
 		resetButton.translatesAutoresizingMaskIntoConstraints = false
 		resetButton.setTitle("Reset", forState: .Normal)
-		resetButton.addTarget(self, action: "reset", forControlEvents: .TouchUpInside)
+		resetButton.addTarget(self, action: #selector(ExampleViewController.reset), forControlEvents: .TouchUpInside)
 		view.addSubview(resetButton)
 		
 		// layout

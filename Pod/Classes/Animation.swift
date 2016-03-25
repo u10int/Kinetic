@@ -229,28 +229,28 @@ public class Animation: NSObject, AnimationType {
 	// MARK: Event Handlers
 	
 	public func onStart(callback: ((Animation) -> Void)?) -> Animation {
-		startBlock = { [weak self] (animation) in
+		startBlock = { (animation) in
 			callback?(animation)
 		}
 		return self
 	}
 	
 	public func onUpdate(callback: ((Animation) -> Void)?) -> Animation {
-		updateBlock = { [weak self] (animation) in
+		updateBlock = { (animation) in
 			callback?(animation)
 		}
 		return self
 	}
 	
 	public func onComplete(callback: ((Animation) -> Void)?) -> Animation {
-		completionBlock = { [weak self] (animation) in
+		completionBlock = { (animation) in
 			callback?(animation)
 		}
 		return self
 	}
 	
 	public func onRepeat(callback: ((Animation) -> Void)?) -> Animation {
-		repeatBlock = { [weak self] (animation) in
+		repeatBlock = { (animation) in
 			callback?(animation)
 		}
 		return self
@@ -266,7 +266,7 @@ public class Animation: NSObject, AnimationType {
 		cycle = 0
 	}
 	
-	func proceed(var dt: CFTimeInterval, force: Bool = false) -> Bool {
+	func proceed(dt: CFTimeInterval, force: Bool = false) -> Bool {
 		if !running {
 			return true
 		}
@@ -314,7 +314,7 @@ public class Animation: NSObject, AnimationType {
 		var shouldRepeat = false
 		if repeatForever || (repeatCount > 0 && cycle < repeatCount) {
 			shouldRepeat = true
-			cycle++
+			cycle += 1
 		}
 		
 		if shouldRepeat {

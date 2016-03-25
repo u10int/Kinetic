@@ -54,7 +54,7 @@ class PhysicsViewController: ExampleViewController {
 		tensionSlider.translatesAutoresizingMaskIntoConstraints = false
 		tensionSlider.minimumValue = 0
 		tensionSlider.maximumValue = 300
-		tensionSlider.addTarget(self, action: "tensionChanged:", forControlEvents: .ValueChanged)
+		tensionSlider.addTarget(self, action: #selector(PhysicsViewController.tensionChanged(_:)), forControlEvents: .ValueChanged)
 		view.addSubview(tensionSlider)
 		
 		let frictionLabel = UILabel()
@@ -75,7 +75,7 @@ class PhysicsViewController: ExampleViewController {
 		frictionSlider.translatesAutoresizingMaskIntoConstraints = false
 		frictionSlider.minimumValue = 0
 		frictionSlider.maximumValue = 50
-		frictionSlider.addTarget(self, action: "frictionChanged:", forControlEvents: .ValueChanged)
+		frictionSlider.addTarget(self, action: #selector(PhysicsViewController.frictionChanged(_:)), forControlEvents: .ValueChanged)
 		view.addSubview(frictionSlider)
 		
 		// layout

@@ -147,7 +147,7 @@ public class Timeline: Animation {
 		return self
 	}
 	
-	public func addCallback(block: () -> Void, position: AnyObject = 0) -> Timeline {
+	public func addCallback(position: AnyObject, block: () -> Void) -> Timeline {
 		var pos: CFTimeInterval = 0
 		
 		if let time = position as? CFTimeInterval {
@@ -333,7 +333,7 @@ public class Timeline: Animation {
 		for tween in tweens {
 			tween.restart(includeDelay)
 		}
-		for (t, callback) in callbacks {
+		for (_, callback) in callbacks {
 			callback.called = false
 		}
 	}
@@ -356,7 +356,7 @@ public class Timeline: Animation {
 		}
 	}
 	
-	override func proceed(var dt: CFTimeInterval, force: Bool = false) -> Bool {
+	override func proceed(dt: CFTimeInterval, force: Bool = false) -> Bool {
 		if !running {
 			return true
 		}
@@ -441,7 +441,7 @@ public class Timeline: Animation {
 						position += CFTimeInterval(val)!
 					}
 				}
-				idx++
+				idx += 1
 			}
 			position *= multiplier
 		}
