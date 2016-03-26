@@ -369,9 +369,14 @@ public class Timeline: Animation {
 		}
 		
 		let multiplier: CFTimeInterval = reversed ? -1 : 1
-		elapsed = min(elapsed + (dt * multiplier), endTime)
+		elapsed = elapsed + (dt * multiplier)
 		runningTime += dt
-				
+		
+		// if animation doesn't repeat forever, cap elapsed time to endTime
+		if !repeatForever {
+			elapsed = min(elapsed, endTime)
+		}
+		
 		// check for callbacks
 		if callbacks.count > 0 {
 			for (t, callback) in callbacks {
