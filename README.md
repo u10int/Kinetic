@@ -180,8 +180,17 @@ tween.seek(0.5)
 // immediately stop and remove the tween from the object
 tween.kill()
 
-// get the current progress of the tween from 0 (start) to 1 (end)
-tween.position()
+// get the current progress of the tween from 0 (start) to 1 (end); doesn't account for repeats (a single animation cycle)
+tween.progress()
+
+// move the animation's playhead progress from 0 (start) to 1 (end) excluding repeats and repeatDelays (a single animation cycle)
+tween.setProgress(progress: Float)
+
+// get the current progress of the tween from 0 (start) to 1 (end) including repeats and repeatDelays
+tween.totalProgress()
+
+// move the animation's playhead progress from 0 (start) to 1 (end) including repeats and repeatDelays
+tween.setTotalProgress(progress: Float)
 
 // get the total elapsed time of the tween including any repeats and delays
 tween.time()
@@ -364,6 +373,18 @@ timeline.play()
 ```
 
 ![Timeline Labels](Example/screenshots/kinetic-timeline-labels.gif)
+
+###Time Callbacks##
+
+With timelines you can also insert callback blocks at any time within a timeline's total duration, which is useful if you want to perform a certain action while the timeline is playing or perform another animation:
+
+```swift
+timeline.addCallback(Float(idx) * 0.15 + 1.5, block: {
+	Kinetic.to(dot, duration: 0.5, options: [ .FillColor(UIColor.orangeColor()) ]).play()
+})
+```
+
+![Timeline Callbacks](Example/screenshots/kinetic-preloader.gif)
 
 ###Controlling Timelines###
 
