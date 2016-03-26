@@ -18,6 +18,7 @@ class PreloaderViewController: ExampleViewController {
 	var colors: [UIColor]!
 	
 	private var dotCount: Int = 10
+	private var colorIndex = 0
 	
 	override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
 		super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
@@ -34,7 +35,7 @@ class PreloaderViewController: ExampleViewController {
 		
 		view.backgroundColor = UIColor.whiteColor()
 		
-		colors = [UIColor(red:0.533, green:0.807, blue:0.004, alpha:1), UIColor.orangeColor(), UIColor.blueColor()]
+		colors = [UIColor(red:0.533, green:0.807, blue:0.004, alpha:1), UIColor.orangeColor(), UIColor.blueColor(), UIColor.redColor()]
 		
 		let container = UIView()
 		container.frame = CGRect(x: 100, y: 100, width: 90, height: 90)
@@ -59,14 +60,21 @@ class PreloaderViewController: ExampleViewController {
 			if idx < dotCount {
 //				timeline.add(Kinetic.from(dot, duration: 0.5, options: [ .Alpha(0), .Scale(0.01) ]).ease(Easing.outQuart), position: Float(idx) * 0.1)
 				timeline.add(Kinetic.to(dot, duration: 2, options: [ .Rotate(deg2rad(rotation - 360)) ]).ease(Easing.inOutQuart), position: Float(idx) * 0.15)
-				timeline.addCallback(Float(idx) * 0.15 + 1.5, block: {
-					Kinetic.to(dot, duration: 0.5, options: [ .FillColor(UIColor.orangeColor()) ]).play()
+				timeline.addCallback(Float(idx) * 0.15 + 1.5, block: { [unowned self] in
+					Kinetic.to(dot, duration: 0.5, options: [ .FillColor(self.colors[self.colorIndex]) ]).play()
 				})
 			}
 		}
 		
 		timeline.forever().repeatDelay(5)
+		timeline.onRepeat { [unowned self] (timeline) in
+			self.colorIndex += 1
+			if self.colorIndex >= self.colors.count {
+				self.colorIndex = 0
+			}
+		}
 		
+		colorIndex = 1
 		animation = timeline
 	}
 	
