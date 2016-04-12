@@ -6,7 +6,7 @@
 //
 //
 
-import Foundation
+import UIKit
 
 class TweenObject {
 	weak var target: NSObject?

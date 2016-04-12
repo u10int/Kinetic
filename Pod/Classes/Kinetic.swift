@@ -8,7 +8,6 @@
 
 import UIKit
 
-
 public func to(item: NSObject, duration: CFTimeInterval, options: [Property]) -> Tween {
 	let tween = Tween(target: item, from: nil, to: options, mode: .To)
 	tween.duration = duration

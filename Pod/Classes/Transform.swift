@@ -6,7 +6,7 @@
 //
 //
 
-import Foundation
+import UIKit
 
 public struct Point: VectorType, Equatable {
 	public var x: CGFloat
