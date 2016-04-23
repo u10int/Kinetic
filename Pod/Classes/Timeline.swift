@@ -302,7 +302,15 @@ public class Timeline: Animation {
 		
 		let elapsedTime = elapsedTimeFromSeekTime(time)
 		for tween in tweens {
-			let tweenSeek = elapsedTime - tween.startTime
+			var tweenSeek = elapsedTime - tween.startTime
+			
+			// make sure tween snaps to 0 or totalDuration value if tweenSeek is beyond bounds
+			if tweenSeek < 0 && tween.elapsed > 0 {
+				tweenSeek = 0
+			} else if tweenSeek > tween.totalDuration && tween.elapsed < tween.totalDuration {
+				tweenSeek = tween.totalDuration
+			}
+			
 			if tweenSeek >= 0 && tweenSeek <= tween.totalDuration {
 				tween.seek(tweenSeek)
 			}
