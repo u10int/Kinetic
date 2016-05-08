@@ -608,6 +608,8 @@ public class Tween: Animation, TweenType {
 				case PropertyKey.Position.rawValue:
 					if let origin = tweenObject.origin {
 						prop = PointProperty(target: tweenObject, from: origin, to: origin)
+					} else {
+						assert(false, "Cannot tween non-existent property `origin` for target.")
 					}
 				case PropertyKey.Center.rawValue:
 					if let center = tweenObject.center {
@@ -615,10 +617,14 @@ public class Tween: Animation, TweenType {
 						if let pointProp = prop as? PointProperty {
 							pointProp.targetCenter = true
 						}
+					} else {
+						assert(false, "Cannot tween non-existent property `center` for target.")
 					}
 				case PropertyKey.Size.rawValue:
 					if let size = tweenObject.size {
 						prop = SizeProperty(target: tweenObject, from: size, to: size)
+					} else {
+						assert(false, "Cannot tween non-existent property `size` for target.")
 					}
 				case PropertyKey.Transform.rawValue:
 					prop = TransformProperty(target: tweenObject)
@@ -626,56 +632,80 @@ public class Tween: Animation, TweenType {
 					if let alpha = tweenObject.alpha {
 						let key = (target is CALayer) ? "opacity" : "alpha"
 						prop = ObjectProperty(target: tweenObject, keyPath: key, from: alpha, to: alpha)
+					} else {
+						assert(false, "Cannot tween non-existent property `alpha` for target.")
 					}
 				case PropertyKey.BackgroundColor.rawValue:
 					if let color = tweenObject.backgroundColor {
 						prop = ColorProperty(target: tweenObject, property: "backgroundColor", from: color, to: color)
+					} else {
+						assert(false, "Cannot tween property `backgroundColor`, initial value for object is nil.")
 					}
 				case PropertyKey.FillColor.rawValue:
 					if let color = tweenObject.fillColor {
 						prop = ColorProperty(target: tweenObject, property: "fillColor", from: color, to: color)
+					} else {
+						assert(false, "Cannot tween property `fillColor`, initial value for object is nil.")
 					}
 				case PropertyKey.StrokeColor.rawValue:
 					if let color = tweenObject.strokeColor {
 						prop = ColorProperty(target: tweenObject, property: "strokeColor", from: color, to: color)
+					} else {
+						assert(false, "Cannot tween property `strokeColor`, initial value for object is nil.")
 					}
 				case PropertyKey.TintColor.rawValue:
 					if let color = tweenObject.tintColor {
 						prop = ColorProperty(target: tweenObject, property: "tintColor", from: color, to: color)
+					} else {
+						assert(false, "Cannot tween property `tintColor`, initial value for object is nil.")
 					}
 				case PropertyKey.X.rawValue:
 					if let frame = tweenObject.frame {
 						let value = CGRectGetMinX(frame)
 						prop = StructProperty(target: tweenObject, from: value, to: value)
+					} else {
+						assert(false, "Cannot tween non-existent property `frame` for target.")
 					}
 				case PropertyKey.Y.rawValue:
 					if let frame = tweenObject.frame {
 						let value = CGRectGetMinY(frame)
 						prop = StructProperty(target: tweenObject, from: value, to: value)
+					} else {
+						assert(false, "Cannot tween non-existent property `frame` for target.")
 					}
 				case PropertyKey.CenterX.rawValue:
 					if let frame = tweenObject.frame {
 						let value = CGRectGetMidX(frame)
 						prop = StructProperty(target: tweenObject, from: value, to: value)
+					} else {
+						assert(false, "Cannot tween non-existent property `frame` for target.")
 					}
 				case PropertyKey.CenterY.rawValue:
 					if let frame = tweenObject.frame {
 						let value = CGRectGetMidY(frame)
 						prop = StructProperty(target: tweenObject, from: value, to: value)
+					} else {
+						assert(false, "Cannot tween non-existent property `frame` for target.")
 					}
 				case PropertyKey.Width.rawValue:
 					if let frame = tweenObject.frame {
 						let value = CGRectGetWidth(frame)
 						prop = StructProperty(target: tweenObject, from: value, to: value)
+					} else {
+						assert(false, "Cannot tween non-existent property `frame` for target.")
 					}
 				case PropertyKey.Height.rawValue:
 					if let frame = tweenObject.frame {
 						let value = CGRectGetHeight(frame)
 						prop = StructProperty(target: tweenObject, from: value, to: value)
+					} else {
+						assert(false, "Cannot tween non-existent property `frame` for target.")
 					}
 				default:
 					if let target = tweenObject.target, value = target.valueForKeyPath(key) as? CGFloat {
 						prop = ObjectProperty(target: tweenObject, keyPath: key, from: value, to: value)
+					} else {
+						assert(false, "Cannot tween non-existent property `\(key)` for target.")
 					}
 				}
 				
