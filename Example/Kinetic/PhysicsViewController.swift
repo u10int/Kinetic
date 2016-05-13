@@ -98,7 +98,7 @@ class PhysicsViewController: ExampleViewController {
 	}
 	
 	override func play() {
-		let tween = Kinetic.to(square, duration: 0.5, options: [.X(250), .Height(100)]).spring(tension: Double(tensionSlider.value), friction: Double(frictionSlider.value))
+		let tween = Kinetic.animate(square).to(.X(250), .Height(100)).duration(0.5).spring(tension: Double(tensionSlider.value), friction: Double(frictionSlider.value))
 		animation = tween
 		animation?.play()
 	}

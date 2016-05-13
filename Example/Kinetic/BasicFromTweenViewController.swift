@@ -31,8 +31,8 @@ class BasicFromTweenViewController: ExampleViewController {
 		square.frame = CGRectMake(200, 200, 100, 100)
 		square.backgroundColor = UIColor.redColor()
 		view.addSubview(square)
-		
-		let tween = Kinetic.from(square, duration: 0.5, options: [.X(50), .Height(10)]).ease(Easing.inOutQuart).delay(0.5)
+				
+		let tween = Kinetic.animate(square).from(.X(50), .Height(10)).duration(0.5).ease(Easing.inOutQuart)
 		animation = tween
 	}
 	

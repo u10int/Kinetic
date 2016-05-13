@@ -8,7 +8,9 @@
 
 import UIKit
 
-public protocol AnimationType: AnyObject {
+public protocol Animatable: AnyObject {
+	typealias AnimationType
+	
 	var active: Bool { get }
 	var paused: Bool { get }
 	var animating: Bool { get }
@@ -22,31 +24,33 @@ public protocol AnimationType: AnyObject {
 	var totalDuration: CFTimeInterval { get }
 	var elapsed: CFTimeInterval { get }
 	
-	func ease(easing: Ease) -> Animation
-	func spring(tension tension: Double, friction: Double) -> Animation
-	func delay(delay: CFTimeInterval) -> Animation
-	func repeatCount(count: Int) -> Animation
-	func repeatDelay(delay: CFTimeInterval) -> Animation
-	func forever() -> Animation
-	func yoyo() -> Animation
+	func duration(duration: CFTimeInterval) -> AnimationType
+	func delay(delay: CFTimeInterval) -> AnimationType
+	func repeatCount(count: Int) -> AnimationType
+	func repeatDelay(delay: CFTimeInterval) -> AnimationType
+	func forever() -> AnimationType
+	func yoyo() -> AnimationType
 	
-	func play() -> Animation
+	func play() -> AnimationType
 	func stop()
 	func pause()
 	func resume()
-	func seek(time: CFTimeInterval) -> Animation
-	func forward() -> Animation
-	func reverse() -> Animation
+	func seek(time: CFTimeInterval) -> AnimationType
+	func forward() -> AnimationType
+	func reverse() -> AnimationType
 	func restart(includeDelay: Bool)
 	func progress() -> Float
-	func setProgress(progress: Float) -> Animation
+	func setProgress(progress: Float) -> AnimationType
 	func totalProgress() -> Float
-	func setTotalProgress(progress: Float) -> Animation
+	func setTotalProgress(progress: Float) -> AnimationType
 	func time() -> CFTimeInterval
+	
 	func kill()
 }
 
-public class Animation: NSObject, AnimationType {
+public class Animation: NSObject, Animatable {
+	public typealias AnimationType = Animation
+	
 	public var active: Bool {
 		get {
 			return running
@@ -97,10 +101,10 @@ public class Animation: NSObject, AnimationType {
 	var repeatDelay: CFTimeInterval = 0
 	var reverseOnComplete = false
 	
-	var startBlock: ((Animation) -> Void)?
-	var updateBlock: ((Animation) -> Void)?
-	var completionBlock: ((Animation) -> Void)?
-	var repeatBlock: ((Animation) -> Void)?
+	var startBlock: ((AnimationType) -> Void)?
+	var updateBlock: ((AnimationType) -> Void)?
+	var completionBlock: ((AnimationType) -> Void)?
+	var repeatBlock: ((AnimationType) -> Void)?
 	
 	private var cycle: Int = 0
 	private var _animating = false
@@ -112,44 +116,49 @@ public class Animation: NSObject, AnimationType {
 		
 	}
 	
-	// MARK: Options
+	// MARK: Animatable
 	
-	public func ease(easing: Ease) -> Animation {
+	public func duration(duration: CFTimeInterval) -> AnimationType {
+		self.duration = duration
 		return self
 	}
 	
-	public func spring(tension tension: Double, friction: Double = 3) -> Animation {
-		return self
-	}
+//	public func ease(easing: Ease) -> Animation {
+//		return self
+//	}
+//	
+//	public func spring(tension tension: Double, friction: Double = 3) -> Animation {
+//		return self
+//	}
 	
-	public func delay(delay: CFTimeInterval) -> Animation {
+	public func delay(delay: CFTimeInterval) -> AnimationType {
 		self.delay = delay
 		return self
 	}
 	
-	public func repeatCount(count: Int) -> Animation {
+	public func repeatCount(count: Int) -> AnimationType {
 		repeatCount = count
 		return self
 	}
 	
-	public func repeatDelay(delay: CFTimeInterval) -> Animation {
+	public func repeatDelay(delay: CFTimeInterval) -> AnimationType {
 		repeatDelay = delay
 		return self
 	}
 	
-	public func forever() -> Animation {
+	public func forever() -> AnimationType {
 		repeatForever = true
 		return self
 	}
 	
-	public func yoyo() -> Animation {
+	public func yoyo() -> AnimationType {
 		reverseOnComplete = true
 		return self
 	}
 	
 	// MARK: Playback
 	
-	public func play() -> Animation {
+	public func play() -> AnimationType {
 		if running {
 			return self
 		}
@@ -177,19 +186,19 @@ public class Animation: NSObject, AnimationType {
 		_animating = true
 	}
 	
-	public func seek(time: CFTimeInterval) -> Animation {
+	public func seek(time: CFTimeInterval) -> AnimationType {
 		let adjustedTime = elapsedTimeFromSeekTime(time)
 		elapsed = delay + adjustedTime
 		runningTime = time
 		return self
 	}
 	
-	public func forward() -> Animation {
+	public func forward() -> AnimationType {
 		_reversed = false
 		return self
 	}
 	
-	public func reverse() -> Animation {
+	public func reverse() -> AnimationType {
 		_reversed = true
 		return self
 	}
@@ -204,7 +213,7 @@ public class Animation: NSObject, AnimationType {
 		return min(Float(elapsed / (delay + duration)), 1)
 	}
 	
-	public func setProgress(progress: Float) -> Animation {
+	public func setProgress(progress: Float) -> AnimationType {
 		seek(duration * CFTimeInterval(progress))
 		return self
 	}
@@ -213,7 +222,7 @@ public class Animation: NSObject, AnimationType {
 		return min(Float(totalTime / totalDuration), 1)
 	}
 	
-	public func setTotalProgress(progress: Float) -> Animation {
+	public func setTotalProgress(progress: Float) -> AnimationType {
 		seek(totalDuration * CFTimeInterval(progress))
 		return self
 	}
@@ -228,28 +237,28 @@ public class Animation: NSObject, AnimationType {
 	
 	// MARK: Event Handlers
 	
-	public func onStart(callback: ((Animation) -> Void)?) -> Animation {
+	public func onStart(callback: ((Animation) -> Void)?) -> AnimationType {
 		startBlock = { (animation) in
 			callback?(animation)
 		}
 		return self
 	}
 	
-	public func onUpdate(callback: ((Animation) -> Void)?) -> Animation {
+	public func onUpdate(callback: ((Animation) -> Void)?) -> AnimationType {
 		updateBlock = { (animation) in
 			callback?(animation)
 		}
 		return self
 	}
 	
-	public func onComplete(callback: ((Animation) -> Void)?) -> Animation {
+	public func onComplete(callback: ((Animation) -> Void)?) -> AnimationType {
 		completionBlock = { (animation) in
 			callback?(animation)
 		}
 		return self
 	}
 	
-	public func onRepeat(callback: ((Animation) -> Void)?) -> Animation {
+	public func onRepeat(callback: ((Animation) -> Void)?) -> AnimationType {
 		repeatBlock = { (animation) in
 			callback?(animation)
 		}

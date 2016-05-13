@@ -32,12 +32,14 @@ class SequenceViewController: ExampleViewController {
 		square.backgroundColor = UIColor.redColor()
 		view.addSubview(square)
 		
-		let moveX = Kinetic.to(square, duration: 0.5, options: [.X(110)]).ease(Easing.inOutCubic)
-		let moveY = Kinetic.to(square, duration: 0.5, options: [.Y(250), .BackgroundColor(UIColor.orangeColor())]).ease(Easing.inOutCubic)
+		let moveX = Tween(target: square).to(.X(110)).duration(0.5).ease(Easing.inOutCubic)
+		
+		let moveY = Tween(target: square).to(.Y(250), .BackgroundColor(UIColor.orangeColor())).duration(0.5).ease(Easing.inOutCubic)
 		moveY.onStart { (animation) -> Void in
 			print("starting moveY")
 		}
-		let resize = Kinetic.to(square, duration: 0.5, options: [.Width(200), .BackgroundColor(UIColor.blueColor())]).ease(Easing.inOutCirc)
+		
+		let resize = Tween(target: square).to(.Width(200), .BackgroundColor(UIColor.blueColor())).duration(0.5).ease(Easing.inOutCirc)
 		resize.onStart { (animation) -> Void in
 			print("starting resize")
 		}

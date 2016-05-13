@@ -85,7 +85,7 @@ public class TweenManager {
 		defer {
 			lastLoopTime = displayLink.timestamp
 		}
-		
+				
 		CATransaction.begin()
 		CATransaction.setDisableActions(true)
 		for (_, tween) in tweens {

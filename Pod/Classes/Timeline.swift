@@ -23,8 +23,12 @@ public enum TweenAlign {
 	case Start
 }
 
-public class Timeline: Animation {
+public class Timeline: Animation, Tweenable {
+	public typealias TweenType = Timeline
+	public typealias AnimationType = Timeline
+	
 	public var tweens = [Tween]()
+	weak public var timeline: Timeline?
 	override public var endTime: CFTimeInterval {
 		get {
 			var time: CFTimeInterval = startTime
@@ -222,16 +226,37 @@ public class Timeline: Animation {
 		}
 	}
 	
-	// MARK: Animation
+	// MARK: Tweenable
 	
-	override public func ease(easing: Ease) -> Timeline {
+	public func from(props: Property...) -> Timeline {
+		for tween in tweens {
+			tween.from(props)
+		}
+		return self
+	}
+	
+	public func to(props: Property...) -> Timeline {
+		for tween in tweens {
+			tween.to(props)
+		}
+		return self
+	}
+	
+	override public func duration(duration: CFTimeInterval) -> Timeline {
+		for tween in tweens {
+			tween.duration(duration)
+		}
+		return self
+	}
+	
+	public func ease(easing: Ease) -> Timeline {
 		for tween in tweens {
 			tween.ease(easing)
 		}
 		return self
 	}
 	
-	override public func spring(tension tension: Double, friction: Double) -> Animation {
+	public func spring(tension tension: Double, friction: Double) -> Timeline {
 		for tween in tweens {
 			tween.spring(tension: tension, friction: friction)
 		}
@@ -244,6 +269,26 @@ public class Timeline: Animation {
 		}
 		return self
 	}
+	
+	public func anchor(anchor: Anchor) -> Timeline {
+		return anchorPoint(anchor.point())
+	}
+	
+	public func anchorPoint(point: CGPoint) -> Timeline {
+		for tween in tweens {
+			tween.anchorPoint(point)
+		}
+		return self
+	}
+	
+	public func stagger(offset: CFTimeInterval) -> Timeline {
+		for (idx, tween) in tweens.enumerate() {
+			tween.startTime = offset * CFTimeInterval(idx)
+		}
+		return self
+	}
+	
+	// MARK: Animation
 	
 	override public func play() -> Timeline {
 		guard !active else { return self }

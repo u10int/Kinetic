@@ -41,8 +41,8 @@ class CountingLabelViewController: ExampleViewController {
 		testObject = CustomObject()
 		testObject.value = 50
 		textLabel.text = "\(testObject.value)"
-		
-		let tween = Kinetic.to(testObject, duration: 1, options: [.KeyPath("value", 250)])
+				
+		let tween = Kinetic.animate(testObject).to(.KeyPath("value", 250)).duration(1)
 		tween.ease(Easing.outExpo).onUpdate { (animation) -> Void in
 			self.textLabel.text = "\(round(self.testObject.value))"
 		}.onComplete({ (animation) -> Void in
