@@ -29,13 +29,14 @@ Features
 - Start, stop, pause and resume any animation during runtime
 - Easings and springs for more realistic and interesting animations
 - Chaining methods for concise code
-- Support for animating from, animating to, or animating from and to specific values (`to`, `from`, `fromTo`)
+- Support for animating from, animating to, or animating from and to specific values (`to:`, `from:`)
 - Animate multiple objects sequentially, in parallel or staggered in a single animation group
 - Advanced animations using timelines to insert gaps, callbacks and more during an animation
 - Support for animating any NSObject property on your custom objects
 
 ## Roadmap
 
+- Improve and cleanup API
 - Support for animating elements along a UIBezierPath
 - Support for animating SVG drawings
 - Support for animating text and characters
@@ -60,7 +61,7 @@ square.backgroundColor = UIColor.redColor()
 view.addSubview(square)
 
 // move 250pt to the right and set the height to 100pt for 0.5 seconds
-Kinetic.to(square, duration: 0.5, options: [ .X(250), .Height(100) ]).ease(Easing.inOutQuart).play()
+Kinetic.animate(square).to(.X(250), .Height(100)).duration(0.5).ease(Easing.inOutQuart).play()
 ```
 
 ![Basic Tween](Example/screenshots/kinetic-tween-basic.gif)
@@ -79,7 +80,7 @@ blueSquare.backgroundColor = UIColor(red: 0.0, green: 0.6126, blue: 0.9743, alph
 view.addSubview(blueSquare)
 
 // rotate the views and repeat 3 times in a back and forth (yoyo) motion
-let timeline = Kinetic.itemsTo([greenSquare, blueSquare], duration: 1, options: [ .RotateXY(0, CGFloat(M_PI_2)) ])
+let timeline = Kinetic.animateAll([greenSquare, blueSquare]).to(.RotateXY(0, CGFloat(M_PI_2))).duration(1)
 timeline.ease(Easing.inOutSine).perspective(1 / -1000).yoyo().repeatCount(3)
 timeline.play()
 ```
@@ -124,11 +125,20 @@ The following are the primary classes used within the library along with their p
 
 Controlling Tweens
 ----
-Once you have an instance of a Tween using `Kinetic.to()`, `Kinetic.from()` or `Kinetic.fromTo()`, controlling your tween during playback is extremely simple.
+Once you have an instance of a Tween using `Kinetic.animate:` or Timeline using `Kinetic.animateAll:`, controlling your animation during playback is extremely simple.
 
 You can configure your tween before playback to define its delay, easing or spring, repeat count, or repeat forever:
 
 ```swift
+// sets the initial state of the animation before playback, where `...` is a series of `Property` instances
+tween.from(...)
+
+// sets the final state of the animation when playback completes, where `...` is a series of `Property` instances
+tween.to(...)
+
+// total duration of the animation, in seconds, not including any delay value
+tween.duration(0.5)
+
 // wait 2 seconds before starting the animation
 tween.delay(2)
 
@@ -159,6 +169,9 @@ tween.perspective(1 / -1000)
 Once you've configured your tween and started its playback using `play()`, you can stop, pause, resume, seek, reverse, or restart a tween at any time:
 
 ```swift
+// plays the tween from the beginning
+tween.play()
+
 // stops the tween at the current position
 tween.pause()
 
@@ -258,7 +271,7 @@ let testObject = TestObject()
 testObject.value = 50
 textLabel.text = "\(round(testObject.value))"
 
-let increment = Kinetic.to(testObject, duration: duration, options: [ .KeyPath("value", 250) ])
+let increment = Kinetic.animate(testObject).to(.KeyPath("value", 250)).duration(1)
 increment.ease(Easing.outQuart).onUpdate { () -> Void in
 	textLabel.text = "\(round(testObject.value))"
 }.onComplete({ () -> Void in
@@ -279,18 +292,18 @@ A Kinetic Timeline allows you to group multiple Tween instances into a single, e
 In many cases, you'll want to perform a serial, or sequential, animation on a single or multiple objects where each tween is performed one after another. For instance, if you want to move a view to the right, then down, and then scale it up by 2 for a duration of 3 seconds, you could do so by creating three Tween instances and offset their delay values by 1 second:
 
 ```swift
-Kinetic.to(square, duration: 1, options: [ .X(110) ]).ease(Easing.inOutCubic).play()
-Kinetic.to(square, duration: 1, options: [ .Y(250) ]).ease(Easing.inOutCubic).delay(1).play()
-Kinetic.to(square, duration: 1, options: [ .Scale(2) ]).ease(Easing.inOutCubic).delay(2).play()
+Kinetic.animate(square).to(.X(110)).duration(1).ease(Easing.inOutCubic).play()
+Kinetic.animate(square).to(.Y(250)).duration(1).ease(Easing.inOutCubic).delay(1).play()
+Kinetic.animate(square).to(.Scale(2)).duration(1).ease(Easing.inOutCubic).delay(2).play()
 ```
 
 Note that if you change the duration of any of the individual tweens, you also have to be sure to adjust the delay values for the sequence. And trying to pause, restart or reverse the sequence is even more of a challenge. However, by using a Timeline instance you can perform all of these functions easily:
 
 ```swift
 let timeline = Timeline()
-timeline.add(Kinetic.to(square, duration: 1, options: [ .X(110) ]).ease(Easing.inOutCubic))
-timeline.add(Kinetic.to(square, duration: 1, options: [ .Y(250) ]).ease(Easing.inOutCubic))
-timeline.add(Kinetic.to(square, duration: 1, options: [ .Scale(2) ]).ease(Easing.inOutCubic))
+timeline.add(Tween(target: square).to(.X(110)).duration(1).ease(Easing.inOutCubic))
+timeline.add(Tween(target: square).to(.Y(250)).duration(1).ease(Easing.inOutCubic))
+timeline.add(Tween(target: square).to(.Scale(2)).duration(1).ease(Easing.inOutCubic))
 timeline.play()
 ```
 
@@ -302,9 +315,9 @@ Instead of having each tween play one after another, you can specify a position 
 
 ```swift
 let timeline = Timeline()
-timeline.add(Kinetic.to(square, duration: 1, options: [ .X(110) ]).ease(Easing.inOutCubic))
-timeline.add(Kinetic.to(square, duration: 1, options: [ .Y(250) ]).ease(Easing.inOutCubic), position: 1.5)
-timeline.add(Kinetic.to(square, duration: 1, options: [ .Scale(2) ]).ease(Easing.inOutCubic))
+timeline.add(Tween(target: square).to(.X(110)).duration(1).ease(Easing.inOutCubic))
+timeline.add(Tween(target: square).to(.Y(250)).duration(1).ease(Easing.inOutCubic), position: 1.5)
+timeline.add(Tween(target: square).to(.Scale(2)).duration(1).ease(Easing.inOutCubic))
 timeline.play()
 ```
 
@@ -314,21 +327,21 @@ This change will play the second tween at 1.5 seconds into the animation, and th
 
 ###Grouped + Staggered Animations###
 
-Using `Kinetic.itemsTo`, `Kinetic.itemsFrom` and `Kinetic.itemsFromTo` you can animate the same properties on multiple objects using a single line of code. For example, you have 3 square views you want to scale up and rotate 45 degrees at the same time:
+Using `Kinetic.animateAll` you can animate the same properties on multiple objects using a single line of code. For example, you have 3 square views you want to scale up and rotate 45 degrees at the same time:
 
 ```swift
 let squares = [greenSquare, blueSquare, redSquare]
-let timeline = Kinetic.itemsTo(squares, duration: 1, options: [ .Scale(2), .Rotate(CGFloat(M_PI_2)) ]).ease(Easing.inOutSine)
+let timeline = Kinetic.animateAll(squares).to(.Scale(2), .Rotate(CGFloat(M_PI_2))).duration(1).ease(Easing.inOutSine)
 timeline.play()
 ```
 
 ![Timeline Grouped](Example/screenshots/kinetic-timeline-grouped.gif)
 
-Using a Timeline also provides you with the ability to stagger multiple animations for more interesting effects. For instance, you may have a column of horizontal bars whose widths you want to animate to their final state. You could do this with a basic Timeline instance and increasingly offset their positions relative to the start time, but there's an easier way using `Kinetic.staggerTo`, `Kinetic.staggerFrom` and `Kinetic.staggerFromTo`:
+Using a Timeline also provides you with the ability to stagger multiple animations for more interesting effects. For instance, you may have a column of horizontal bars whose widths you want to animate to their final state. You could do this with a basic Timeline instance and increasingly offset their positions relative to the start time, but there's an easier way using `stagger:` on your `Timeline` instance:
 
 ```swift
 let squares = [greenSquare, blueSquare, redSquare]
-let timeline = Kinetic.staggerTo(squares, duration: 1, options: [ .Width(250) ], stagger: 0.08).spring(tension: 100, friction: 12)
+let timeline = Kinetic.animateAll(squares).to(.Width(250)).duration(1).stagger(0.08).spring(tension: 100, friction: 12)
 timeline.play()
 ```
 
@@ -336,13 +349,13 @@ In a single line, you can animate each item in `squares` from their starting wid
 
 ![Timeline Staggered](Example/screenshots/kinetic-timeline-staggered.gif)
 
-The methods `staggerTo`, `staggerFrom`, and `staggerToFrom` will return an instance of Timeline.
+The method `Kinetic.animateAll:` will return an instance of Timeline.
 
 You can also add labels to your timeline to be used for referencing when adding additional tweens or for playback. For example, you may want to include a color change animation for a view in your timeline and want other tweens to take place relative to that position. First create a label at the time you want to reference and then add your tweens relative to or offset from that label:
 
 ```swift
-let resize = Kinetic.to(square, duration: 1, options: [ .Size(150,100) ]).ease(Easing.inOutCubic)
-let color = Kinetic.to(square, duration: 0.75, options: [ .BackgroundColor(UIColor.blueColor()) ])
+let resize = Kinetic.animate(square).to(.Size(150,100)).duration(1).ease(Easing.inOutCubic)
+let color = Kinetic.animate(square).to(.BackgroundColor(UIColor.blueColor())).duration(0.75)
 
 timeline.addLabel("colorChange", position: 1.3)
 timeline.add(color, relativeToLabel: "colorChange", offset: 0)
@@ -358,15 +371,15 @@ You can add any number of time labels to a timeline that can then be used as ref
 timeline.addLabel("colorChange", position: 1.3)
 
 // add the color change tween to the timeline relative to our "colorChange" label
-let color = Kinetic.to(square, duration: 0.75, options: [ .BackgroundColor(UIColor.blueColor()) ])
+let color = Kinetic.animate(square).to(.BackgroundColor(UIColor.blueColor())).duration(0.75)
 timeline.add(color, relativeToLabel: "colorChange", offset: 0)
 
 // resize the view 1 second after the color change starts
-let resize = Kinetic.to(square, duration: 1, options: [ .Size(150,100) ]).ease(Easing.inOutCubic)
+let resize = Kinetic.animate(square).to(.Size(150,100)).duration(1).ease(Easing.inOutCubic)
 timeline.add(resize, relativeToLabel: "colorChange", offset: 0.5)
 
 // move the view 0.25 seconds before the color change starts
-let move = Kinetic.to(square, duration: 1, options: [ .Position(200,200) ]).ease(Easing.inOutCubic)
+let move = Kinetic.animate(square).to(.Position(200,200)).duration(1).ease(Easing.inOutCubic)
 timeline.add(move, relativeToLabel: "colorChange", offset: -0.25)
 
 timeline.play()
@@ -380,7 +393,7 @@ With timelines you can also insert callback blocks at any time within a timeline
 
 ```swift
 timeline.addCallback(Float(idx) * 0.15 + 1.5, block: {
-	Kinetic.to(dot, duration: 0.5, options: [ .FillColor(UIColor.orangeColor()) ]).play()
+	Kinetic.animate(dot).to(.FillColor(UIColor.orangeColor()).duration(0.5).play()
 })
 ```
 
