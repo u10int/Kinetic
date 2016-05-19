@@ -67,6 +67,16 @@ public class Tween: Animation, Tweenable {
 		}
 	}
 	
+	var newProperties: [FromToValue] {
+		get {
+			return [FromToValue](newPropertiesByType.values)
+		}
+	}
+	private var newPropertiesByType: Dictionary<String, FromToValue> = [String: FromToValue]()
+	private var animators = [String: BasicAnimator]()
+	
+	
+	
 	var tweenObject: TweenObject
 	private var timeScale: Float = 1
 	private var staggerDelay: CFTimeInterval = 0
@@ -138,6 +148,55 @@ public class Tween: Animation, Tweenable {
 	}
 	
 	// MARK: Tweenable
+	
+	public func testing(props: TweenProp...) {
+		for prop in props {
+			if prop is PositionProp {
+				
+			}
+		}
+	}
+	
+	public func fromTest(props: TweenProp...) -> Tween {
+		for prop in props {
+			var value = newPropertiesByType[prop.key]
+			if value == nil {
+//				var v = FromToValue()
+//				
+//				if let position = tweenObject.position where prop is Position {
+//					v.from = position
+//				}
+//				
+//				value = v
+//				newPropertiesByType[prop.key] = v
+				value = FromToValue()
+			}
+//			value?.from.apply(prop)
+			value?.from = prop
+			newPropertiesByType[prop.key] = value
+		}
+		return self
+	}
+	
+	public func toTest(props: TweenProp...) -> Tween {
+		for prop in props {
+			var value = newPropertiesByType[prop.key]
+			if value == nil {
+//				var v = FromToValue()
+//				
+//				if let position = tweenObject.position where prop is Position {
+//					v.to = position
+//				}
+//				
+//				value = v
+				value = FromToValue()
+			}
+			value?.to = prop
+//			value?.to.apply(prop)
+			newPropertiesByType[prop.key] = value
+		}
+		return self
+	}
 	
 	public func from(props: Property...) -> Tween {
 		return from(props)
@@ -301,7 +360,87 @@ public class Tween: Animation, Tweenable {
 		}
 	}
 	
+	func advance(time: Double) {
+		if target == nil || !running {
+			return
+		}
+		if paused {
+			return
+		}
+		if newProperties.count == 0 {
+			return
+		}
+		
+		// if tween belongs to a timeline, don't start animating until the timeline's playhead reaches the tween's startTime
+		if let timeline = timeline {
+			if (!timeline.reversed && timeline.time() < startTime) || (timeline.reversed && timeline.time() > endTime) {
+				return
+			}
+		}
+		
+		let end = delay + duration
+		let multiplier: CFTimeInterval = reversed ? -1 : 1
+		elapsed = max(0, min(elapsed + (time * multiplier), end))
+		runningTime += time
+		print("Tween.advance() - time: \(runningTime)")
+		
+		let delayOffset = delay + staggerDelay + repeatDelay
+		if timeline == nil {
+			if elapsed < delayOffset {
+				// if direction is reversed, then don't allow playhead to go below the tween's delay and call completed handler
+				if reversed {
+					completed()
+				} else {
+					return
+				}
+			}
+		}
+		
+		// now we can finally animate
+		if !animating {
+			started()
+		}
+		
+		var done = true
+		for (key, prop) in newPropertiesByType {
+			var animator = animators[key]
+			if animator == nil {
+				var from: TweenProp?
+				var to: TweenProp?
+				
+				if let toProp = prop.to, value = tweenObject.currentValueForTweenProp(toProp) {
+					from = value
+					to = value
+					
+					to?.apply(toProp)
+				}
+				
+				if let from = from, to = to {
+					animator = BasicAnimator(from: from.value, to: to.value, duration: duration, timingFunction: Easing(.SineInOut))
+					animator?.onChange({ [unowned self] (animator) in
+						print("changed: \(animator.value)")
+						let vectors = animator.value.vectors
+//						self.tweenObject.position = Position(vectors[0], vectors[1])
+					})
+					animators[key] = animator
+				}
+			}
+			animator?.advance(time)
+			if !animator!.finished {
+				done = false
+			}
+		}
+		updateBlock?(self)
+		print("...done: \(done)")
+		
+		if done {
+			completed()
+		}
+	}
+	
 	override func proceed(dt: CFTimeInterval, force: Bool = false) -> Bool {
+		advance(dt)
+		
 		if target == nil || !running {
 			return true
 		}
@@ -318,6 +457,8 @@ public class Tween: Animation, Tweenable {
 				return false
 			}
 		}
+		
+		return false
 		
 		let end = delay + duration
 		let multiplier: CFTimeInterval = reversed ? -1 : 1
@@ -366,7 +507,7 @@ public class Tween: Animation, Tweenable {
 	}
 	
 	func storedPropertyForType(type: Property) -> TweenProperty? {
-		if let key = TweenUtils.propertyKeyForType(type) {
+		if let key = type.key() {
 			return propertiesByType[key]
 		}
 		return nil
@@ -623,18 +764,18 @@ public class Tween: Animation, Tweenable {
 	}
 	
 	private func propertyForType(type: Property) -> TweenProperty? {
-		if let key = TweenUtils.propertyKeyForType(type) {
+		if let key = type.key() {
 			var prop = propertiesByType[key]
 			
 			if prop == nil {
-				switch key {
-				case PropertyKey.Position.rawValue:
+				switch type {
+				case .Position:
 					if let origin = tweenObject.origin {
 						prop = PointProperty(target: tweenObject, from: origin, to: origin)
 					} else {
 						assert(false, "Cannot tween non-existent property `origin` for target.")
 					}
-				case PropertyKey.Center.rawValue:
+				case .Center:
 					if let center = tweenObject.center {
 						prop = PointProperty(target: tweenObject, from: center, to: center)
 						if let pointProp = prop as? PointProperty {
@@ -643,81 +784,81 @@ public class Tween: Animation, Tweenable {
 					} else {
 						assert(false, "Cannot tween non-existent property `center` for target.")
 					}
-				case PropertyKey.Size.rawValue:
+				case .Size:
 					if let size = tweenObject.size {
 						prop = SizeProperty(target: tweenObject, from: size, to: size)
 					} else {
 						assert(false, "Cannot tween non-existent property `size` for target.")
 					}
-				case PropertyKey.Transform.rawValue:
+				case .Transform, .Translate, .Scale, .ScaleXY, .Rotate, .RotateX, .RotateY:
 					prop = TransformProperty(target: tweenObject)
-				case PropertyKey.Alpha.rawValue:
+				case .Alpha:
 					if let alpha = tweenObject.alpha {
 						let key = (target is CALayer) ? "opacity" : "alpha"
 						prop = ObjectProperty(target: tweenObject, keyPath: key, from: alpha, to: alpha)
 					} else {
 						assert(false, "Cannot tween non-existent property `alpha` for target.")
 					}
-				case PropertyKey.BackgroundColor.rawValue:
+				case .BackgroundColor:
 					if let color = tweenObject.backgroundColor {
 						prop = ColorProperty(target: tweenObject, property: "backgroundColor", from: color, to: color)
 					} else {
 						assert(false, "Cannot tween property `backgroundColor`, initial value for object is nil.")
 					}
-				case PropertyKey.FillColor.rawValue:
+				case .FillColor:
 					if let color = tweenObject.fillColor {
 						prop = ColorProperty(target: tweenObject, property: "fillColor", from: color, to: color)
 					} else {
 						assert(false, "Cannot tween property `fillColor`, initial value for object is nil.")
 					}
-				case PropertyKey.StrokeColor.rawValue:
+				case .StrokeColor:
 					if let color = tweenObject.strokeColor {
 						prop = ColorProperty(target: tweenObject, property: "strokeColor", from: color, to: color)
 					} else {
 						assert(false, "Cannot tween property `strokeColor`, initial value for object is nil.")
 					}
-				case PropertyKey.TintColor.rawValue:
+				case .TintColor:
 					if let color = tweenObject.tintColor {
 						prop = ColorProperty(target: tweenObject, property: "tintColor", from: color, to: color)
 					} else {
 						assert(false, "Cannot tween property `tintColor`, initial value for object is nil.")
 					}
-				case PropertyKey.X.rawValue:
+				case .X:
 					if let frame = tweenObject.frame {
 						let value = CGRectGetMinX(frame)
 						prop = StructProperty(target: tweenObject, from: value, to: value)
 					} else {
 						assert(false, "Cannot tween non-existent property `frame` for target.")
 					}
-				case PropertyKey.Y.rawValue:
+				case .Y:
 					if let frame = tweenObject.frame {
 						let value = CGRectGetMinY(frame)
 						prop = StructProperty(target: tweenObject, from: value, to: value)
 					} else {
 						assert(false, "Cannot tween non-existent property `frame` for target.")
 					}
-				case PropertyKey.CenterX.rawValue:
+				case .CenterX:
 					if let frame = tweenObject.frame {
 						let value = CGRectGetMidX(frame)
 						prop = StructProperty(target: tweenObject, from: value, to: value)
 					} else {
 						assert(false, "Cannot tween non-existent property `frame` for target.")
 					}
-				case PropertyKey.CenterY.rawValue:
+				case .CenterY:
 					if let frame = tweenObject.frame {
 						let value = CGRectGetMidY(frame)
 						prop = StructProperty(target: tweenObject, from: value, to: value)
 					} else {
 						assert(false, "Cannot tween non-existent property `frame` for target.")
 					}
-				case PropertyKey.Width.rawValue:
+				case .Width:
 					if let frame = tweenObject.frame {
 						let value = CGRectGetWidth(frame)
 						prop = StructProperty(target: tweenObject, from: value, to: value)
 					} else {
 						assert(false, "Cannot tween non-existent property `frame` for target.")
 					}
-				case PropertyKey.Height.rawValue:
+				case .Height:
 					if let frame = tweenObject.frame {
 						let value = CGRectGetHeight(frame)
 						prop = StructProperty(target: tweenObject, from: value, to: value)

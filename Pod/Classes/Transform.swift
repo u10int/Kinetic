@@ -8,7 +8,13 @@
 
 import UIKit
 
-public struct Point: VectorType, Equatable {
+
+public protocol VectorProp: Equatable {
+	static var zero: Self { get }
+	static var key: String { get }
+}
+
+public struct Point: VectorProp, Equatable {
 	public var x: CGFloat
 	public var y: CGFloat
 	
@@ -39,56 +45,56 @@ public func ==(lhs: Point, rhs: Point) -> Bool {
 	return lhs.x == rhs.x && lhs.y == rhs.y
 }
 
-public struct Size: VectorType, Equatable {
-	public var width: CGFloat
-	public var height: CGFloat
-	
-	public static var key: String {
-		return "size"
-	}
-	
-	public static var zero: Size {
-		return Size(width: 0, height: 0)
-	}
-}
-public func ==(lhs: Size, rhs: Size) -> Bool {
-	return lhs.width == rhs.width && lhs.height == rhs.height
-}
+//public struct Size: VectorType, Equatable {
+//	public var width: CGFloat
+//	public var height: CGFloat
+//	
+//	public static var key: String {
+//		return "size"
+//	}
+//	
+//	public static var zero: Size {
+//		return Size(width: 0, height: 0)
+//	}
+//}
+//public func ==(lhs: Size, rhs: Size) -> Bool {
+//	return lhs.width == rhs.width && lhs.height == rhs.height
+//}
 
-public struct Shift: VectorType, Equatable {
-	public var x: CGFloat
-	public var y: CGFloat
-	
-	public static var key: String {
-		return "shift"
-	}
-	
-	public static var zero: Shift {
-		return Shift(x: 0, y: 0)
-	}
-	
-	init(x: CGFloat, y: CGFloat) {
-		self.x = x
-		self.y = y
-	}
-	
-	init(x: CGFloat) {
-		self.x = x
-		self.y = 0
-	}
-	
-	init(y: CGFloat) {
-		self.x = 0
-		self.y = y
-	}
-}
-public func ==(lhs: Shift, rhs: Shift) -> Bool {
-	return lhs.x == rhs.x && lhs.y == rhs.y
-}
+//public struct Shift: VectorType, Equatable {
+//	public var x: CGFloat
+//	public var y: CGFloat
+//	
+//	public static var key: String {
+//		return "shift"
+//	}
+//	
+//	public static var zero: Shift {
+//		return Shift(x: 0, y: 0)
+//	}
+//	
+//	init(x: CGFloat, y: CGFloat) {
+//		self.x = x
+//		self.y = y
+//	}
+//	
+//	init(x: CGFloat) {
+//		self.x = x
+//		self.y = 0
+//	}
+//	
+//	init(y: CGFloat) {
+//		self.x = 0
+//		self.y = y
+//	}
+//}
+//public func ==(lhs: Shift, rhs: Shift) -> Bool {
+//	return lhs.x == rhs.x && lhs.y == rhs.y
+//}
 
 // MARK: - Transforms
 
-public struct Scale: VectorType, Equatable {
+public struct Scale: VectorProp, Equatable {
 	public var x: CGFloat
 	public var y: CGFloat
 	public var z: CGFloat
@@ -105,7 +111,7 @@ public func ==(lhs: Scale, rhs: Scale) -> Bool {
 	return lhs.x == rhs.x && lhs.y == rhs.y
 }
 
-public struct Rotation: VectorType, Equatable {
+public struct Rotation: VectorProp, Equatable {
 	public var angle: CGFloat
 	public var x: CGFloat
 	public var y: CGFloat
@@ -123,7 +129,7 @@ public func ==(lhs: Rotation, rhs: Rotation) -> Bool {
 	return (lhs.angle == rhs.angle && lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z)
 }
 
-public struct Translation: VectorType, Equatable {
+public struct Translation: VectorProp, Equatable {
 	public var x: CGFloat
 	public var y: CGFloat
 	

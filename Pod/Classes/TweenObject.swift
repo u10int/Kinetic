@@ -16,6 +16,26 @@ class TweenObject {
 		antialiasing = true
 	}
 	
+//	var position: Position? {
+//		get {
+//			if let layer = target as? CALayer {
+//				return Position(layer.position.x, layer.position.y)
+//			} else if let view = target as? UIView {
+//				return Position(view.frame.origin.x, view.frame.origin.y)
+//			}
+//			return nil
+//		}
+//		set(newValue) {
+//			if let value = newValue {
+//				if let layer = target as? CALayer {
+//					layer.frame.origin = value.CGPointValue
+//				} else if let view = target as? UIView {
+//					view.frame.origin = value.CGPointValue
+//				}
+//			}
+//		}
+//	}
+	
 	var origin: CGPoint? {
 		get {
 			if let layer = target as? CALayer {
@@ -360,6 +380,18 @@ class TweenObject {
 				}
 			}
 		}
+	}
+	
+	// MARK: VectorType Utilities
+	
+	func currentValueForTweenProp(prop: TweenProp) -> TweenProp? {
+		var vectorValue: TweenProp?
+		
+		if let position = origin where prop is PositionProp {
+			vectorValue = PositionProp(position.x, position.y)
+		}
+		
+		return vectorValue
 	}
 	
 	// MARK: Private Methods

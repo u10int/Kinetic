@@ -32,6 +32,49 @@ public enum Property {
 	case StrokeColor(UIColor)
 	case TintColor(UIColor)
 	case KeyPath(String, CGFloat)
+	
+	public func key() -> String? {
+		var key: String?
+		
+		switch self {
+		case X:
+			key = "frame.origin.x"
+		case Y:
+			key = "frame.origin.y"
+		case Position, Shift:
+			key = "frame.origin"
+		case CenterX:
+			key = "center.x"
+		case CenterY:
+			key = "center.y"
+		case Center:
+			key = "center"
+		case Width:
+			key = "frame.size.width"
+		case Height:
+			key = "frame.size.height"
+		case Size:
+			key = "frame.size"
+		case Transform, Translate, Scale, ScaleXY, Rotate, RotateX, RotateY:
+			key = "transform"
+		case Alpha:
+			key = "alpha"
+		case BackgroundColor:
+			key = "backgroundColor"
+		case FillColor:
+			key = "fillColor"
+		case StrokeColor:
+			key = "strokeColor"
+		case TintColor:
+			key = "tintColor"
+		case KeyPath(let prop, _):
+			key = prop
+		default:
+			key = nil
+		}
+		
+		return key
+	}
 }
 
 public enum Anchor {

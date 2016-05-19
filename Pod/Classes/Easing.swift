@@ -11,21 +11,64 @@
 
 import UIKit
 
+public protocol TimingFunctionType {
+	func solveForTime(x: Double) -> Double
+}
+
+public struct LinearTimingFunction: TimingFunctionType {
+	public init() {}
+	
+	public func solveForTime(x: Double) -> Double {
+		return x
+	}
+}
+
+extension UnitBezier: TimingFunctionType {
+	
+	public func solveForTime(x: Double) -> Double {
+		return solve(x)
+	}
+}
+
 // MARK: - Easing
 
 public typealias Ease = (t: CGFloat, b: CGFloat, c: CGFloat) -> CGFloat
 
-public struct Easing {
+public struct Easing: TimingFunctionType {
+	var bezier: UnitBezier
+	
+	public enum EasingType {
+		case SineIn
+		case SineOut
+		case SineInOut
+	}
+	
+	public init(_ easing: EasingType) {
+		switch easing {
+		case .SineIn:
+			bezier = UnitBezier(0.47, 0, 0.745, 0.715)
+		case .SineOut:
+			bezier = UnitBezier(0.39, 0.575, 0.565, 1)
+		case .SineInOut:
+			bezier = UnitBezier(0.455, 0.03, 0.515, 0.955)
+		}
+	}
+	
+	public func solveForTime(x: Double) -> Double {
+		return bezier.solve(x)
+	}
+	
+	
 	public static let linear:Ease = { (t: CGFloat, b: CGFloat, c: CGFloat) -> CGFloat in
 		return c * t + b
 	}
 	
 	// return easing with cubic bezier curve
-	public static func cubicBezier(c1x: CGFloat, _ c1y: CGFloat, _ c2x: CGFloat, _ c2y: CGFloat) -> Ease {
-		let bezier = UnitBezier(p1x: c1x, p1y: c1y, p2x: c2x, p2y: c2y)
+	public static func cubicBezier(c1x: Double, _ c1y: Double, _ c2x: Double, _ c2y: Double) -> Ease {
+		let bezier = UnitBezier(c1x, c1y, c2x, c2y)
 		return { (t: CGFloat, b: CGFloat, c: CGFloat) -> CGFloat in
-			let y = bezier.solve(t)
-			return c * y + b
+			let y = bezier.solve(Double(t))
+			return c * CGFloat(y) + b
 		}
 	}
 	
@@ -61,17 +104,39 @@ public struct Easing {
 // This implementation is based on WebCore Bezier implmentation
 // http://opensource.apple.com/source/WebCore/WebCore-955.66/platform/graphics/UnitBezier.h
 
-private let epsilon: CGFloat = 1.0 / 1000
+private let epsilon: Double = 1.0 / 1000
 
-struct UnitBezier {
-	var ax: CGFloat
-	var ay: CGFloat
-	var bx: CGFloat
-	var by: CGFloat
-	var cx: CGFloat
-	var cy: CGFloat
+public struct UnitBezier {
+	public var p1x: Double
+	public var p1y: Double
+	public var p2x: Double
+	public var p2y: Double
 	
-	init(p1x: CGFloat, p1y: CGFloat, p2x: CGFloat, p2y: CGFloat) {
+	public init(_ p1x: Double, _ p1y: Double, _ p2x: Double, _ p2y: Double) {
+		self.p1x = p1x
+		self.p1y = p1y
+		self.p2x = p2x
+		self.p2y = p2y
+	}
+	
+	public func solve(x: Double) -> Double {
+		return UnitBezierSover(bezier: self).solve(x)
+	}
+}
+
+private struct UnitBezierSover {
+	var ax: Double
+	var ay: Double
+	var bx: Double
+	var by: Double
+	var cx: Double
+	var cy: Double
+	
+	init(bezier: UnitBezier) {
+		self.init(p1x: bezier.p1x, p1y: bezier.p1y, p2x: bezier.p2x, p2y: bezier.p2y)
+	}
+	
+	init(p1x: Double, p1y: Double, p2x: Double, p2y: Double) {
 		cx = 3 * p1x
 		bx = 3 * (p2x - p1x) - cx
 		ax = 1 - cx - bx
@@ -80,20 +145,20 @@ struct UnitBezier {
 		ay = 1.0 - cy - by
 	}
 	
-	func sampleCurveX(t: CGFloat) -> CGFloat {
+	func sampleCurveX(t: Double) -> Double {
 		return ((ax * t + bx) * t + cx) * t
 	}
 	
-	func sampleCurveY(t: CGFloat) -> CGFloat {
+	func sampleCurveY(t: Double) -> Double {
 		return ((ay * t + by) * t + cy) * t
 	}
 	
-	func sampleCurveDerivativeX(t: CGFloat) -> CGFloat {
+	func sampleCurveDerivativeX(t: Double) -> Double {
 		return (3.0 * ax * t + 2.0 * bx) * t + cx
 	}
 	
-	func solveCurveX(x: CGFloat) -> CGFloat {
-		var t0, t1, t2, x2, d2: CGFloat
+	func solveCurveX(x: Double) -> Double {
+		var t0, t1, t2, x2, d2: Double
 		
 		// first try a few iterations of Newton's method -- normally very fast
 		t2 = x
@@ -138,7 +203,7 @@ struct UnitBezier {
 		return t2
 	}
 	
-	func solve(x: CGFloat) -> CGFloat {
+	func solve(x: Double) -> Double {
 		return sampleCurveY(solveCurveX(x))
 	}
 }

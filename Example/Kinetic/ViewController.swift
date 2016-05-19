@@ -49,11 +49,25 @@ class ViewController: UIViewController {
 		rows.append(TimelineViewController())
 		rows.append(CountingLabelViewController())
 		rows.append(PreloaderViewController())
+		
+		
+		square = UIView(frame: CGRect(x: 20, y: 20, width: 50, height: 50))
+		square.backgroundColor = UIColor.redColor()
+		view.addSubview(square)
+		
+		var pos = PositionProp(50, 60)
 	}
 	
 	override func viewWillAppear(animated: Bool) {
 		super.viewWillAppear(animated)
 		tableView.reloadData()
+	}
+	
+	override func viewDidAppear(animated: Bool) {
+		super.viewDidAppear(animated)
+		
+//		let t = Tween(target: square).toTest(Position(x: 200)).to(.X(100)).duration(0.5).delay(0.5)
+//		t.play()
 	}
 }
 

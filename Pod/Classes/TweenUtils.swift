@@ -29,56 +29,56 @@ enum PropertyKey: String {
 
 class TweenUtils {
 	
-	static func propertyKeyForType(type: Property) -> String? {
-		var propKey: String?
-		
-		switch type {
-		case .KeyPath(let key, _):
-			propKey = key
-		case .Alpha(_):
-			propKey = PropertyKey.Alpha.rawValue
-		case .BackgroundColor(_):
-			propKey = PropertyKey.BackgroundColor.rawValue
-		case .FillColor(_):
-			propKey = PropertyKey.FillColor.rawValue
-		case .StrokeColor(_):
-			propKey = PropertyKey.StrokeColor.rawValue
-		case .TintColor(_):
-			propKey = PropertyKey.TintColor.rawValue
-		case .X(_):
-			propKey = PropertyKey.X.rawValue
-		case .Y(_):
-			propKey = PropertyKey.Y.rawValue
-		case .Position(_, _), .Shift(_, _):
-			propKey = PropertyKey.Position.rawValue
-		case .CenterX(_):
-			propKey = PropertyKey.CenterX.rawValue
-		case .CenterY(_):
-			propKey = PropertyKey.CenterY.rawValue
-		case .Center(_, _):
-			propKey = PropertyKey.Center.rawValue
-		case .Width(_):
-			propKey = PropertyKey.Width.rawValue
-		case .Height(_):
-			propKey = PropertyKey.Height.rawValue
-		case .Size(_, _):
-			propKey = PropertyKey.Size.rawValue
-		case .Translate(_, _):
-			propKey = PropertyKey.Transform.rawValue
-		case .Scale(_), .ScaleXY(_, _):
-			propKey = PropertyKey.Transform.rawValue
-		case .Rotate(_):
-			propKey = PropertyKey.Transform.rawValue
-		case .RotateX(_):
-			propKey = PropertyKey.Transform.rawValue
-		case .RotateY(_):
-			propKey = PropertyKey.Transform.rawValue
-		default:
-			propKey = PropertyKey.Transform.rawValue
-		}
-		
-		return propKey
-	}
+//	static func propertyKeyForType(type: Property) -> String? {
+//		var propKey: String?
+//		
+//		switch type {
+//		case .KeyPath(let key, _):
+//			propKey = key
+//		case .Alpha(_):
+//			propKey = PropertyKey.Alpha.rawValue
+//		case .BackgroundColor(_):
+//			propKey = PropertyKey.BackgroundColor.rawValue
+//		case .FillColor(_):
+//			propKey = PropertyKey.FillColor.rawValue
+//		case .StrokeColor(_):
+//			propKey = PropertyKey.StrokeColor.rawValue
+//		case .TintColor(_):
+//			propKey = PropertyKey.TintColor.rawValue
+//		case .X(_):
+//			propKey = PropertyKey.X.rawValue
+//		case .Y(_):
+//			propKey = PropertyKey.Y.rawValue
+//		case .Position(_, _), .Shift(_, _):
+//			propKey = PropertyKey.Position.rawValue
+//		case .CenterX(_):
+//			propKey = PropertyKey.CenterX.rawValue
+//		case .CenterY(_):
+//			propKey = PropertyKey.CenterY.rawValue
+//		case .Center(_, _):
+//			propKey = PropertyKey.Center.rawValue
+//		case .Width(_):
+//			propKey = PropertyKey.Width.rawValue
+//		case .Height(_):
+//			propKey = PropertyKey.Height.rawValue
+//		case .Size(_, _):
+//			propKey = PropertyKey.Size.rawValue
+//		case .Translate(_, _):
+//			propKey = PropertyKey.Transform.rawValue
+//		case .Scale(_), .ScaleXY(_, _):
+//			propKey = PropertyKey.Transform.rawValue
+//		case .Rotate(_):
+//			propKey = PropertyKey.Transform.rawValue
+//		case .RotateX(_):
+//			propKey = PropertyKey.Transform.rawValue
+//		case .RotateY(_):
+//			propKey = PropertyKey.Transform.rawValue
+//		default:
+//			propKey = PropertyKey.Transform.rawValue
+//		}
+//		
+//		return propKey
+//	}
 	
 	static func sortProperties(props: [TweenProperty]) -> [TweenProperty] {
 		var sorted = [TweenProperty]()
