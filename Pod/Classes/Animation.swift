@@ -15,8 +15,8 @@ public protocol Animatable: AnyObject {
 	var paused: Bool { get }
 	var animating: Bool { get }
 	var reversed: Bool { get }
-	var delay: CFTimeInterval { get set }
-	var duration: CFTimeInterval { get set }
+	var delay: CFTimeInterval { get }
+	var duration: CFTimeInterval { get }
 	var repeatCount: Int { get set }
 	var startTime: CFTimeInterval { get set }
 	var endTime: CFTimeInterval { get }
@@ -67,8 +67,8 @@ public class Animation: NSObject, Animatable {
 			return _reversed
 		}
 	}
-	public var delay: CFTimeInterval = 0
-	public var duration: CFTimeInterval = 1.0 {
+	private (set) public var delay: CFTimeInterval = 0
+	private (set) public var duration: CFTimeInterval = 1.0 {
 		didSet {
 			if duration == 0 {
 				duration = 0.001

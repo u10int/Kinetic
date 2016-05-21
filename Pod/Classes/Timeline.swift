@@ -42,9 +42,6 @@ public class Timeline: Animation, Tweenable {
 		get {
 			return endTime
 		}
-		set(newValue) {
-			
-		}
 	}
 	override public var totalTime: CFTimeInterval {
 		get {

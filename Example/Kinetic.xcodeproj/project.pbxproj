@@ -25,8 +25,8 @@
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		607FACEC1AFB9204008FA782 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACEB1AFB9204008FA782 /* Tests.swift */; };
+		685111D40535E3DB15EE94F1 /* Pods_Kinetic_Example_Kinetic_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DAF2099A2374D66AB7DA2843 /* Pods_Kinetic_Example_Kinetic_Tests.framework */; };
 		DBB59FC7F0891A788D463986 /* Pods_Kinetic_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB4B34B362A77B924B4340F6 /* Pods_Kinetic_Example.framework */; };
-		E4A8970D772C8645650D6593 /* Pods_Kinetic_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE47DD470EFABDEFAE533DB5 /* Pods_Kinetic_Tests.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,10 +64,13 @@
 		607FACE51AFB9204008FA782 /* Kinetic_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Kinetic_Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACEA1AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		607FACEB1AFB9204008FA782 /* Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
+		61932E10D6EBF6EF59D309E8 /* Pods-Kinetic_Example-Kinetic_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Kinetic_Example-Kinetic_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-Kinetic_Example-Kinetic_Tests/Pods-Kinetic_Example-Kinetic_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		805767E4A57CB73634869A62 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		9B224A87C983498497789082 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		9B52F03AC763157308BAAB55 /* Pods-Kinetic_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Kinetic_Example.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Kinetic_Example/Pods-Kinetic_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		AB4B34B362A77B924B4340F6 /* Pods_Kinetic_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Kinetic_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D7D0B9952BA18950E327634B /* Pods-Kinetic_Example-Kinetic_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Kinetic_Example-Kinetic_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Kinetic_Example-Kinetic_Tests/Pods-Kinetic_Example-Kinetic_Tests.debug.xcconfig"; sourceTree = "<group>"; };
+		DAF2099A2374D66AB7DA2843 /* Pods_Kinetic_Example_Kinetic_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Kinetic_Example_Kinetic_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD780A8972C69AF424AC276C /* Pods-Kinetic_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Kinetic_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-Kinetic_Example/Pods-Kinetic_Example.release.xcconfig"; sourceTree = "<group>"; };
 		EE47DD470EFABDEFAE533DB5 /* Pods_Kinetic_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Kinetic_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F5ECE8E7A438ADD8A0869D1D /* Pods-Kinetic_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Kinetic_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-Kinetic_Tests/Pods-Kinetic_Tests.release.xcconfig"; sourceTree = "<group>"; };
@@ -86,7 +89,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E4A8970D772C8645650D6593 /* Pods_Kinetic_Tests.framework in Frameworks */,
+				685111D40535E3DB15EE94F1 /* Pods_Kinetic_Example_Kinetic_Tests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -100,6 +103,8 @@
 				DD780A8972C69AF424AC276C /* Pods-Kinetic_Example.release.xcconfig */,
 				4CDC10BBAE1AF6069638583D /* Pods-Kinetic_Tests.debug.xcconfig */,
 				F5ECE8E7A438ADD8A0869D1D /* Pods-Kinetic_Tests.release.xcconfig */,
+				D7D0B9952BA18950E327634B /* Pods-Kinetic_Example-Kinetic_Tests.debug.xcconfig */,
+				61932E10D6EBF6EF59D309E8 /* Pods-Kinetic_Example-Kinetic_Tests.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -191,6 +196,7 @@
 			children = (
 				AB4B34B362A77B924B4340F6 /* Pods_Kinetic_Example.framework */,
 				EE47DD470EFABDEFAE533DB5 /* Pods_Kinetic_Tests.framework */,
+				DAF2099A2374D66AB7DA2843 /* Pods_Kinetic_Example_Kinetic_Tests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -202,12 +208,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 607FACEF1AFB9204008FA782 /* Build configuration list for PBXNativeTarget "Kinetic_Example" */;
 			buildPhases = (
-				CDDBB23673D56ED057888D0A /* Check Pods Manifest.lock */,
+				CDDBB23673D56ED057888D0A /* 📦 Check Pods Manifest.lock */,
 				607FACCC1AFB9204008FA782 /* Sources */,
 				607FACCD1AFB9204008FA782 /* Frameworks */,
 				607FACCE1AFB9204008FA782 /* Resources */,
-				F64F3ED20FBC0B4042EE80E1 /* Embed Pods Frameworks */,
-				6CB171E4639ABE8D9FEA9475 /* Copy Pods Resources */,
+				F64F3ED20FBC0B4042EE80E1 /* 📦 Embed Pods Frameworks */,
+				6CB171E4639ABE8D9FEA9475 /* 📦 Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -222,12 +228,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 607FACF21AFB9204008FA782 /* Build configuration list for PBXNativeTarget "Kinetic_Tests" */;
 			buildPhases = (
-				4B864F18964018EC8C8660F5 /* Check Pods Manifest.lock */,
+				4B864F18964018EC8C8660F5 /* 📦 Check Pods Manifest.lock */,
 				607FACE11AFB9204008FA782 /* Sources */,
 				607FACE21AFB9204008FA782 /* Frameworks */,
 				607FACE31AFB9204008FA782 /* Resources */,
-				AF397C2BBC4903F9CEFD595A /* Embed Pods Frameworks */,
-				85B04003B3B9D80722BDE587 /* Copy Pods Resources */,
+				AF397C2BBC4903F9CEFD595A /* 📦 Embed Pods Frameworks */,
+				85B04003B3B9D80722BDE587 /* 📦 Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -298,14 +304,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		4B864F18964018EC8C8660F5 /* Check Pods Manifest.lock */ = {
+		4B864F18964018EC8C8660F5 /* 📦 Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Check Pods Manifest.lock";
+			name = "📦 Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -313,14 +319,14 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		6CB171E4639ABE8D9FEA9475 /* Copy Pods Resources */ = {
+		6CB171E4639ABE8D9FEA9475 /* 📦 Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Copy Pods Resources";
+			name = "📦 Copy Pods Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -328,44 +334,44 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Kinetic_Example/Pods-Kinetic_Example-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		85B04003B3B9D80722BDE587 /* Copy Pods Resources */ = {
+		85B04003B3B9D80722BDE587 /* 📦 Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Copy Pods Resources";
+			name = "📦 Copy Pods Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Kinetic_Tests/Pods-Kinetic_Tests-resources.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Kinetic_Example-Kinetic_Tests/Pods-Kinetic_Example-Kinetic_Tests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		AF397C2BBC4903F9CEFD595A /* Embed Pods Frameworks */ = {
+		AF397C2BBC4903F9CEFD595A /* 📦 Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Embed Pods Frameworks";
+			name = "📦 Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Kinetic_Tests/Pods-Kinetic_Tests-frameworks.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Kinetic_Example-Kinetic_Tests/Pods-Kinetic_Example-Kinetic_Tests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		CDDBB23673D56ED057888D0A /* Check Pods Manifest.lock */ = {
+		CDDBB23673D56ED057888D0A /* 📦 Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Check Pods Manifest.lock";
+			name = "📦 Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -373,14 +379,14 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		F64F3ED20FBC0B4042EE80E1 /* Embed Pods Frameworks */ = {
+		F64F3ED20FBC0B4042EE80E1 /* 📦 Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Embed Pods Frameworks";
+			name = "📦 Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -560,7 +566,7 @@
 		};
 		607FACF31AFB9204008FA782 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4CDC10BBAE1AF6069638583D /* Pods-Kinetic_Tests.debug.xcconfig */;
+			baseConfigurationReference = D7D0B9952BA18950E327634B /* Pods-Kinetic_Example-Kinetic_Tests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -581,7 +587,7 @@
 		};
 		607FACF41AFB9204008FA782 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = F5ECE8E7A438ADD8A0869D1D /* Pods-Kinetic_Tests.release.xcconfig */;
+			baseConfigurationReference = 61932E10D6EBF6EF59D309E8 /* Pods-Kinetic_Example-Kinetic_Tests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				FRAMEWORK_SEARCH_PATHS = (

@@ -27,14 +27,14 @@ public func animateAll(targets: [NSObject]) -> Timeline {
 
 public func set(target: NSObject, props: Property...) {
 	let tween = Tween(target: target, from: nil, to: props, mode: .To)
-	tween.duration = 0
+	tween.duration(0)
 	tween.seek(tween.duration)
 }
 
 public func setAll(targets: [NSObject], props: Property...) {
 	for (_, item) in targets.enumerate() {
 		let tween = Tween(target: item, from: nil, to: props, mode: .To)
-		tween.duration = 0
+		tween.duration(0)
 		tween.seek(tween.duration)
 	}
 }

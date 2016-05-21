@@ -47,13 +47,6 @@ public class Tween: Animation, Tweenable {
 			tweenObject.antialiasing = newValue
 		}
 	}
-	override public var duration: CFTimeInterval {
-		didSet {
-			for prop in properties {
-				prop.duration = duration
-			}
-		}
-	}
 	override public var totalTime: CFTimeInterval {
 		get {
 			return (elapsed - delay - staggerDelay)
@@ -68,6 +61,9 @@ public class Tween: Animation, Tweenable {
 	}
 	
 	var tweenObject: TweenObject
+	
+	private (set) public var easing: Ease = Easing.linear
+	
 	private var timeScale: Float = 1
 	private var staggerDelay: CFTimeInterval = 0
 	private var propertiesByType: Dictionary<String, TweenProperty> = [String: TweenProperty]()
@@ -159,6 +155,8 @@ public class Tween: Animation, Tweenable {
 	}
 	
 	public func ease(easing: Ease) -> Tween {
+		self.easing = easing
+		
 		for prop in properties {
 			prop.easing = easing
 		}
@@ -288,6 +286,8 @@ public class Tween: Animation, Tweenable {
 		needsPropertyPrep = true
 		for (_, prop) in propertiesByType {
 			prop.mode = tweenMode
+			prop.duration = duration
+			prop.easing = easing
 			prop.reset()
 			prop.calc()
 			
