@@ -54,6 +54,7 @@ public struct Easing {
 	public static let inBack:Ease = Easing.cubicBezier(0.6, -0.28, 0.735, 0.045)
 	public static let outBack:Ease = Easing.cubicBezier(0.175, 0.885, 0.32, 1.275)
 	public static let inOutBack:Ease = Easing.cubicBezier(0.68, -0.55, 0.265, 1.55)
+	public static let swiftOut:Ease = Easing.cubicBezier(0.4, 0.0, 0.2, 1)
 }
 
 // MARK: - Unit Bezier
