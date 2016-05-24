@@ -99,7 +99,7 @@ public class Tween: Animation, Tweenable {
 		super.duration(duration)
 		
 		for prop in properties {
-			prop.duration = duration
+			prop.duration = self.duration
 		}
 		return self
 	}

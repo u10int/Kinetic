@@ -26,16 +26,12 @@ public func animateAll(targets: [NSObject]) -> Timeline {
 }
 
 public func set(target: NSObject, props: Property...) {
-	let tween = Tween(target: target, from: nil, to: props, mode: .To)
-	tween.duration(0)
-	tween.seek(tween.duration)
+	set(target, props: props)
 }
 
 public func setAll(targets: [NSObject], props: Property...) {
-	for (_, item) in targets.enumerate() {
-		let tween = Tween(target: item, from: nil, to: props, mode: .To)
-		tween.duration(0)
-		tween.seek(tween.duration)
+	for (_, target) in targets.enumerate() {
+		set(target, props: props)
 	}
 }
 
@@ -62,4 +58,13 @@ public func killAll() {
 		tweens.removeAll()
 	}
 	TweenManager.sharedInstance.removeAllFromCache()
+}
+
+// MARK: Private Methods
+
+private func set(target: NSObject, props: [Property]) {
+	let tween = Tween(target: target)
+	tween.to(props)
+	tween.duration(0)
+	tween.seek(tween.duration)
 }
