@@ -280,7 +280,7 @@ public class Timeline: Animation, Tweenable {
 	
 	public func stagger(offset: CFTimeInterval) -> Timeline {
 		for (idx, tween) in tweens.enumerate() {
-			tween.startTime = offset * CFTimeInterval(idx)
+			tween.startTime = tween.delay + offset * CFTimeInterval(idx)
 		}
 		return self
 	}
@@ -424,7 +424,7 @@ public class Timeline: Animation, Tweenable {
 		
 		// if animation doesn't repeat forever, cap elapsed time to endTime
 		if !repeatForever {
-			elapsed = min(elapsed, endTime)
+			elapsed = min(elapsed, (delay + endTime))
 		}
 		
 		// check for callbacks
@@ -436,7 +436,7 @@ public class Timeline: Animation, Tweenable {
 				}
 			}
 		}
-		
+				
 		if elapsed < (delay + repeatDelay) {
 			if reversed {
 				return completed()
@@ -459,7 +459,7 @@ public class Timeline: Animation, Tweenable {
 		updateBlock?(self)
 		
 		// make sure we don't consider timeline done if we currently don't have any tweens playing
-		done = (elapsed <= delay || elapsed >= endTime)
+		done = (elapsed <= delay || elapsed >= (delay + endTime))
 		if done {
 			return completed()
 		}
