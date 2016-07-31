@@ -134,14 +134,14 @@ public class TweenManager {
 		return tweenCache[target]
 	}
 	
-	func lastPropertyForTarget(target: NSObject, type: Property) -> TweenProperty? {
-		let props = propertiesForTarget(target, type: type)
-		
-		if props.count > 1 {
-			return props[props.count - 2]
-		}
-		return nil
-	}
+//	func lastPropertyForTarget(target: NSObject, type: Property) -> TweenProperty? {
+//		let props = propertiesForTarget(target, type: type)
+//		
+//		if props.count > 1 {
+//			return props[props.count - 2]
+//		}
+//		return nil
+//	}
 	
 	// MARK: Private Methods
 	
@@ -158,17 +158,17 @@ public class TweenManager {
 		return contains
 	}
 	
-	private func propertiesForTarget(target: NSObject, type: Property) -> [TweenProperty] {
-		var props = [TweenProperty]()
-		
-		if let tweens = tweensOfTarget(target) {
-			for tween in tweens {
-				if let prop = tween.storedPropertyForType(type) {
-					props.append(prop)
-				}
-			}
-		}
-		
-		return props
-	}
+//	private func propertiesForTarget(target: NSObject, type: Property) -> [TweenProperty] {
+//		var props = [TweenProperty]()
+//		
+//		if let tweens = tweensOfTarget(target) {
+//			for tween in tweens {
+//				if let prop = tween.storedPropertyForType(type) {
+//					props.append(prop)
+//				}
+//			}
+//		}
+//		
+//		return props
+//	}
 }

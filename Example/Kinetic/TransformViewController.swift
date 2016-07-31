@@ -38,8 +38,8 @@ class TransformViewController: ExampleViewController {
 		blueSquare.backgroundColor = UIColor ( red: 0.0, green: 0.6126, blue: 0.9743, alpha: 1.0 )
 		view.addSubview(blueSquare)
 				
-		let timeline = Kinetic.animateAll([greenSquare, blueSquare]).to(.RotateY(CGFloat(M_PI_2))).duration(1)
-		timeline.ease(Easing.inOutSine).perspective(1 / -1000).yoyo().repeatCount(3)
+		let timeline = Kinetic.animateAll([greenSquare, blueSquare]).to(Rotation(y: CGFloat(M_PI_2))).duration(1)
+		timeline.ease(.SineInOut).perspective(1 / -1000).yoyo().repeatCount(3)
 		animation = timeline
 	}
 	

@@ -32,7 +32,7 @@ class BasicFromTweenViewController: ExampleViewController {
 		square.backgroundColor = UIColor.redColor()
 		view.addSubview(square)
 				
-		let tween = Kinetic.animate(square).from(.X(50), .Height(10)).duration(0.5).ease(Easing.inOutQuart)
+		let tween = Kinetic.animate(square).from(Position(x: 50), Size(height: 10)).duration(0.5).ease(.QuartInOut)
 		animation = tween
 	}
 	

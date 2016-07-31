@@ -560,147 +560,147 @@ public class TransformProperty: TweenProperty {
 		propsByMode[mode]?.append(prop)
 	}
 	
-	override func prepare() {
-		var scaleFrom = false, scaleTo = false
-		var rotateFrom = false, rotateTo = false
-		var translateFrom = false, translateTo = false
-		
-		for (mode, props) in propsByMode {
-			propOrder.removeAll()
-			
-			for prop in props {
-				switch prop {
-				case .Translate(_, _):
-					if mode == .From {
-						translateFrom = true
-					} else {
-						translateTo = true
-					}
-					propOrder.append(Translation.key)
-				case .Scale(_), .ScaleXY(_, _):
-					if mode == .From {
-						scaleFrom = true
-					} else {
-						scaleTo = true
-					}
-					propOrder.append(Scale.key)
-				case .Rotate(_), .RotateX(_), .RotateY(_):
-					if mode == .From {
-						rotateFrom = true
-					} else {
-						rotateTo = true
-					}
-					propOrder.append(Rotation.key)
-				default:
-					let _ = to
-				}
-			}
-		}
-		
-		// if we dont' have a transform property specified for either `from` or `to`, then we need to set it to their current values
-		if let scale = tweenObject.scale {
-			if !scaleFrom {
-				from.scale = scale
-			}
-			if !scaleTo {
-				to.scale = scale
-			}
-		}
-		if let rotation = tweenObject.rotation {
-			if !rotateFrom {
-				from.rotation = rotation
-			}
-			if !rotateTo {
-				to.rotation = rotation
-			}
-		}
-		if let translation = tweenObject.translation {
-			if !translateFrom {
-				from.translation = translation
-			}
-			if !translateTo {
-				to.translation = translation
-			}
-		}
-		
-//		print("PREPARE: \(tweenObject.target) - from - \(from)")
-//		print("PREPARE: \(tweenObject.target) - to - \(to)")
-		
-		super.prepare()
-	}
-	
-	override func update() {
-		var t = Transform()
-		
-		t.scale.x = lerpFloat(from.scale.x, to: to.scale.x)
-		t.scale.y = lerpFloat(from.scale.y, to: to.scale.y)
-		t.scale.z = lerpFloat(from.scale.z, to: to.scale.z)
-		
-		t.rotation.angle = lerpFloat(from.rotation.angle, to: to.rotation.angle)
-		t.rotation.x = to.rotation.x
-		t.rotation.y = to.rotation.y
-		t.rotation.z = to.rotation.z
-		
-		t.translation.x = lerpFloat(from.translation.x, to: to.translation.x)
-		t.translation.y = lerpFloat(from.translation.y, to: to.translation.y)
-		
-		current = t
-//		print("\(tweenObject.target) - \(t)")
-		
-		updateTarget(t)
-	}
-	
-	private func updateTarget(value: Transform) {
-		tweenObject.transform = transformValue(value)
-	}
-	
-	private func transformValue(value: Transform) -> CATransform3D {
-		var t = CATransform3DIdentity
-		var removeTranslationForRotate = false
-		
-		// apply any existing transforms that aren't specified in this tween
-		if !propOrder.contains(Scale.key) {
-			t = CATransform3DScale(t, value.scale.x, value.scale.y, value.scale.z)
-		}
-		if !propOrder.contains(Rotation.key) {
-			t = CATransform3DRotate(t, value.rotation.angle, value.rotation.x, value.rotation.y, value.rotation.z)
-		}
-		if !propOrder.contains(Translation.key) {
-			t = CATransform3DTranslate(t, value.translation.x, value.translation.y, 0)
-			removeTranslationForRotate = true
-		}
-		
-		// make sure transforms are combined in the order in which they're specified for the tween
-		for key in propOrder {
-			switch key {
-			case Scale.key:
-				t = CATransform3DScale(t, value.scale.x, value.scale.y, value.scale.z)
-			case Rotation.key:
-				// if we have a translation, remove the translation before applying the rotation
-				if let translation = tweenObject.translation {
-					if removeTranslationForRotate && translation != Translation.zero {
-						t = CATransform3DTranslate(t, -value.translation.x, -value.translation.y, 0)
-					}
-				}
-				
-				t = CATransform3DRotate(t, value.rotation.angle, value.rotation.x, value.rotation.y, value.rotation.z)
-				
-				// add translation back
-				if let translation = tweenObject.translation {
-					if removeTranslationForRotate && translation != Translation.zero {
-						t = CATransform3DTranslate(t, value.translation.x, value.translation.y, 0)
-					}
-				}
-			case Translation.key:
-				t = CATransform3DTranslate(t, value.translation.x, value.translation.y, 0)
-			default:
-				let _ = t
-			}
-		}
-//		print("\(tweenObject.target) - \(t)")
-		
-		return t
-	}
+//	override func prepare() {
+//		var scaleFrom = false, scaleTo = false
+//		var rotateFrom = false, rotateTo = false
+//		var translateFrom = false, translateTo = false
+//		
+//		for (mode, props) in propsByMode {
+//			propOrder.removeAll()
+//			
+//			for prop in props {
+//				switch prop {
+//				case .Translate(_, _):
+//					if mode == .From {
+//						translateFrom = true
+//					} else {
+//						translateTo = true
+//					}
+//					propOrder.append(Translation.key)
+//				case .Scale(_), .ScaleXY(_, _):
+//					if mode == .From {
+//						scaleFrom = true
+//					} else {
+//						scaleTo = true
+//					}
+//					propOrder.append(Scale.key)
+//				case .Rotate(_), .RotateX(_), .RotateY(_):
+//					if mode == .From {
+//						rotateFrom = true
+//					} else {
+//						rotateTo = true
+//					}
+//					propOrder.append(Rotation.key)
+//				default:
+//					let _ = to
+//				}
+//			}
+//		}
+//		
+//		// if we dont' have a transform property specified for either `from` or `to`, then we need to set it to their current values
+//		if let scale = tweenObject.scale {
+//			if !scaleFrom {
+//				from.scale = scale
+//			}
+//			if !scaleTo {
+//				to.scale = scale
+//			}
+//		}
+//		if let rotation = tweenObject.rotation {
+//			if !rotateFrom {
+//				from.rotation = rotation
+//			}
+//			if !rotateTo {
+//				to.rotation = rotation
+//			}
+//		}
+//		if let translation = tweenObject.translation {
+//			if !translateFrom {
+//				from.translation = translation
+//			}
+//			if !translateTo {
+//				to.translation = translation
+//			}
+//		}
+//		
+////		print("PREPARE: \(tweenObject.target) - from - \(from)")
+////		print("PREPARE: \(tweenObject.target) - to - \(to)")
+//		
+//		super.prepare()
+//	}
+//	
+//	override func update() {
+//		var t = Transform()
+//		
+//		t.scale.x = lerpFloat(from.scale.x, to: to.scale.x)
+//		t.scale.y = lerpFloat(from.scale.y, to: to.scale.y)
+//		t.scale.z = lerpFloat(from.scale.z, to: to.scale.z)
+//		
+//		t.rotation.angle = lerpFloat(from.rotation.angle, to: to.rotation.angle)
+//		t.rotation.x = to.rotation.x
+//		t.rotation.y = to.rotation.y
+//		t.rotation.z = to.rotation.z
+//		
+//		t.translation.x = lerpFloat(from.translation.x, to: to.translation.x)
+//		t.translation.y = lerpFloat(from.translation.y, to: to.translation.y)
+//		
+//		current = t
+////		print("\(tweenObject.target) - \(t)")
+//		
+//		updateTarget(t)
+//	}
+//	
+//	private func updateTarget(value: Transform) {
+//		tweenObject.transform = transformValue(value)
+//	}
+//	
+//	private func transformValue(value: Transform) -> CATransform3D {
+//		var t = CATransform3DIdentity
+//		var removeTranslationForRotate = false
+//		
+//		// apply any existing transforms that aren't specified in this tween
+//		if !propOrder.contains(Scale.key) {
+//			t = CATransform3DScale(t, value.scale.x, value.scale.y, value.scale.z)
+//		}
+//		if !propOrder.contains(Rotation.key) {
+//			t = CATransform3DRotate(t, value.rotation.angle, value.rotation.x, value.rotation.y, value.rotation.z)
+//		}
+//		if !propOrder.contains(Translation.key) {
+//			t = CATransform3DTranslate(t, value.translation.x, value.translation.y, 0)
+//			removeTranslationForRotate = true
+//		}
+//		
+//		// make sure transforms are combined in the order in which they're specified for the tween
+//		for key in propOrder {
+//			switch key {
+//			case Scale.key:
+//				t = CATransform3DScale(t, value.scale.x, value.scale.y, value.scale.z)
+//			case Rotation.key:
+//				// if we have a translation, remove the translation before applying the rotation
+//				if let translation = tweenObject.translation {
+//					if removeTranslationForRotate && translation != Translation.zero {
+//						t = CATransform3DTranslate(t, -value.translation.x, -value.translation.y, 0)
+//					}
+//				}
+//				
+//				t = CATransform3DRotate(t, value.rotation.angle, value.rotation.x, value.rotation.y, value.rotation.z)
+//				
+//				// add translation back
+//				if let translation = tweenObject.translation {
+//					if removeTranslationForRotate && translation != Translation.zero {
+//						t = CATransform3DTranslate(t, value.translation.x, value.translation.y, 0)
+//					}
+//				}
+//			case Translation.key:
+//				t = CATransform3DTranslate(t, value.translation.x, value.translation.y, 0)
+//			default:
+//				let _ = t
+//			}
+//		}
+////		print("\(tweenObject.target) - \(t)")
+//		
+//		return t
+//	}
 }
 
 // MARK: - Color

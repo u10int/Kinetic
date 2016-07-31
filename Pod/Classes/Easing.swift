@@ -41,6 +41,34 @@ public struct Easing: TimingFunctionType {
 		case SineIn
 		case SineOut
 		case SineInOut
+		
+		case QuadIn
+		case QuadOut
+		case QuadInOut
+		
+		case CubicIn
+		case CubicOut
+		case CubicInOut
+		
+		case QuartIn
+		case QuartOut
+		case QuartInOut
+		
+		case QuintIn
+		case QuintOut
+		case QuintInOut
+		
+		case ExpoIn
+		case ExpoOut
+		case ExpoInOut
+		
+		case CircIn
+		case CircOut
+		case CircInOut
+		
+		case BackIn
+		case BackOut
+		case BackInOut
 	}
 	
 	public init(_ easing: EasingType) {
@@ -51,6 +79,55 @@ public struct Easing: TimingFunctionType {
 			bezier = UnitBezier(0.39, 0.575, 0.565, 1)
 		case .SineInOut:
 			bezier = UnitBezier(0.455, 0.03, 0.515, 0.955)
+			
+		case .QuadIn:
+			bezier = UnitBezier(0.55, 0.085, 0.68, 0.53)
+		case .QuadOut:
+			bezier = UnitBezier(0.25, 0.46, 0.45, 0.94)
+		case .QuadInOut:
+			bezier = UnitBezier(0.455, 0.03, 0.515, 0.955)
+			
+		case .CubicIn:
+			bezier = UnitBezier(0.55, 0.055, 0.675, 0.19)
+		case .CubicOut:
+			bezier = UnitBezier(0.215, 0.61, 0.355, 1)
+		case .CubicInOut:
+			bezier = UnitBezier(0.645, 0.045, 0.355, 1)
+		
+		case .QuartIn:
+			bezier = UnitBezier(0.895, 0.03, 0.685, 0.22)
+		case .QuartOut:
+			bezier = UnitBezier(0.165, 0.84, 0.44, 1)
+		case .QuartInOut:
+			bezier = UnitBezier(0.77, 0, 0.175, 1)
+			
+		case .QuintIn:
+			bezier = UnitBezier(0.755, 0.05, 0.855, 0.06)
+		case .QuintOut:
+			bezier = UnitBezier(0.23, 1, 0.32, 1)
+		case .QuintInOut:
+			bezier = UnitBezier(0.86,0,0.07,1)
+			
+		case .ExpoIn:
+			bezier = UnitBezier(0.95, 0.05, 0.795, 0.035)
+		case .ExpoOut:
+			bezier = UnitBezier(0.19, 1, 0.22, 1)
+		case .ExpoInOut:
+			bezier = UnitBezier(1, 0, 0, 1)
+			
+		case .CircIn:
+			bezier = UnitBezier(0.6, 0.04, 0.98, 0.335)
+		case .CircOut:
+			bezier = UnitBezier(0.075, 0.82, 0.165, 1)
+		case .CircInOut:
+			bezier = UnitBezier(0.785, 0.135, 0.15, 0.86)
+			
+		case .BackIn:
+			bezier = UnitBezier(0.6, -0.28, 0.735, 0.045)
+		case .BackOut:
+			bezier = UnitBezier(0.175, 0.885, 0.32, 1.275)
+		case .BackInOut:
+			bezier = UnitBezier(0.68, -0.55, 0.265, 1.55)
 		}
 	}
 	
@@ -76,24 +153,31 @@ public struct Easing: TimingFunctionType {
 	public static let inSine:Ease = Easing.cubicBezier(0.47,0,0.745,0.715)
 	public static let outSine:Ease = Easing.cubicBezier(0.39,0.575,0.565, 1)
 	public static let inOutSine:Ease = Easing.cubicBezier(0.455,0.03,0.515,0.955)
+	
 	public static let inQuad:Ease = Easing.cubicBezier(0.55, 0.085, 0.68, 0.53)
 	public static let outQuad:Ease = Easing.cubicBezier(0.25, 0.46, 0.45, 0.94)
 	public static let inOutQuad:Ease = Easing.cubicBezier(0.455, 0.03, 0.515, 0.955)
+	
 	public static let inCubic:Ease = Easing.cubicBezier(0.55, 0.055, 0.675, 0.19)
 	public static let outCubic:Ease = Easing.cubicBezier(0.215, 0.61, 0.355, 1)
 	public static let inOutCubic:Ease = Easing.cubicBezier(0.645, 0.045, 0.355, 1)
+	
 	public static let inQuart:Ease = Easing.cubicBezier(0.895, 0.03, 0.685, 0.22)
 	public static let outQuart:Ease = Easing.cubicBezier(0.165, 0.84, 0.44, 1)
 	public static let inOutQuart:Ease = Easing.cubicBezier(0.77, 0, 0.175, 1)
+	
 	public static let inQuint:Ease = Easing.cubicBezier(0.755, 0.05, 0.855, 0.06)
 	public static let outQuint:Ease = Easing.cubicBezier(0.23, 1, 0.32, 1)
 	public static let inOutQuint:Ease = Easing.cubicBezier(0.86,0,0.07,1)
+	
 	public static let inExpo:Ease = Easing.cubicBezier(0.95, 0.05, 0.795, 0.035)
 	public static let outExpo:Ease = Easing.cubicBezier(0.19, 1, 0.22, 1)
 	public static let inOutExpo:Ease = Easing.cubicBezier(1, 0, 0, 1)
+	
 	public static let inCirc:Ease = Easing.cubicBezier(0.6, 0.04, 0.98, 0.335)
 	public static let outCirc:Ease = Easing.cubicBezier(0.075, 0.82, 0.165, 1)
 	public static let inOutCirc:Ease = Easing.cubicBezier(0.785, 0.135, 0.15, 0.86)
+	
 	public static let inBack:Ease = Easing.cubicBezier(0.6, -0.28, 0.735, 0.045)
 	public static let outBack:Ease = Easing.cubicBezier(0.175, 0.885, 0.32, 1.275)
 	public static let inOutBack:Ease = Easing.cubicBezier(0.68, -0.55, 0.265, 1.55)

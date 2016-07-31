@@ -23,7 +23,7 @@ public enum TweenAlign {
 	case Start
 }
 
-public class Timeline: Animation, Tweenable {
+public class Timeline: Animation, Tweener {
 	public typealias TweenType = Timeline
 	public typealias AnimationType = Timeline
 	
@@ -228,14 +228,14 @@ public class Timeline: Animation, Tweenable {
 	
 	// MARK: Tweenable
 	
-	public func from(props: Property...) -> Timeline {
+	public func from(props: TweenProp...) -> Timeline {
 		for tween in tweens {
 			tween.from(props)
 		}
 		return self
 	}
 	
-	public func to(props: Property...) -> Timeline {
+	public func to(props: TweenProp...) -> Timeline {
 		for tween in tweens {
 			tween.to(props)
 		}
@@ -249,7 +249,7 @@ public class Timeline: Animation, Tweenable {
 		return self
 	}
 	
-	public func ease(easing: Ease) -> Timeline {
+	public func ease(easing: Easing.EasingType) -> Timeline {
 		for tween in tweens {
 			tween.ease(easing)
 		}

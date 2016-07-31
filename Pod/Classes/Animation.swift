@@ -328,6 +328,7 @@ public class Animation: NSObject, Animatable {
 		
 		if shouldRepeat {
 			repeatBlock?(self)
+			print("completed - repeating, reverseOnComplete: \(reverseOnComplete)")
 			if reverseOnComplete {
 				if reversed {
 					forward()

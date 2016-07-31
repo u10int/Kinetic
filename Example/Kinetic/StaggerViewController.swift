@@ -39,7 +39,7 @@ class StaggerViewController: ExampleViewController {
 			y = CGRectGetMaxY(square.frame) + 5
 		}
 				
-		let tween = Kinetic.animateAll(squares).to(.Width(200)).duration(1).stagger(0.08).spring(tension: 100, friction: 12)
+		let tween = Kinetic.animateAll(squares).to(Size(width: 200)).duration(1).stagger(0.08).spring(tension: 100, friction: 12)
 		animation = tween
 	}
 	

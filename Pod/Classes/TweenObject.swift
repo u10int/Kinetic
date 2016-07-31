@@ -16,26 +16,6 @@ class TweenObject {
 		antialiasing = true
 	}
 	
-//	var position: Position? {
-//		get {
-//			if let layer = target as? CALayer {
-//				return Position(layer.position.x, layer.position.y)
-//			} else if let view = target as? UIView {
-//				return Position(view.frame.origin.x, view.frame.origin.y)
-//			}
-//			return nil
-//		}
-//		set(newValue) {
-//			if let value = newValue {
-//				if let layer = target as? CALayer {
-//					layer.frame.origin = value.CGPointValue
-//				} else if let view = target as? UIView {
-//					view.frame.origin = value.CGPointValue
-//				}
-//			}
-//		}
-//	}
-	
 	var origin: CGPoint? {
 		get {
 			if let layer = target as? CALayer {
@@ -198,58 +178,17 @@ class TweenObject {
 	
 	var translation: Translation? {
 		get {
-			if let t = transform {
-				var value = Translation.zero
-				value.x = sqrt(t.m41 * t.m41)
-				value.y = sqrt(t.m42 * t.m42)
-				
-				let inv = CATransform3DInvert(t)
-				value.x = inv.m41 * -1
-				value.y = inv.m42 * -1
-				
-//				value.x = (value.x * inv.m11) + (value.y * inv.m21) + (0 * inv.m31) + inv.m41;
-//				value.y = (value.x * inv.m12) + (value.y * inv.m22) + (0 * inv.m32) + inv.m42;
-//				value.z = (value.x * inv.m13) + (value.y * inv.m23) + (0 * inv.m33) + inv.m43;
-//				print("current translation: \(value)")
-				
-				return value
-			}
-			return nil
+			return transform?.translation()
 		}
 	}
 	var scale: Scale? {
 		get {
-			if let t = transform {
-				var value = Scale.zero
-				value.x = sqrt((t.m11 * t.m11) + (t.m12 * t.m12) + (t.m13 * t.m13))
-				value.y = sqrt((t.m21 * t.m21) + (t.m22 * t.m22) + (t.m23 * t.m23))
-				
-//				value.x = t.m11
-//				value.y = t.m22
-				
-				return value
-			}
-			return nil
+			return transform?.scale()
 		}
 	}
 	var rotation: Rotation? {
 		get {
-			if let t = transform {
-				var value = Rotation.zero
-				value.angle = atan2(t.m12, t.m11)
-				value.z = 1
-				
-//				let inv = CATransform3DInvert(t)
-//				
-				// x rotation
-//				value.angle = acos(t.m11)
-				
-				// y rotation
-//				value.angle = asin(t.m12)
-				
-				return value
-			}
-			return nil
+			return transform?.rotation()
 		}
 	}
 	
@@ -330,7 +269,6 @@ class TweenObject {
 		set(newValue) {
 			if let value = newValue {
 				if let layer = target as? CAShapeLayer {
-					print("setting fill color to \(value)")
 					layer.fillColor = value.CGColor
 				}
 			}
@@ -384,11 +322,53 @@ class TweenObject {
 	
 	// MARK: VectorType Utilities
 	
+	func update(prop: TweenProp) {
+		if let prop = prop as? X, value = prop.value.toInterpolatable() as? CGFloat {
+			self.origin?.x = value
+		} else if let prop = prop as? Y, value = prop.value.toInterpolatable() as? CGFloat {
+			self.origin?.y = value
+		} else if let prop = prop as? Position, point = prop.value.toInterpolatable() as? CGPoint {
+			self.origin = point
+		} else if let prop = prop as? Center, center = prop.value.toInterpolatable() as? CGPoint {
+			self.center = center
+		} else if let prop = prop as? Size, size = prop.value.toInterpolatable() as? CGSize {
+			self.size = size
+		} else if let prop = prop as? Alpha, value = prop.value.toInterpolatable() as? CGFloat {
+			self.alpha = value
+		} else if let prop = prop as? BackgroundColor, value = prop.value.toInterpolatable() as? UIColor {
+			self.backgroundColor = value
+		} else if let prop = prop as? FillColor, value = prop.value.toInterpolatable() as? UIColor {
+			self.fillColor = value
+		}
+	}
+	
 	func currentValueForTweenProp(prop: TweenProp) -> TweenProp? {
 		var vectorValue: TweenProp?
 		
-		if let position = origin where prop is PositionProp {
-			vectorValue = PositionProp(position.x, position.y)
+		if let position = origin where prop is X || prop is Y {
+			if prop is X {
+				vectorValue = X(position.x)
+			} else {
+				vectorValue = Y(position.y)
+			}
+		} else if let position = origin where prop is Position {
+			vectorValue = Position(position.x, position.y)
+		} else if let center = center where prop is Center {
+			vectorValue = Center(center.x, center.y)
+		} else if let size = size where prop is Size {
+			vectorValue = Size(size.width, size.height)
+		} else if let alpha = alpha where prop is Alpha {
+			vectorValue = Alpha(alpha)
+		} else if let color = backgroundColor where prop is BackgroundColor {
+			vectorValue = BackgroundColor(color)
+		} else if let color = fillColor where prop is FillColor {
+			vectorValue = FillColor(color)
+		} else if let scale = scale where prop is Scale {
+			vectorValue = scale
+		} else if let rotation = rotation where prop is Rotation {
+			vectorValue = rotation
+		} else if let translation = translation where prop is Translation {
+			vectorValue = translation
 		}
 		
 		return vectorValue

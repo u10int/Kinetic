@@ -25,15 +25,17 @@ public func animateAll(targets: [NSObject]) -> Timeline {
 	return timeline
 }
 
-public func set(target: NSObject, props: Property...) {
-	let tween = Tween(target: target, from: nil, to: props, mode: .To)
+public func set(target: NSObject, props: TweenProp...) {
+	let tween = Tween(target: target)
+	tween.to(props)
 	tween.duration = 0
 	tween.seek(tween.duration)
 }
 
-public func setAll(targets: [NSObject], props: Property...) {
+public func setAll(targets: [NSObject], props: TweenProp...) {
 	for (_, item) in targets.enumerate() {
-		let tween = Tween(target: item, from: nil, to: props, mode: .To)
+		let tween = Tween(target: item)
+		tween.to(props)
 		tween.duration = 0
 		tween.seek(tween.duration)
 	}

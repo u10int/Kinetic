@@ -23,6 +23,7 @@ public enum InterpolatableType {
 	case Int
 	case NSNumber
 	case UIEdgeInsets
+	case Vector3
 }
 
 public protocol Interpolatable {
@@ -111,6 +112,12 @@ extension UIEdgeInsets: Interpolatable {
 	}
 }
 
+extension Vector3: Interpolatable {
+	public func vectorize() -> InterpolatableValue {
+		return InterpolatableValue(type: .Vector3, vectors: CGFloat(x), CGFloat(y), CGFloat(z))
+	}
+}
+
 public struct InterpolatableValue {
 	let type: InterpolatableType
 	var vectors: [CGFloat]
@@ -165,6 +172,8 @@ public struct InterpolatableValue {
 			return vectors[0]
 		case .UIEdgeInsets:
 			return UIEdgeInsetsMake(vectors[0], vectors[1], vectors[2], vectors[3])
+		case .Vector3:
+			return Vector3(Double(vectors[0]), Double(vectors[1]), Double(vectors[2]))
 		}
 	}
 }

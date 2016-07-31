@@ -8,24 +8,38 @@
 
 import Foundation
 
-final public class BasicAnimator {
-	private (set) public var from: TweenableValue
-	private (set) public var to: TweenableValue
+public protocol Animator {
+	var duration: Double { get }
+	var timingFunction: TimingFunctionType { get set }
+	var additive: Bool { get set }
+	var finished: Bool { get }
+	func seek(time: Double)
+	func reset()
+	func advance(time: Double)
+}
+
+final public class BasicAnimator: Animator {
+	private (set) public var from: TweenProp
+	private (set) public var to: TweenProp
 	private (set) public var duration: Double
 	
 	public var timingFunction: TimingFunctionType = LinearTimingFunction()
 	var spring: Spring?
 	public var additive: Bool = true
-	public var changed: ((BasicAnimator) -> Void)?
+	public var changed: ((BasicAnimator, TweenProp) -> Void)?
 	
 	public var finished: Bool {
-		return elapsed >= duration
+		if let spring = spring {
+			return spring.ended
+		}
+		return (!reversed && elapsed >= duration) || (reversed && elapsed <= 0)
 	}
 	
-	private (set) public var value: TweenableValue
+	private (set) public var value: TweenProp
 	private var elapsed: Double = 0.0
+	private var reversed = false
 	
-	public init(from: TweenableValue, to: TweenableValue, duration: Double, timingFunction: TimingFunctionType) {
+	public init(from: TweenProp, to: TweenProp, duration: Double, timingFunction: TimingFunctionType) {
 		self.from = from
 		self.to = to
 		self.duration = duration
@@ -35,30 +49,116 @@ final public class BasicAnimator {
 	
 	// MARK: Public Methods
 	
-	func seek(time: Double) {
-		advance(time)
+	public func seek(time: Double) {
+		elapsed = time
+		advance(0)
 	}
 	
-	func reset() {
+	public func reset() {
 		elapsed = 0
+		if let spring = spring {
+			spring.reset()
+		}
 	}
 	
-	func advance(time: Double) {
+	public func advance(time: Double) {
 		elapsed += time
+		elapsed = max(0, elapsed)
+		reversed = time < 0
 		
 		var progress = elapsed / duration
 		progress = max(progress, 0.0)
 		progress = min(progress, 1.0)
 		
-		let adjustedProgress = timingFunction.solveForTime(progress)
-//		value = from.interpolatable.interpolateTo(to.interpolatable, progress: adjustedProgress)
 		
+		var adjustedProgress = progress
+		if let spring = spring {
+			spring.proceed(time / duration)
+			adjustedProgress = spring.current
+		} else {
+			adjustedProgress = timingFunction.solveForTime(progress)
+		}
 		
-		print("Animator.advance() - elapsed: \(elapsed), progress: \(progress), adjusted: \(adjustedProgress)")
-		changed?(self)
+		let test = from.value.interpolatable.interpolateTo(to.value.interpolatable, progress: adjustedProgress)
+		value.apply(test)		
+//		print("Animator.advance() - elapsed: \(elapsed), progress: \(progress), from: \(from.value), to: \(to.value)")
+		changed?(self, value)
 	}
 	
-	func onChange(block: ((BasicAnimator) -> Void)?) {
+	public func onChange(block: ((BasicAnimator, TweenProp) -> Void)?) {
+		changed = block
+	}
+}
+
+
+final public class TransformAnimator: Animator {
+	private (set) public var from: Transform
+	private (set) public var to: Transform
+	private (set) public var duration: Double
+	
+	public var timingFunction: TimingFunctionType = LinearTimingFunction()
+	var spring: Spring?
+	public var additive: Bool = true
+	public var changed: ((Animator, Transform) -> Void)?
+	
+	public var finished: Bool {
+		return (!reversed && elapsed >= duration) || (reversed && elapsed <= 0)
+	}
+	
+	private (set) public var value: Transform
+	private var elapsed: Double = 0.0
+	private var reversed = false
+	
+	public init(from: Transform, to: Transform, duration: Double, timingFunction: TimingFunctionType) {
+		self.from = from
+		self.to = to
+		self.duration = duration
+		self.timingFunction = timingFunction
+		self.value = from
+	}
+	
+	// MARK: Public Methods
+	
+	public func seek(time: Double) {
+		elapsed = time
+		advance(0)
+	}
+	
+	public func reset() {
+		elapsed = 0
+	}
+	
+	public func advance(time: Double) {
+		elapsed += time
+		elapsed = max(0, elapsed)
+		reversed = time < 0
+		
+		var progress = elapsed / duration
+		progress = max(progress, 0.0)
+		progress = min(progress, 1.0)
+		
+		var adjustedProgress = progress
+		if let spring = spring {
+			spring.proceed(time / duration)
+			adjustedProgress = spring.current
+		} else {
+			adjustedProgress = timingFunction.solveForTime(progress)
+		}
+		
+		let scale = from.scale.value.interpolatable.interpolateTo(to.scale.value.interpolatable, progress: adjustedProgress)
+		let rotation = from.rotation.value.interpolatable.interpolateTo(to.rotation.value.interpolatable, progress: adjustedProgress)
+		let translation = from.translation.value.interpolatable.interpolateTo(to.translation.value.interpolatable, progress: adjustedProgress)
+		
+		value.scale.apply(scale)
+		value.rotation.apply(rotation)
+		value.translation.apply(translation)
+		
+//		print("Animator.advance() - elapsed: \(elapsed), progress: \(progress), from: \(from), to: \(to)")
+//		print("Animator: progress: \(adjustedProgress), current rotation: \(rotation)")
+		changed?(self, value)
+	}
+	
+	public func onChange(block: ((Animator, Transform) -> Void)?) {
 		changed = block
 	}
 }
