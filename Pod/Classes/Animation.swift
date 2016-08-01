@@ -48,7 +48,7 @@ public protocol Animatable: AnyObject {
 	func kill()
 }
 
-public class Animation: NSObject, Animatable {
+public class Animation: NSObject, Animatable, Subscriber {
 	public typealias AnimationType = Animation
 	
 	public var active: Bool {
@@ -94,7 +94,7 @@ public class Animation: NSObject, Animatable {
 	}
 	public var elapsed: CFTimeInterval = 0
 	
-	var id: UInt32 = 0
+	public var id: UInt32 = 0
 	var running = false
 	var runningTime: CFTimeInterval = 0
 	var repeatForever = false
@@ -275,7 +275,7 @@ public class Animation: NSObject, Animatable {
 		cycle = 0
 	}
 	
-	func proceed(dt: CFTimeInterval, force: Bool = false) -> Bool {
+	func advance(time: Double) -> Bool {
 		if !running {
 			return true
 		}
@@ -284,11 +284,26 @@ public class Animation: NSObject, Animatable {
 		}
 		
 		let multiplier: CFTimeInterval = reversed ? -1 : 1
-		elapsed += (dt * multiplier)
-		runningTime += dt
+		elapsed += (time * multiplier)
+		runningTime += time
 		
 		return false
 	}
+	
+//	func proceed(dt: CFTimeInterval, force: Bool = false) -> Bool {
+//		if !running {
+//			return true
+//		}
+//		if paused {
+//			return false
+//		}
+//		
+//		let multiplier: CFTimeInterval = reversed ? -1 : 1
+//		elapsed += (dt * multiplier)
+//		runningTime += dt
+//		
+//		return false
+//	}
 	
 	func elapsedTimeFromSeekTime(time: CFTimeInterval) -> CFTimeInterval {
 		var adjustedTime = time

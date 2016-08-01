@@ -394,7 +394,7 @@ public class Timeline: Animation, Tweener {
 	override public func kill() {
 		super.kill()
 		
-		TweenManager.sharedInstance.remove(self)
+		Scheduler.sharedInstance.remove(self)
 		for tween in tweens {
 			tween.kill()
 		}
@@ -409,7 +409,7 @@ public class Timeline: Animation, Tweener {
 		}
 	}
 	
-	override func proceed(dt: CFTimeInterval, force: Bool = false) -> Bool {
+	override func advance(time: Double) -> Bool {
 		if !running {
 			return true
 		}
@@ -422,8 +422,8 @@ public class Timeline: Animation, Tweener {
 		}
 		
 		let multiplier: CFTimeInterval = reversed ? -1 : 1
-		elapsed = elapsed + (dt * multiplier)
-		runningTime += dt
+		elapsed = elapsed + (time * multiplier)
+		runningTime += time
 		
 		// if animation doesn't repeat forever, cap elapsed time to endTime
 		if !repeatForever {
@@ -473,7 +473,7 @@ public class Timeline: Animation, Tweener {
 	
 	private func run() {
 		running = true
-		TweenManager.sharedInstance.add(self)
+		Scheduler.sharedInstance.add(self)
 	}
 	
 	private func timeFromString(string: NSString, relativeToTime time: CFTimeInterval = 0) -> CFTimeInterval {

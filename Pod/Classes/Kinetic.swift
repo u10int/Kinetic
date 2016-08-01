@@ -42,26 +42,26 @@ public func setAll(targets: [NSObject], props: TweenProp...) {
 }
 
 public func tweensOf(target: NSObject) -> [Tween]? {
-	return TweenManager.sharedInstance.tweensOfTarget(target)
+	return Scheduler.sharedInstance.tweensOfTarget(target)
 }
 
 public func killTweensOf(target: NSObject) {
-	if let tweens = TweenManager.sharedInstance.tweensOfTarget(target) {
+	if let tweens = Scheduler.sharedInstance.tweensOfTarget(target) {
 		for tween in tweens {
 			tween.kill()
 			tween.timeline?.remove(tween)
 		}
 	}
-	TweenManager.sharedInstance.removeFromCache(target)
+	Scheduler.sharedInstance.removeFromCache(target)
 }
 
 public func killAll() {
-	for (_, var tweens) in TweenManager.sharedInstance.cache {
+	for (_, var tweens) in Scheduler.sharedInstance.cache {
 		for tween in tweens {
 			tween.kill()
 			tween.timeline?.remove(tween)
 		}
 		tweens.removeAll()
 	}
-	TweenManager.sharedInstance.removeAllFromCache()
+	Scheduler.sharedInstance.removeAllFromCache()
 }

@@ -130,7 +130,7 @@ public class Tween: Animation, Tweener {
 //		self.tweenObject = TweenObject(target: target)
 //		super.init()
 //		
-//		TweenManager.sharedInstance.cache(self, target: target)
+//		Scheduler.sharedInstance.cache(self, target: target)
 //		prepare(from: from, to: to, mode: mode)
 //	}
 	
@@ -138,7 +138,7 @@ public class Tween: Animation, Tweener {
 		self.tweenObject = TweenObject(target: target)
 		super.init()
 		
-		TweenManager.sharedInstance.cache(self, target: target)
+		Scheduler.sharedInstance.cache(self, target: target)
 	}
 	
 	deinit {
@@ -182,9 +182,9 @@ public class Tween: Animation, Tweener {
 	override public func kill() {
 		super.kill()
 		
-		TweenManager.sharedInstance.remove(self)
+		Scheduler.sharedInstance.remove(self)
 		if let target = target {
-			TweenManager.sharedInstance.removeFromCache(self, target: target)
+			Scheduler.sharedInstance.removeFromCache(self, target: target)
 		}
 	}
 	
@@ -307,7 +307,7 @@ public class Tween: Animation, Tweener {
 		super.play()
 		
 		if let target = target {
-			TweenManager.sharedInstance.cache(self, target: target)
+			Scheduler.sharedInstance.cache(self, target: target)
 		}
 		
 		for (key, animator) in animators {
@@ -423,7 +423,7 @@ public class Tween: Animation, Tweener {
 //		}
 //	}
 	
-	func advance(time: Double) -> Bool {
+	override func advance(time: Double) -> Bool {
 //		print("Tween.advance() - id: \(id), running: \(running), paused: \(paused), startTime: \(startTime)")
 		if target == nil || !running {
 			return false
@@ -527,9 +527,9 @@ public class Tween: Animation, Tweener {
 		return false
 	}
 	
-	override func proceed(dt: CFTimeInterval, force: Bool = false) -> Bool {
-		return advance(dt)
-		
+//	override func proceed(dt: CFTimeInterval, force: Bool = false) -> Bool {
+//		return advance(dt)
+//		
 //		if target == nil || !running {
 //			return true
 //		}
@@ -591,7 +591,7 @@ public class Tween: Animation, Tweener {
 //		}
 //		
 //		return false
-	}
+//	}
 	
 //	func storedPropertyForType(type: Property) -> TweenProperty? {
 //		if let key = type.key() {
@@ -604,7 +604,7 @@ public class Tween: Animation, Tweener {
 	
 	private func run() {
 		running = true
-		TweenManager.sharedInstance.add(self)
+		Scheduler.sharedInstance.add(self)
 	}
 	
 	private func setupAnimatorsIfNeeded() {
@@ -619,8 +619,6 @@ public class Tween: Animation, Tweener {
 		var tweenedProps = [String: TweenProp]()
 		for (key, prop) in newPropertiesByType {
 			var animator = animators[key]
-			
-			print("animators: \(animators)")
 			
 			if animator == nil {
 				print("--------- tween.id: \(id) ------------")
@@ -658,7 +656,7 @@ public class Tween: Animation, Tweener {
 					tweenedProps[key] = to
 				}
 				print(tweenedProps)				
-//				print("ANIMATE - from: \(from), to: \(to)")
+				print("ANIMATE - from: \(from), to: \(to)")
 				
 				if let from = from, to = to {
 					if let from = from as? TransformType, to = to as? TransformType {

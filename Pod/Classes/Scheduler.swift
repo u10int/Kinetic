@@ -1,5 +1,5 @@
 //
-//  TweenManager.swift
+//  Scheduler.swift
 //  Kinetic
 //
 //  Created by Nicholas Shipes on 12/18/15.
@@ -8,19 +8,32 @@
 
 import UIKit
 
-public class TweenManager {
-	public static let sharedInstance = TweenManager()
+protocol Subscriber: AnyObject {
+	var id: UInt32 { get set }
+	func advance(time: Double) -> Bool
+}
+
+final public class Scheduler {
+	public static let sharedInstance = Scheduler()
 	
-	var tweens = [UInt32: Animation]()
+	var subscribers = [UInt32: Animation]()
 	var counter: UInt32
 	var cache: [NSObject: [Tween]] {
 		get {
 			return tweenCache
 		}
 	}
+	var timestamp: NSTimeInterval {
+		return displayLink.timestamp
+	}
 	
 	private var tweenCache = [NSObject: [Tween]]()
-	private var displayLink: CADisplayLink?
+	private lazy var displayLink: CADisplayLink = {
+		let link = CADisplayLink(target: self, selector: #selector(Scheduler.update(_:)))
+		link.paused = true
+		link.addToRunLoop(NSRunLoop.currentRunLoop(), forMode: NSRunLoopCommonModes)
+		return link
+	}()
 	private var lastLoopTime: CFTimeInterval
 	
 	// MARK: Lifecycle
@@ -46,36 +59,28 @@ public class TweenManager {
 			}
 			tween.id = counter
 		}
-		tweens[tween.id] = tween
-		
-		if displayLink == nil {
-			displayLink = CADisplayLink(target: self, selector: #selector(TweenManager.update(_:)))
-			lastLoopTime = CACurrentMediaTime()
-			displayLink?.addToRunLoop(NSRunLoop.currentRunLoop(), forMode: NSRunLoopCommonModes)
-		}
+		subscribers[tween.id] = tween
+		resume()
 	}
 	
 	func pause() {
-		guard let displayLink = displayLink else { return }
 		displayLink.paused = true
 	}
 	
 	func resume() {
-		guard let displayLink = displayLink else { return }
 		lastLoopTime = CACurrentMediaTime()
-		displayLink.paused = false
+		displayLink.paused = (subscribers.count == 0)
 	}
 	
 	func stop() {
-		guard let displayLink = displayLink else { return }
-		displayLink.invalidate()
-		self.displayLink = nil
+		displayLink.paused = true
+//		displayLink.invalidate()
 	}
 	
 	func remove(tween: Animation) {
-		tweens[tween.id] = nil
+		subscribers[tween.id] = nil
 		
-		if tweens.count == 0 {
+		if subscribers.count == 0 {
 			stop()
 		}
 	}
@@ -88,14 +93,12 @@ public class TweenManager {
 				
 		CATransaction.begin()
 		CATransaction.setDisableActions(true)
-		for (_, tween) in tweens {
-			if tween.proceed(dt) {
-				tween.kill()
-			}
+		subscribers.forEach { (id, subscriber) in
+			subscriber.advance(dt)
 		}
 		CATransaction.commit()
 		
-		if tweens.count == 0 {
+		if subscribers.count == 0 {
 			stop()
 		}
 	}
@@ -148,7 +151,7 @@ public class TweenManager {
 	private func contains(animation: Animation) -> Bool {
 		var contains = false
 		
-		for (_, anim) in tweens {
+		for (_, anim) in subscribers {
 			if anim == animation {
 				contains = true
 				break
