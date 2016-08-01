@@ -581,11 +581,11 @@ public struct Position: TweenProp {
 	}
 	
 	public init(x: CGFloat) {
-		self.value = PointProp(x, CGFloat.min)
+		self.value = PointProp(x, -CGFloat.min)
 	}
 	
 	public init(y: CGFloat) {
-		self.value = PointProp(CGFloat.min, y)
+		self.value = PointProp(-CGFloat.min, y)
 	}
 }
 
@@ -600,11 +600,11 @@ public struct Center: TweenProp {
 	}
 	
 	public init(x: CGFloat) {
-		self.init(x, CGFloat.min)
+		self.init(x, -CGFloat.min)
 	}
 	
 	public init(y: CGFloat) {
-		self.init(CGFloat.min, y)
+		self.init(-CGFloat.min, y)
 	}
 }
 
@@ -619,11 +619,11 @@ public struct Size: TweenProp {
 	}
 	
 	public init(width: CGFloat) {
-		self.init(width, CGFloat.min)
+		self.init(width, -CGFloat.min)
 	}
 	
 	public init(height: CGFloat) {
-		self.init(CGFloat.min, height)
+		self.init(-CGFloat.min, height)
 	}
 }
 
