@@ -37,21 +37,19 @@ class TransformViewController: ExampleViewController {
 		blueSquare.frame = CGRectMake(0, 50, 100, 100)
 		blueSquare.backgroundColor = UIColor ( red: 0.0, green: 0.6126, blue: 0.9743, alpha: 1.0 )
 		view.addSubview(blueSquare)
-				
-		let timeline = Kinetic.animateAll([greenSquare, blueSquare]).to(.RotateY(CGFloat(M_PI_2))).duration(1)
-		timeline.ease(Easing.inOutSine).perspective(1 / -1000).yoyo().repeatCount(3)
-		animation = timeline
-	}
-	
-	override func viewDidLayoutSubviews() {
-		super.viewDidLayoutSubviews()
 		
+		// layout
 		var frame = greenSquare.frame
 		frame.origin.x = CGRectGetMidX(view.frame) - CGRectGetWidth(frame) - 2
 		greenSquare.frame = frame
 		
 		frame.origin.x = CGRectGetMidX(view.frame) + 2
 		blueSquare.frame = frame
+		
+		// animation
+		let timeline = Kinetic.animateAll([greenSquare, blueSquare]).to(.RotateY(CGFloat(M_PI_2))).duration(1)
+		timeline.ease(Easing.inOutSine).perspective(1 / -1000).yoyo().repeatCount(3)
+		animation = timeline
 	}
 	
 	override func reset() {

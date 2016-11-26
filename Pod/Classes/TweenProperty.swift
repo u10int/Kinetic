@@ -594,9 +594,9 @@ public class TransformProperty: TweenProperty {
 		t.scale.z = lerpFloat(from.scale.z, to: to.scale.z)
 		
 		t.rotation.angle = lerpFloat(from.rotation.angle, to: to.rotation.angle)
-		t.rotation.x = to.rotation.x
-		t.rotation.y = to.rotation.y
-		t.rotation.z = to.rotation.z
+		t.rotation.x = mode == .from ? from.rotation.x : to.rotation.x
+		t.rotation.y = mode == .from ? from.rotation.y : to.rotation.y
+		t.rotation.z = mode == .from ? from.rotation.z : to.rotation.z
 		
 		t.translation.x = lerpFloat(from.translation.x, to: to.translation.x)
 		t.translation.y = lerpFloat(from.translation.y, to: to.translation.y)
