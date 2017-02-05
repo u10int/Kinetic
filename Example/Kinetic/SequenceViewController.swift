@@ -1,3 +1,4 @@
+
 //
 //  SequenceViewController.swift
 //  Motion
@@ -32,19 +33,19 @@ class SequenceViewController: ExampleViewController {
 		square.backgroundColor = UIColor.red
 		view.addSubview(square)
 		
-		let moveX = Tween(target: square).to(Position(x: 110)).duration(0.5).ease(.CubicInOut)
+		let moveX = Tween(target: square).to(Position(x: 110)).duration(0.5).ease(.cubicInOut)
 		
-		let moveY = Tween(target: square).to(Position(y: 250), BackgroundColor(UIColor.orangeColor())).duration(0.5).ease(.CubicInOut)
+		let moveY = Tween(target: square).to(Position(y: 250), BackgroundColor(UIColor.orange)).duration(0.5).ease(.cubicInOut)
 		moveY.onStart { (animation) -> Void in
 			print("starting moveY")
 		}
 		
-		let resize = Tween(target: square).to(Size(width: 200), BackgroundColor(UIColor.blueColor())).duration(0.5).ease(.CircInOut)
+		let resize = Tween(target: square).to(Size(width: 200), BackgroundColor(UIColor.blue)).duration(0.5).ease(.circInOut)
 		resize.onStart { (animation) -> Void in
 			print("starting resize")
 		}
 		
-		let timeline = Timeline(tweens: [moveX, moveY, resize], align: .Sequence)
+		let timeline = Timeline(tweens: [moveX, moveY, resize], align: .sequence)
 		timeline.yoyo().forever()
 		
 		animation = timeline

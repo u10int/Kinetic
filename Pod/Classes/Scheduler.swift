@@ -27,14 +27,14 @@ final public class Scheduler {
 		return displayLink.timestamp
 	}
 	
-	private var tweenCache = [NSObject: [Tween]]()
-	private lazy var displayLink: CADisplayLink = {
+	fileprivate var tweenCache = [NSObject: [Tween]]()
+	fileprivate lazy var displayLink: CADisplayLink = {
 		let link = CADisplayLink(target: self, selector: #selector(Scheduler.update(_:)))
 		link.isPaused = true
 		link.add(to: RunLoop.current, forMode: RunLoopMode.commonModes)
 		return link
 	}()
-	private var lastLoopTime: CFTimeInterval
+	fileprivate var lastLoopTime: CFTimeInterval
 	
 	// MARK: Lifecycle
 	
@@ -148,7 +148,7 @@ final public class Scheduler {
 	
 	// MARK: Private Methods
 	
-	private func contains(_ animation: Animation) -> Bool {
+	fileprivate func contains(_ animation: Animation) -> Bool {
 		var contains = false
 		
 		for (_, anim) in subscribers {

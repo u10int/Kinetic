@@ -39,7 +39,7 @@ class TransformViewController: ExampleViewController {
 		view.addSubview(blueSquare)
 				
 		let timeline = Kinetic.animateAll([greenSquare, blueSquare]).to(Rotation(y: CGFloat(M_PI_2))).duration(1)
-		timeline.ease(.SineInOut).perspective(1 / -1000).yoyo().repeatCount(3)
+		timeline.ease(.sineInOut).perspective(1 / -1000).yoyo().repeatCount(3)
 		animation = timeline
 	}
 	

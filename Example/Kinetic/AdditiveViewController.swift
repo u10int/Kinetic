@@ -43,7 +43,7 @@ class AdditiveViewController: ExampleViewController {
 	
 	func handleTap(_ gestureRecognizer: UITapGestureRecognizer) {
 		let point = gestureRecognizer.location(in: view)				
-		let move = Kinetic.animate(square).to(Center(point.x, point.y)).duration(1).ease(.QuadInOut)
+		let move = Kinetic.animate(square).to(Center(point.x, point.y)).duration(1).ease(.quadInOut)
 		
 		move.play()
 	}

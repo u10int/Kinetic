@@ -64,14 +64,14 @@ class TimelineViewController: ExampleViewController {
 		view.addConstraint(verticalConstraint)
 		
 		// animation
-		let move = Tween(target: square).to(Position(200, 200)).duration(1).ease(.CubicInOut)
-		let resize = Tween(target: square).to(Size(150, 150)).duration(1).ease(.CubicInOut)
-		let color = Tween(target: square).to(BackgroundColor(.blueColor())).duration(0.75)
+		let move = Tween(target: square).to(Position(200, 200)).duration(1).ease(.cubicInOut)
+		let resize = Tween(target: square).to(Size(150, 150)).duration(1).ease(.cubicInOut)
+		let color = Tween(target: square).to(BackgroundColor(.blue)).duration(0.75)
 		
 		let timeline = Timeline()
 		timeline.add(move, position: 0.5)
 		timeline.add(resize, position: 1)
-		timeline.addLabel("colorChange", position: 1.3)
+		timeline.add(label: "colorChange", position: 1.3)
 		timeline.add(color, relativeToLabel: "colorChange", offset: 0)
 		
 		timeline.repeatCount(4).yoyo()

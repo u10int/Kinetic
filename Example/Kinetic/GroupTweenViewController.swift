@@ -32,11 +32,11 @@ class GroupTweenViewController: ExampleViewController {
 		square.backgroundColor = UIColor.red
 		view.addSubview(square)
 		
-		let moveX = Tween(target: square).to(X(200)).duration(0.5).ease(.CubicInOut)
-		let moveY = Tween(target: square).to(Y(290)).duration(0.75).ease(.SineOut)
-		let color = Tween(target: square).to(BackgroundColor(.yellowColor())).duration(0.5).ease(.SineOut)
+		let moveX = Tween(target: square).to(X(200)).duration(0.5).ease(.cubicInOut)
+		let moveY = Tween(target: square).to(Y(290)).duration(0.75).ease(.sineOut)
+		let color = Tween(target: square).to(BackgroundColor(.yellow)).duration(0.5).ease(.sineOut)
 		
-		let timeline = Timeline(tweens: [moveX, moveY, color], align: .Start)
+		let timeline = Timeline(tweens: [moveX, moveY, color], align: .start)
 		timeline.yoyo().forever()
 		
 		animation = timeline

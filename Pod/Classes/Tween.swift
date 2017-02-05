@@ -9,36 +9,36 @@
 import UIKit
 
 public enum AnchorPoint {
-	case Default
-	case Center
-	case Top
-	case TopLeft
-	case TopRight
-	case Bottom
-	case BottomLeft
-	case BottomRight
-	case Left
-	case Right
+	case `default`
+	case center
+	case top
+	case topLeft
+	case topRight
+	case bottom
+	case bottomLeft
+	case bottomRight
+	case left
+	case right
 	
 	public func point() -> CGPoint {
 		switch self {
-		case .Center:
+		case .center:
 			return CGPoint(x: 0.5, y: 0.5)
-		case .Top:
+		case .top:
 			return CGPoint(x: 0.5, y: 0)
-		case .TopLeft:
+		case .topLeft:
 			return CGPoint(x: 0, y: 0)
-		case .TopRight:
+		case .topRight:
 			return CGPoint(x: 1, y: 0)
-		case .Bottom:
+		case .bottom:
 			return CGPoint(x: 0.5, y: 1)
-		case .BottomLeft:
+		case .bottomLeft:
 			return CGPoint(x: 0, y: 1)
-		case .BottomRight:
+		case .bottomRight:
 			return CGPoint(x: 1, y: 1)
-		case .Left:
+		case .left:
 			return CGPoint(x: 0, y: 0.5)
-		case .Right:
+		case .right:
 			return CGPoint(x: 1, y: 0.5)
 		default:
 			return CGPoint(x: 0.5, y: 0.5)
@@ -47,9 +47,9 @@ public enum AnchorPoint {
 }
 
 public enum TweenMode {
-	case To
-	case From
-	case FromTo
+	case to
+	case from
+	case fromTo
 }
 
 public protocol Tweener {
@@ -62,22 +62,22 @@ public protocol Tweener {
 	func to(_ props: TweenProp...) -> TweenType
 	
 	func ease(_ easing: Easing.EasingType) -> TweenType
-	func spring(tension tension: Double, friction: Double) -> TweenType
+	func spring(tension: Double, friction: Double) -> TweenType
 	func perspective(_ value: CGFloat) -> TweenType
 	func anchor(_ anchor: AnchorPoint) -> TweenType
 	func anchorPoint(_ point: CGPoint) -> TweenType
 }
 
-public class Tween: Animation, Tweener {
+open class Tween: Animation, Tweener {
 	public typealias TweenType = Tween
 	public typealias AnimationType = Tween
 	
-	public var target: NSObject? {
+	open var target: NSObject? {
 		get {
 			return tweenObject.target
 		}
 	}
-	public var antialiasing: Bool {
+	open var antialiasing: Bool {
 		get {
 			return tweenObject.antialiasing
 		}
@@ -85,19 +85,19 @@ public class Tween: Animation, Tweener {
 			tweenObject.antialiasing = newValue
 		}
 	}
-	override public var duration: CFTimeInterval {
+	override open var duration: CFTimeInterval {
 		didSet {
 //			for prop in properties {
 //				prop.duration = duration
 //			}
 		}
 	}
-	override public var totalTime: CFTimeInterval {
+	override open var totalTime: CFTimeInterval {
 		get {
 			return (elapsed - delay - staggerDelay)
 		}
 	}
-	public weak var timeline: Timeline?
+	open weak var timeline: Timeline?
 	
 //	var properties: [TweenProperty] {
 //		get {
@@ -110,18 +110,18 @@ public class Tween: Animation, Tweener {
 			return [FromToValue](newPropertiesByType.values)
 		}
 	}
-	private var newPropertiesByType: Dictionary<String, FromToValue> = [String: FromToValue]()
-	private var animators = [String: Animator]()
+	fileprivate var newPropertiesByType: Dictionary<String, FromToValue> = [String: FromToValue]()
+	fileprivate var animators = [String: Animator]()
 	
 	
 	
 	var tweenObject: TweenObject
-	private var timingFunction: TimingFunctionType = LinearTimingFunction()
-	private var timeScale: Float = 1
-	private var staggerDelay: CFTimeInterval = 0
+	fileprivate var timingFunction: TimingFunctionType = LinearTimingFunction()
+	fileprivate var timeScale: Float = 1
+	fileprivate var staggerDelay: CFTimeInterval = 0
 //	private var propertiesByType: Dictionary<String, TweenProperty> = [String: TweenProperty]()
-	private var needsPropertyPrep = false
-	private var spring: Spring?
+	fileprivate var needsPropertyPrep = false
+	fileprivate var spring: Spring?
 
 	
 	// MARK: Lifecycle
@@ -150,7 +150,7 @@ public class Tween: Animation, Tweener {
 	
 	// MARK: Animation Overrides
 	
-	override public func duration(_ duration: CFTimeInterval) -> Tween {
+	override open func duration(_ duration: CFTimeInterval) -> Tween {
 		super.duration(duration)
 		
 //		for prop in properties {
@@ -159,7 +159,7 @@ public class Tween: Animation, Tweener {
 		return self
 	}
 	
-	override public func delay(_ delay: CFTimeInterval) -> Tween {
+	override open func delay(_ delay: CFTimeInterval) -> Tween {
 		super.delay(delay)
 		
 		if timeline == nil {
@@ -169,7 +169,7 @@ public class Tween: Animation, Tweener {
 		return self
 	}
 	
-	override public func restart(_ includeDelay: Bool = false) {
+	override open func restart(_ includeDelay: Bool = false) {
 		super.restart(includeDelay)
 		
 //		for prop in properties {
@@ -179,7 +179,7 @@ public class Tween: Animation, Tweener {
 		run()
 	}
 	
-	override public func kill() {
+	override open func kill() {
 		super.kill()
 		
 		Scheduler.sharedInstance.remove(self)
@@ -190,7 +190,7 @@ public class Tween: Animation, Tweener {
 	
 	// MARK: Tweenable
 	
-	public func fromTest(props: TweenProp...) -> Tween {
+	open func fromTest(_ props: TweenProp...) -> Tween {
 		for prop in props {
 			var value = newPropertiesByType[prop.key]
 			if value == nil {
@@ -211,7 +211,7 @@ public class Tween: Animation, Tweener {
 		return self
 	}
 	
-	public func toTest(props: TweenProp...) -> Tween {
+	open func toTest(_ props: TweenProp...) -> Tween {
 		for prop in props {
 			var value = newPropertiesByType[prop.key]
 			if value == nil {
@@ -231,32 +231,32 @@ public class Tween: Animation, Tweener {
 		return self
 	}
 	
-	public func from(_ props: TweenProp...) -> Tween {
-		return from(props: props as! [TweenProp])
+	open func from(_ props: TweenProp...) -> Tween {
+		return from(props )
 	}
 	
-	public func to(_ props: TweenProp...) -> Tween {
-		return to(props: props as! [TweenProp])
+	open func to(_ props: TweenProp...) -> Tween {
+		return to(props )
 	}
 	
 	// internal `from` and `to` methods that support a single array of Property types since we can't forward variadic arguments
-	func from(props: [TweenProp]) -> Tween {
+	func from(_ props: [TweenProp]) -> Tween {
 //		prepare(from: props, to: nil, mode: .From)
 		for prop in props {
-			add(prop: prop, mode: .From)
+			add(prop, mode: .from)
 		}
 		return self
 	}
 	
-	func to(props: [TweenProp]) -> Tween {
+	func to(_ props: [TweenProp]) -> Tween {
 //		prepare(from: nil, to: props, mode: .To)
 		for prop in props {
-			add(prop: prop, mode: .To)
+			add(prop, mode: .to)
 		}
 		return self
 	}
 	
-	public func ease(_ easing: Easing.EasingType) -> Tween {
+	open func ease(_ easing: Easing.EasingType) -> Tween {
 		timingFunction = Easing(easing)
 //		for prop in properties {
 //			prop.easing = easing
@@ -264,7 +264,7 @@ public class Tween: Animation, Tweener {
 		return self
 	}
 	
-	public func spring(tension tension: Double, friction: Double = 3) -> Tween {
+	open func spring(tension: Double, friction: Double = 3) -> Tween {
 		spring = Spring(tension: tension, friction: friction)
 //		for prop in properties {
 //			prop.spring = Spring(tension: tension, friction: friction)
@@ -272,21 +272,21 @@ public class Tween: Animation, Tweener {
 		return self
 	}
 	
-	public func perspective(_ value: CGFloat) -> Tween {
+	open func perspective(_ value: CGFloat) -> Tween {
 		tweenObject.perspective = value
 		return self
 	}
 	
-	public func anchor(_ anchor: AnchorPoint) -> Tween {
+	open func anchor(_ anchor: AnchorPoint) -> Tween {
 		return anchorPoint(anchor.point())
 	}
 	
-	public func anchorPoint(_ point: CGPoint) -> Tween {
+	open func anchorPoint(_ point: CGPoint) -> Tween {
 		tweenObject.anchorPoint = point
 		return self
 	}
 	
-	public func stagger(offset: CFTimeInterval) -> Tween {
+	open func stagger(_ offset: CFTimeInterval) -> Tween {
 		staggerDelay = offset
 		
 		if timeline == nil {
@@ -296,12 +296,12 @@ public class Tween: Animation, Tweener {
 		return self
 	}
 	
-	public func timeScale(scale: Float) -> Tween {
+	open func timeScale(_ scale: Float) -> Tween {
 		timeScale = scale
 		return self
 	}
 	
-	override public func play() -> Tween {
+	override open func play() -> Tween {
 		guard !active else { return self }
 		
 		super.play()
@@ -329,28 +329,28 @@ public class Tween: Animation, Tweener {
 		return self
 	}
 	
-	override public func resume() {
+	override open func resume() {
 		super.resume()
 		if !running {
 			run()
 		}
 	}
 	
-	override public func reverse() -> Tween {
+	override open func reverse() -> Tween {
 		super.reverse()
 		run()
 		
 		return self
 	}
 	
-	override public func forward() -> Tween {
+	override open func forward() -> Tween {
 		super.forward()
 		run()
 		
 		return self
 	}
 	
-	override public func seek(_ time: CFTimeInterval) -> Tween {
+	override open func seek(_ time: CFTimeInterval) -> Tween {
 		super.seek(time)
 		
 		let elapsedTime = elapsedTimeFromSeekTime(time)
@@ -379,10 +379,10 @@ public class Tween: Animation, Tweener {
 	
 	// MARK: Private Methods
 	
-	private func add(prop: TweenProp, mode: TweenMode) {
+	fileprivate func add(_ prop: TweenProp, mode: TweenMode) {
 		var value = newPropertiesByType[prop.key] ?? FromToValue()
 		
-		if mode == .From {
+		if mode == .from {
 			value.from = prop
 		} else {
 			value.to = prop
@@ -602,12 +602,12 @@ public class Tween: Animation, Tweener {
 	
 	// MARK: Private Methods
 	
-	private func run() {
+	fileprivate func run() {
 		running = true
 		Scheduler.sharedInstance.add(self)
 	}
 	
-	private func setupAnimatorsIfNeeded() {
+	fileprivate func setupAnimatorsIfNeeded() {
 		var transformFrom = Transform.zero
 		var transformTo = Transform.zero
 		
@@ -632,7 +632,7 @@ public class Tween: Animation, Tweener {
 					
 					if let tweenFrom = prop.from {
 //						print("applying tweenFrom: \(tweenFrom)")
-						from?.apply(prop: tweenFrom)
+						from?.apply(tweenFrom)
 					} else if let previousTo = tweenedProps[key] {
 						from = previousTo
 //						print("no `from` value, using prevous tweened value \(previousTo)")
@@ -640,7 +640,7 @@ public class Tween: Animation, Tweener {
 					
 					if let tweenTo = prop.to {
 //						print("applying tweenTo: \(tweenTo)")
-						to?.apply(prop: tweenTo)
+						to?.apply(tweenTo)
 					}
 					
 					// need to update axes which are to be animated based on destination value
@@ -686,7 +686,9 @@ public class Tween: Animation, Tweener {
 				let animator = TransformAnimator(from: transformFrom, to: transformTo, duration: duration, timingFunction: timingFunction)
 				animator.spring = spring
 				animator.onChange({ [weak self] (animator, transform) in
-					transform.applyTo(self?.tweenObject)
+					if let target = self?.tweenObject {
+						transform.applyTo(target)
+					}
 				})
 				animators[key] = animator
 			}

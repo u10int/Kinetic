@@ -21,7 +21,7 @@ public protocol VectorType {
 }
 
 public protocol InterpolatableProp {
-	func interpolatedTo(to: Self, progress: Double) -> Self
+	func interpolatedTo(_ to: Self, progress: Double) -> Self
 }
 
 public struct Vector1: VectorType {
@@ -224,7 +224,7 @@ public struct Vector3: VectorType {
 public struct AnyPropertyProvider<T>: PropertyType {
 	var _vector: () -> T
 
-	init<V: PropertyType where V.T == T>(_ delegatee: V) {
+	init<V: PropertyType>(_ delegatee: V) where V.T == T {
 		_vector = {
 			return delegatee.vector
 		}
@@ -258,12 +258,12 @@ public protocol Tweenable {
 	var vectors: [CGFloat] { get }
 	var interpolatable: InterpolatableValue { get }
 	var zero: CGFloat { get }
-	mutating func apply(prop: Tweenable)
+	mutating func apply(_ prop: Tweenable)
 	mutating func apply(_ interpolatable: InterpolatableValue)
 	func toInterpolatable() -> Interpolatable
 }
 extension Tweenable {
-	public mutating func apply(prop: Tweenable) {
+	public mutating func apply(_ prop: Tweenable) {
 		apply(prop.interpolatable)
 	}
 }
@@ -273,7 +273,7 @@ public protocol TweenProp {
 	var value: Tweenable { get set }
 }
 extension TweenProp {
-	public mutating func apply(prop: TweenProp) {
+	public mutating func apply(_ prop: TweenProp) {
 		apply(prop.value.interpolatable)
 	}
 	public mutating func apply(_ interpolatable: InterpolatableValue) {
@@ -488,11 +488,11 @@ public struct ColorProp: Tweenable {
 		if let color = interpolatable.toInterpolatable() as? UIColor {
 			let vectors = interpolatable.vectors
 			switch interpolatable.type {
-			case .ColorRGB:
+			case .colorRGB:
 				self.value = UIColor(red: vectors[0], green: vectors[1], blue: vectors[2], alpha: vectors[3])
-			case .ColorHSB:
+			case .colorHSB:
 				self.value = UIColor(hue: vectors[0], saturation: vectors[1], brightness: vectors[2], alpha: vectors[3])
-			case .ColorMonochrome:
+			case .colorMonochrome:
 				self.value = UIColor(white: vectors[0], alpha: vectors[1])
 			default:
 				let s = ""
@@ -831,7 +831,7 @@ extension Transform {
 		}
 	}
 	
-	func applyTo(tweenObject: TweenObject) {
+	func applyTo(_ tweenObject: TweenObject) {
 		var t = CATransform3DIdentity
 		var removeTranslationForRotate = false
 				
@@ -910,7 +910,7 @@ public protocol Vector {
 //	var type: PropertyType { get set }
 	var key: String { get }
 	var interpolatable: InterpolatableValue { get }
-	mutating func apply(vector: Vector)
+	mutating func apply(_ vector: Vector)
 //	func associatedValue() -> Interpolatable
 //	static func fromInterpolatable(value: InterpolatableValue) -> Vector
 //	func interpolate(to: Vector, progress: Double) -> Vector

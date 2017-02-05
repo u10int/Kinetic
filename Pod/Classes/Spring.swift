@@ -20,19 +20,19 @@ class Spring {
 	var elapsed: Double = 0
 	var ended: Bool = false
 	
-	private let tolerence: Double = 1 / 100000
-	private let maxDT: Double = 16 / 1000
+	fileprivate let tolerence: Double = 1 / 100000
+	fileprivate let maxDT: Double = 16 / 1000
 	
 	init(tension: Double = 500, friction: Double = 20) {
 		self.tension = tension
 		self.friction = friction
 	}
 	
-	private func acceleration(forX x: Double, v: Double) -> Double {
+	fileprivate func acceleration(forX x: Double, v: Double) -> Double {
 		return (-tension * x) - (friction * v)
 	}
 	
-	private func proceedStep(_ stepSize: Double) {
+	fileprivate func proceedStep(_ stepSize: Double) {
 		elapsed += stepSize
 		
 		if ended {

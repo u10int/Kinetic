@@ -293,7 +293,7 @@ class TweenObject {
 	
 	// MARK: Public Methods
 	
-	func colorForKeyPath(keyPath: String) -> UIColor? {
+	func colorForKeyPath(_ keyPath: String) -> UIColor? {
 		if let target = target, target.responds(to:Selector(keyPath)) {
 			if let color = target.value(forKeyPath: keyPath) as? UIColor {
 				if color is CGColor {
@@ -306,7 +306,7 @@ class TweenObject {
 		return nil
 	}
 	
-	func setColor(color: UIColor, forKeyPath keyPath: String) {
+	func setColor(_ color: UIColor, forKeyPath keyPath: String) {
 		if let target = target, target.responds(to:Selector(keyPath)) {
 			if let layer = target as? CALayer {
 				layer.setValue(color.cgColor, forKeyPath: keyPath)
@@ -372,7 +372,7 @@ class TweenObject {
 	
 	// MARK: Private Methods
 	
-	private func performBlockByDisablingActions(block: () -> Void) {
+	fileprivate func performBlockByDisablingActions(_ block: () -> Void) {
 		CATransaction.begin()
 		CATransaction.setDisableActions(true)
 		block()

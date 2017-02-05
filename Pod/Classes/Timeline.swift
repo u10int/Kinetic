@@ -18,18 +18,18 @@ internal class TimelineCallback {
 }
 
 public enum TweenAlign {
-	case Normal
-	case Sequence
-	case Start
+	case normal
+	case sequence
+	case start
 }
 
-public class Timeline: Animation, Tweener {
+open class Timeline: Animation, Tweener {
 	public typealias TweenType = Timeline
 	public typealias AnimationType = Timeline
 	
-	public var tweens = [Tween]()
-	weak public var timeline: Timeline?
-	override public var endTime: CFTimeInterval {
+	open var tweens = [Tween]()
+	weak open var timeline: Timeline?
+	override open var endTime: CFTimeInterval {
 		get {
 			var time: CFTimeInterval = startTime
 			for tween in tweens {
@@ -38,7 +38,7 @@ public class Timeline: Animation, Tweener {
 			return time
 		}
 	}
-	override public var duration: CFTimeInterval {
+	override open var duration: CFTimeInterval {
 		get {
 			return endTime
 		}
@@ -46,17 +46,17 @@ public class Timeline: Animation, Tweener {
 			
 		}
 	}
-	override public var totalTime: CFTimeInterval {
+	override open var totalTime: CFTimeInterval {
 		get {
 			return runningTime
 		}
 	}
-	override public var totalDuration: CFTimeInterval {
+	override open var totalDuration: CFTimeInterval {
 		get {
 			return (endTime * CFTimeInterval(repeatCount + 1)) + (repeatDelay * CFTimeInterval(repeatCount))
 		}
 	}
-	public var antialiasing: Bool = true {
+	open var antialiasing: Bool = true {
 		didSet {
 			for tween in tweens {
 				tween.antialiasing = antialiasing
@@ -64,12 +64,12 @@ public class Timeline: Animation, Tweener {
 		}
 	}
 	
-	private var labels = [String: CFTimeInterval]()
-	private var callbacks = [CFTimeInterval: TimelineCallback]()
+	fileprivate var labels = [String: CFTimeInterval]()
+	fileprivate var callbacks = [CFTimeInterval: TimelineCallback]()
 	
 	// MARK: Lifecycle
 	
-	public convenience init(tweens: [Tween], align: TweenAlign = .Normal) {
+	public convenience init(tweens: [Tween], align: TweenAlign = .normal) {
 		self.init()
 		add(tweens, position: 0, align: align)
 	}
@@ -80,12 +80,12 @@ public class Timeline: Animation, Tweener {
 	
 	// MARK: Public Methods
 	
-	public func add(tween: Tween) -> Timeline {
+	open func add(_ tween: Tween) -> Timeline {
 		add(tween, position: endTime)
 		return self
 	}
 	
-	public func add(_ value: Any, position: Any, align: TweenAlign = .Normal) -> Timeline {
+	open func add(_ value: Any, position: Any, align: TweenAlign = .normal) -> Timeline {
 		var tweensToAdd = [Tween]()
 		if let tween = value as? Tween {
 			tweensToAdd.append(tween)
@@ -105,12 +105,12 @@ public class Timeline: Animation, Tweener {
 					pos = time(fromString:label, relativeToTime: endTime)
 				}
 			}
-			if align != .Start {
+			if align != .start {
 				pos += tween.delay
 			}
 			tween.startTime = pos
 			
-			if align == .Sequence {
+			if align == .sequence {
 				pos += tween.totalDuration
 			}
 			
@@ -125,7 +125,7 @@ public class Timeline: Animation, Tweener {
 		return self
 	}
 	
-	public func add(tween: Tween, relativeToLabel label: String, offset: CFTimeInterval) -> Timeline {
+	open func add(_ tween: Tween, relativeToLabel label: String, offset: CFTimeInterval) -> Timeline {
 		if labels[label] == nil {
 			add(label: label)
 		}
@@ -137,7 +137,7 @@ public class Timeline: Animation, Tweener {
 		return self
 	}
 	
-	public func add(label: String, position: Any = 0) -> Timeline {
+	open func add(label: String, position: Any = 0) -> Timeline {
 		var pos: CFTimeInterval = 0
 		
 		if let time = position as? CFTimeInterval {
@@ -151,7 +151,7 @@ public class Timeline: Animation, Tweener {
 		return self
 	}
 	
-	public func addCallback(position: Any, block: @escaping () -> Void) -> Timeline {
+	open func addCallback(_ position: Any, block: @escaping () -> Void) -> Timeline {
 		var pos: CFTimeInterval = 0
 		
 		if let time = position as? CFTimeInterval {
@@ -165,18 +165,18 @@ public class Timeline: Animation, Tweener {
 		return self
 	}
 	
-	public func remove(label: String) {
+	open func remove(_ label: String) {
 		labels[label] = nil
 	}
 	
-	public func time(forLabel label: String) -> CFTimeInterval {
+	open func time(forLabel label: String) -> CFTimeInterval {
 		if let time = labels[label] {
 			return time
 		}
 		return 0
 	}
 	
-	public func seek(toLabel label: String, pause: Bool = false) {
+	open func seek(toLabel label: String, pause: Bool = false) {
 		if let position = labels[label] {
 			seek(position)
 			if pause {
@@ -185,7 +185,7 @@ public class Timeline: Animation, Tweener {
 		}
 	}
 	
-	public func shift(amount: CFTimeInterval, afterTime time: CFTimeInterval = 0) -> Timeline {
+	open func shift(_ amount: CFTimeInterval, afterTime time: CFTimeInterval = 0) -> Timeline {
 		for tween in tweens {
 			if tween.startTime >= time {
 				tween.startTime += amount
@@ -206,7 +206,7 @@ public class Timeline: Animation, Tweener {
 		return self
 	}
 	
-	public func getActive() -> [Tween] {
+	open func getActive() -> [Tween] {
 		var tweens = [Tween]()
 		for tween in self.tweens {
 			if tween.animating && !tween.paused {
@@ -217,8 +217,7 @@ public class Timeline: Animation, Tweener {
 		return tweens
 	}
 	
-	public func remove(tween: Tween) {
-		
+	open func remove(tween: Tween) {
 		if let timeline = tween.timeline, let index = tweens.index(of: tween) {
 			if timeline == self {
 				tween.timeline = nil
@@ -229,60 +228,60 @@ public class Timeline: Animation, Tweener {
 	
 	// MARK: Tweenable
 	
-	public func from(_ props: TweenProp...) -> Timeline {
+	open func from(_ props: TweenProp...) -> Timeline {
 		for tween in tweens {
 			tween.from(props as! TweenProp)
 		}
 		return self
 	}
 	
-	public func to(_ props: TweenProp...) -> Timeline {
+	open func to(_ props: TweenProp...) -> Timeline {
 		for tween in tweens {
 			tween.to(props as! TweenProp)
 		}
 		return self
 	}
 	
-	override public func duration(_ duration: CFTimeInterval) -> Timeline {
+	override open func duration(_ duration: CFTimeInterval) -> Timeline {
 		for tween in tweens {
 			tween.duration(duration)
 		}
 		return self
 	}
 	
-	public func ease(_ easing: Easing.EasingType) -> Timeline {
+	open func ease(_ easing: Easing.EasingType) -> Timeline {
 		for tween in tweens {
 			tween.ease(easing)
 		}
 		return self
 	}
 	
-	public func spring(tension tension: Double, friction: Double) -> Timeline {
+	open func spring(tension: Double, friction: Double) -> Timeline {
 		for tween in tweens {
 			tween.spring(tension: tension, friction: friction)
 		}
 		return self
 	}
 	
-	public func perspective(_ value: CGFloat) -> Timeline {
+	open func perspective(_ value: CGFloat) -> Timeline {
 		for tween in tweens {
 			tween.perspective(value)
 		}
 		return self
 	}
 	
-	public func anchor(_ anchor: AnchorPoint) -> Timeline {
+	open func anchor(_ anchor: AnchorPoint) -> Timeline {
 		return anchorPoint(anchor.point())
 	}
 	
-	public func anchorPoint(_ point: CGPoint) -> Timeline {
+	open func anchorPoint(_ point: CGPoint) -> Timeline {
 		for tween in tweens {
 			tween.anchorPoint(point)
 		}
 		return self
 	}
 	
-	public func stagger(offset: CFTimeInterval) -> Timeline {
+	open func stagger(_ offset: CFTimeInterval) -> Timeline {
 		for (idx, tween) in tweens.enumerated() {
 			tween.startTime = tween.delay + offset * CFTimeInterval(idx)
 		}
@@ -291,7 +290,7 @@ public class Timeline: Animation, Tweener {
 	
 	// MARK: Animation
 	
-	override public func play() -> Timeline {
+	override open func play() -> Timeline {
 		guard !active else { return self }
 		
 		super.play()
@@ -304,7 +303,7 @@ public class Timeline: Animation, Tweener {
 		return self
 	}
 	
-	public func goToAndPlay(label: String) -> Timeline {
+	open func goToAndPlay(_ label: String) -> Timeline {
 		let position = time(forLabel: label)
 		seek(position)
 		resume()
@@ -312,27 +311,27 @@ public class Timeline: Animation, Tweener {
 		return self
 	}
 	
-	override public func stop() {
+	override open func stop() {
 		super.stop()
 		for tween in tweens {
 			tween.stop()
 		}
 	}
 	
-	public func goToAndStop(label: String) -> Timeline {
+	open func goToAndStop(_ label: String) -> Timeline {
 		seek(toLabel: label, pause: true)
 		
 		return self
 	}
 	
-	override public func pause() {
+	override open func pause() {
 		super.pause()
 		for tween in tweens {
 			tween.pause()
 		}
 	}
 	
-	override public func resume() {
+	override open func resume() {
 		super.resume()
 		if !running {
 			run()
@@ -343,7 +342,7 @@ public class Timeline: Animation, Tweener {
 		}
 	}
 	
-	override public func seek(_ time: CFTimeInterval) -> Timeline {
+	override open func seek(_ time: CFTimeInterval) -> Timeline {
 		super.seek(time)
 		
 		let elapsedTime = elapsedTimeFromSeekTime(time)
@@ -364,7 +363,7 @@ public class Timeline: Animation, Tweener {
 		return self
 	}
 	
-	override public func reverse() -> Timeline {
+	override open func reverse() -> Timeline {
 		super.reverse()
 		for tween in tweens {
 			tween.reverse()
@@ -373,7 +372,7 @@ public class Timeline: Animation, Tweener {
 		return self
 	}
 	
-	override public func forward() -> Timeline {
+	override open func forward() -> Timeline {
 		super.forward()
 		for tween in tweens {
 			tween.forward()
@@ -382,7 +381,7 @@ public class Timeline: Animation, Tweener {
 		return self
 	}
 	
-	override public func restart(_ includeDelay: Bool) {
+	override open func restart(_ includeDelay: Bool) {
 		super.restart(includeDelay)
 		for tween in tweens {
 			tween.restart(includeDelay)
@@ -392,7 +391,7 @@ public class Timeline: Animation, Tweener {
 		}
 	}
 	
-	override public func kill() {
+	override open func kill() {
 		super.kill()
 		
 		Scheduler.sharedInstance.remove(self)
@@ -472,12 +471,12 @@ public class Timeline: Animation, Tweener {
 	
 	// MARK: Private Methods
 	
-	private func run() {
+	fileprivate func run() {
 		running = true
 		Scheduler.sharedInstance.add(self)
 	}
 	
-	private func time(fromString string: NSString, relativeToTime time: CFTimeInterval = 0) -> CFTimeInterval {
+	fileprivate func time(fromString string: NSString, relativeToTime time: CFTimeInterval = 0) -> CFTimeInterval {
 		var position: CFTimeInterval = time
 		
 		let regex = try! NSRegularExpression(pattern: "(\\w+)?([\\+,\\-]=)(\\d+)", options: [])

@@ -19,9 +19,9 @@ public protocol Animator {
 }
 
 final public class BasicAnimator: Animator {
-	private (set) public var from: TweenProp
-	private (set) public var to: TweenProp
-	private (set) public var duration: Double
+	fileprivate (set) public var from: TweenProp
+	fileprivate (set) public var to: TweenProp
+	fileprivate (set) public var duration: Double
 	
 	public var timingFunction: TimingFunctionType = LinearTimingFunction()
 	var spring: Spring?
@@ -35,9 +35,9 @@ final public class BasicAnimator: Animator {
 		return (!reversed && elapsed >= duration) || (reversed && elapsed <= 0)
 	}
 	
-	private (set) public var value: TweenProp
-	private var elapsed: Double = 0.0
-	private var reversed = false
+	fileprivate (set) public var value: TweenProp
+	fileprivate var elapsed: Double = 0.0
+	fileprivate var reversed = false
 	
 	public init(from: TweenProp, to: TweenProp, duration: Double, timingFunction: TimingFunctionType) {
 		self.from = from
@@ -79,7 +79,7 @@ final public class BasicAnimator: Animator {
 			adjustedProgress = timingFunction.solveForTime(progress)
 		}
 		
-		let test = from.value.interpolatable.interpolate(to: to.value.interpolatable, progress: adjustedProgress)
+		let test = from.value.interpolatable.interpolateTo(to.value.interpolatable, progress: adjustedProgress)
 		value.apply(test)
 //		print("Animator.advance() - elapsed: \(elapsed), progress: \(progress), from: \(from.value), to: \(to.value)")
 		changed?(self, value)
@@ -92,9 +92,9 @@ final public class BasicAnimator: Animator {
 
 
 final public class TransformAnimator: Animator {
-	private (set) public var from: Transform
-	private (set) public var to: Transform
-	private (set) public var duration: Double
+	fileprivate (set) public var from: Transform
+	fileprivate (set) public var to: Transform
+	fileprivate (set) public var duration: Double
 	
 	public var timingFunction: TimingFunctionType = LinearTimingFunction()
 	var spring: Spring?
@@ -105,9 +105,9 @@ final public class TransformAnimator: Animator {
 		return (!reversed && elapsed >= duration) || (reversed && elapsed <= 0)
 	}
 	
-	private (set) public var value: Transform
-	private var elapsed: Double = 0.0
-	private var reversed = false
+	fileprivate (set) public var value: Transform
+	fileprivate var elapsed: Double = 0.0
+	fileprivate var reversed = false
 	
 	public init(from: Transform, to: Transform, duration: Double, timingFunction: TimingFunctionType) {
 		self.from = from
@@ -145,9 +145,9 @@ final public class TransformAnimator: Animator {
 			adjustedProgress = timingFunction.solveForTime(progress)
 		}
 		
-		let scale = from.scale.value.interpolatable.interpolate(to: to.scale.value.interpolatable, progress: adjustedProgress)
-		let rotation = from.rotation.value.interpolatable.interpolate(to: to.rotation.value.interpolatable, progress: adjustedProgress)
-		let translation = from.translation.value.interpolatable.interpolate(to: to.translation.value.interpolatable, progress: adjustedProgress)
+		let scale = from.scale.value.interpolatable.interpolateTo(to.scale.value.interpolatable, progress: adjustedProgress)
+		let rotation = from.rotation.value.interpolatable.interpolateTo(to.rotation.value.interpolatable, progress: adjustedProgress)
+		let translation = from.translation.value.interpolatable.interpolateTo(to.translation.value.interpolatable, progress: adjustedProgress)
 		
 		value.scale.apply(scale)
 		value.rotation.apply(rotation as! Rotation)
