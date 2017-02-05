@@ -12,27 +12,27 @@
 import UIKit
 
 public protocol TimingFunctionType {
-	func solveForTime(x: Double) -> Double
+	func solveForTime(_ x: Double) -> Double
 }
 
 public struct LinearTimingFunction: TimingFunctionType {
 	public init() {}
 	
-	public func solveForTime(x: Double) -> Double {
+	public func solveForTime(_ x: Double) -> Double {
 		return x
 	}
 }
 
 extension UnitBezier: TimingFunctionType {
 	
-	public func solveForTime(x: Double) -> Double {
+	public func solveForTime(_ x: Double) -> Double {
 		return solve(x)
 	}
 }
 
 // MARK: - Easing
 
-public typealias Ease = (t: CGFloat, b: CGFloat, c: CGFloat) -> CGFloat
+public typealias Ease = (_ t: CGFloat, _ b: CGFloat, _ c: CGFloat) -> CGFloat
 
 public struct Easing: TimingFunctionType {
 	var bezier: UnitBezier
@@ -131,7 +131,7 @@ public struct Easing: TimingFunctionType {
 		}
 	}
 	
-	public func solveForTime(x: Double) -> Double {
+	public func solveForTime(_ x: Double) -> Double {
 		return bezier.solve(x)
 	}
 	
@@ -141,7 +141,7 @@ public struct Easing: TimingFunctionType {
 	}
 	
 	// return easing with cubic bezier curve
-	public static func cubicBezier(c1x: Double, _ c1y: Double, _ c2x: Double, _ c2y: Double) -> Ease {
+	public static func cubicBezier(_ c1x: Double, _ c1y: Double, _ c2x: Double, _ c2y: Double) -> Ease {
 		let bezier = UnitBezier(c1x, c1y, c2x, c2y)
 		return { (t: CGFloat, b: CGFloat, c: CGFloat) -> CGFloat in
 			let y = bezier.solve(Double(t))
@@ -203,7 +203,7 @@ public struct UnitBezier {
 		self.p2y = p2y
 	}
 	
-	public func solve(x: Double) -> Double {
+	public func solve(_ x: Double) -> Double {
 		return UnitBezierSover(bezier: self).solve(x)
 	}
 }
@@ -229,19 +229,19 @@ private struct UnitBezierSover {
 		ay = 1.0 - cy - by
 	}
 	
-	func sampleCurveX(t: Double) -> Double {
+	func sampleCurveX(_ t: Double) -> Double {
 		return ((ax * t + bx) * t + cx) * t
 	}
 	
-	func sampleCurveY(t: Double) -> Double {
+	func sampleCurveY(_ t: Double) -> Double {
 		return ((ay * t + by) * t + cy) * t
 	}
 	
-	func sampleCurveDerivativeX(t: Double) -> Double {
+	func sampleCurveDerivativeX(_ t: Double) -> Double {
 		return (3.0 * ax * t + 2.0 * bx) * t + cx
 	}
 	
-	func solveCurveX(x: Double) -> Double {
+	func solveCurveX(_ x: Double) -> Double {
 		var t0, t1, t2, x2, d2: Double
 		
 		// first try a few iterations of Newton's method -- normally very fast
@@ -287,7 +287,7 @@ private struct UnitBezierSover {
 		return t2
 	}
 	
-	func solve(x: Double) -> Double {
+	func solve(_ x: Double) -> Double {
 		return sampleCurveY(solveCurveX(x))
 	}
 }

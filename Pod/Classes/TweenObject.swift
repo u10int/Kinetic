@@ -201,7 +201,7 @@ class TweenObject {
 				targetLayer = view.layer
 			}
 			
-			if let layer = targetLayer, transform = layer.superlayer?.sublayerTransform {
+			if let layer = targetLayer, let transform = layer.superlayer?.sublayerTransform {
 				return transform.m34
 			}
 			return 0
@@ -225,8 +225,8 @@ class TweenObject {
 	
 	var backgroundColor: UIColor? {
 		get {
-			if let layer = target as? CALayer, color = layer.backgroundColor {
-				return UIColor(CGColor: color)
+			if let layer = target as? CALayer, let color = layer.backgroundColor {
+				return UIColor(cgColor: color)
 			} else if let view = target as? UIView {
 				return view.backgroundColor
 			}
@@ -235,7 +235,7 @@ class TweenObject {
 		set(newValue) {
 			if let value = newValue {
 				if let layer = target as? CALayer {
-					layer.backgroundColor = value.CGColor
+					layer.backgroundColor = value.cgColor
 				} else if let view = target as? UIView {
 					view.backgroundColor = value
 				}
@@ -261,15 +261,15 @@ class TweenObject {
 	
 	var fillColor: UIColor? {
 		get {
-			if let layer = target as? CAShapeLayer, color = layer.fillColor {
-				return UIColor(CGColor: color)
+			if let layer = target as? CAShapeLayer, let color = layer.fillColor {
+				return UIColor(cgColor: color)
 			}
 			return nil
 		}
 		set(newValue) {
 			if let value = newValue {
 				if let layer = target as? CAShapeLayer {
-					layer.fillColor = value.CGColor
+					layer.fillColor = value.cgColor
 				}
 			}
 		}
@@ -277,15 +277,15 @@ class TweenObject {
 	
 	var strokeColor: UIColor? {
 		get {
-			if let layer = target as? CAShapeLayer, color = layer.strokeColor {
-				return UIColor(CGColor: color)
+			if let layer = target as? CAShapeLayer, let color = layer.strokeColor {
+				return UIColor(cgColor: color)
 			}
 			return nil
 		}
 		set(newValue) {
 			if let value = newValue {
 				if let layer = target as? CAShapeLayer {
-					layer.strokeColor = value.CGColor
+					layer.strokeColor = value.cgColor
 				}
 			}
 		}
@@ -294,14 +294,12 @@ class TweenObject {
 	// MARK: Public Methods
 	
 	func colorForKeyPath(keyPath: String) -> UIColor? {
-		if let target = target {
-			if target.respondsToSelector(Selector(keyPath)) {
-				if let color = target.valueForKeyPath(keyPath) as? UIColor {
-					if color is CGColorRef {
-						return UIColor(CGColor: color as! CGColorRef)
-					} else {
-						return color
-					}
+		if let target = target, target.responds(to:Selector(keyPath)) {
+			if let color = target.value(forKeyPath: keyPath) as? UIColor {
+				if color is CGColor {
+					return UIColor(cgColor: color as! CGColor)
+				} else {
+					return color
 				}
 			}
 		}
@@ -309,65 +307,63 @@ class TweenObject {
 	}
 	
 	func setColor(color: UIColor, forKeyPath keyPath: String) {
-		if let target = target {
-			if target.respondsToSelector(Selector(keyPath)) {
-				if let layer = target as? CALayer {
-					layer.setValue(color.CGColor, forKeyPath: keyPath)
-				} else {
-					target.setValue(color, forKeyPath: keyPath)
-				}
+		if let target = target, target.responds(to:Selector(keyPath)) {
+			if let layer = target as? CALayer {
+				layer.setValue(color.cgColor, forKeyPath: keyPath)
+			} else {
+				target.setValue(color, forKeyPath: keyPath)
 			}
 		}
 	}
 	
 	// MARK: VectorType Utilities
 	
-	func update(prop: TweenProp) {
-		if let prop = prop as? X, value = prop.value.toInterpolatable() as? CGFloat {
+	func update(_ prop: TweenProp) {
+		if let prop = prop as? X, let value = prop.value.toInterpolatable() as? CGFloat {
 			self.origin?.x = value
-		} else if let prop = prop as? Y, value = prop.value.toInterpolatable() as? CGFloat {
+		} else if let prop = prop as? Y, let value = prop.value.toInterpolatable() as? CGFloat {
 			self.origin?.y = value
-		} else if let prop = prop as? Position, point = prop.value.toInterpolatable() as? CGPoint {
+		} else if let prop = prop as? Position, let point = prop.value.toInterpolatable() as? CGPoint {
 			self.origin = point
-		} else if let prop = prop as? Center, center = prop.value.toInterpolatable() as? CGPoint {
+		} else if let prop = prop as? Center, let center = prop.value.toInterpolatable() as? CGPoint {
 			self.center = center
-		} else if let prop = prop as? Size, size = prop.value.toInterpolatable() as? CGSize {
+		} else if let prop = prop as? Size, let size = prop.value.toInterpolatable() as? CGSize {
 			self.size = size
-		} else if let prop = prop as? Alpha, value = prop.value.toInterpolatable() as? CGFloat {
+		} else if let prop = prop as? Alpha, let value = prop.value.toInterpolatable() as? CGFloat {
 			self.alpha = value
-		} else if let prop = prop as? BackgroundColor, value = prop.value.toInterpolatable() as? UIColor {
+		} else if let prop = prop as? BackgroundColor, let value = prop.value.toInterpolatable() as? UIColor {
 			self.backgroundColor = value
-		} else if let prop = prop as? FillColor, value = prop.value.toInterpolatable() as? UIColor {
+		} else if let prop = prop as? FillColor, let value = prop.value.toInterpolatable() as? UIColor {
 			self.fillColor = value
 		}
 	}
 	
-	func currentValueForTweenProp(prop: TweenProp) -> TweenProp? {
+	func currentValueForTweenProp(_ prop: TweenProp) -> TweenProp? {
 		var vectorValue: TweenProp?
 		
-		if let position = origin where prop is X || prop is Y {
+		if let position = origin, prop is X || prop is Y {
 			if prop is X {
 				vectorValue = X(position.x)
 			} else {
 				vectorValue = Y(position.y)
 			}
-		} else if let position = origin where prop is Position {
+		} else if let position = origin, prop is Position {
 			vectorValue = Position(position.x, position.y)
-		} else if let center = center where prop is Center {
+		} else if let center = center, prop is Center {
 			vectorValue = Center(center.x, center.y)
-		} else if let size = size where prop is Size {
+		} else if let size = size, prop is Size {
 			vectorValue = Size(size.width, size.height)
-		} else if let alpha = alpha where prop is Alpha {
+		} else if let alpha = alpha, prop is Alpha {
 			vectorValue = Alpha(alpha)
-		} else if let color = backgroundColor where prop is BackgroundColor {
+		} else if let color = backgroundColor, prop is BackgroundColor {
 			vectorValue = BackgroundColor(color)
-		} else if let color = fillColor where prop is FillColor {
+		} else if let color = fillColor, prop is FillColor {
 			vectorValue = FillColor(color)
-		} else if let scale = scale where prop is Scale {
+		} else if let scale = scale, prop is Scale {
 			vectorValue = scale
-		} else if let rotation = rotation where prop is Rotation {
+		} else if let rotation = rotation, prop is Rotation {
 			vectorValue = rotation
-		} else if let translation = translation where prop is Translation {
+		} else if let translation = translation, prop is Translation {
 			vectorValue = translation
 		}
 		

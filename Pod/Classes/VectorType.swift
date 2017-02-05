@@ -259,7 +259,7 @@ public protocol Tweenable {
 	var interpolatable: InterpolatableValue { get }
 	var zero: CGFloat { get }
 	mutating func apply(prop: Tweenable)
-	mutating func apply(interpolatable: InterpolatableValue)
+	mutating func apply(_ interpolatable: InterpolatableValue)
 	func toInterpolatable() -> Interpolatable
 }
 extension Tweenable {
@@ -276,7 +276,7 @@ extension TweenProp {
 	public mutating func apply(prop: TweenProp) {
 		apply(prop.value.interpolatable)
 	}
-	public mutating func apply(interpolatable: InterpolatableValue) {
+	public mutating func apply(_ interpolatable: InterpolatableValue) {
 		value.apply(interpolatable)
 	}
 }
@@ -379,16 +379,16 @@ public struct ValueProp: Tweenable {
 	}
 	
 	public var zero: CGFloat {
-		return -CGFloat.max
+		return -CGFloat.greatestFiniteMagnitude
 	}
 	
-	private var value: CGFloat
+	fileprivate var value: CGFloat
 	
 	public init(_ value: CGFloat) {
 		self.value = value
 	}
 	
-	public mutating func apply(interpolatable: InterpolatableValue) {
+	public mutating func apply(_ interpolatable: InterpolatableValue) {
 		if let value = interpolatable.toInterpolatable() as? CGFloat {
 			self.value = value
 		}
@@ -408,17 +408,17 @@ public struct PointProp: Tweenable, Equatable {
 	}
 	
 	public var zero: CGFloat {
-		return -CGFloat.max
+		return -CGFloat.greatestFiniteMagnitude
 	}
 	
-	private var value: CGPoint
+	fileprivate var value: CGPoint
 	
 	public init(_ x: CGFloat, _ y: CGFloat) {
 //		self.value = PointValue(Double(x), Double(y))
 		self.value = CGPoint(x: x, y: y)
 	}
 	
-	public mutating func apply(interpolatable: InterpolatableValue) {
+	public mutating func apply(_ interpolatable: InterpolatableValue) {
 		if let point = interpolatable.toInterpolatable() as? CGPoint {
 			let vectors = interpolatable.vectors
 			if vectors[0] > zero { self.value.x = vectors[0] }
@@ -442,16 +442,16 @@ public struct SizeProp: Tweenable, Equatable {
 		return value.vectorize().vectors
 	}
 	public var zero: CGFloat {
-		return -CGFloat.max
+		return -CGFloat.greatestFiniteMagnitude
 	}
 	
-	private var value: CGSize
+	fileprivate var value: CGSize
 	
 	public init(_ width: CGFloat, _ height: CGFloat) {
 		self.value = CGSize(width: width, height: height)
 	}
 	
-	public mutating func apply(interpolatable: InterpolatableValue) {
+	public mutating func apply(_ interpolatable: InterpolatableValue) {
 		if let size = interpolatable.toInterpolatable() as? CGSize {
 			let vectors = interpolatable.vectors
 			if vectors[0] > zero { self.value.width = vectors[0] }
@@ -478,13 +478,13 @@ public struct ColorProp: Tweenable {
 		return 0
 	}
 	
-	private var value: UIColor
+	fileprivate var value: UIColor
 	
 	public init(_ color: UIColor) {
 		self.value = color
 	}
 	
-	public mutating func apply(interpolatable: InterpolatableValue) {
+	public mutating func apply(_ interpolatable: InterpolatableValue) {
 		if let color = interpolatable.toInterpolatable() as? UIColor {
 			let vectors = interpolatable.vectors
 			switch interpolatable.type {
@@ -514,16 +514,16 @@ public struct Vector3Prop: Tweenable {
 		return value.vectorize().vectors
 	}
 	public var zero: CGFloat {
-		return -CGFloat.max
+		return -CGFloat.greatestFiniteMagnitude
 	}
 	
-	private var value: CGSize
+	fileprivate var value: CGSize
 	
 	public init(_ x: CGFloat, _ y: CGFloat, _ z: CGFloat) {
 		self.value = CGSize(width: x, height: y)
 	}
 	
-	public mutating func apply(interpolatable: InterpolatableValue) {
+	public mutating func apply(_ interpolatable: InterpolatableValue) {
 		if let size = interpolatable.toInterpolatable() as? CGSize {
 			let vectors = interpolatable.vectors
 			if vectors[0] > zero { self.value.width = vectors[0] }
@@ -581,11 +581,11 @@ public struct Position: TweenProp {
 	}
 	
 	public init(x: CGFloat) {
-		self.value = PointProp(x, -CGFloat.min)
+		self.value = PointProp(x, -CGFloat.leastNormalMagnitude)
 	}
 	
 	public init(y: CGFloat) {
-		self.value = PointProp(-CGFloat.min, y)
+		self.value = PointProp(-CGFloat.leastNormalMagnitude, y)
 	}
 }
 
@@ -600,11 +600,11 @@ public struct Center: TweenProp {
 	}
 	
 	public init(x: CGFloat) {
-		self.init(x, -CGFloat.min)
+		self.init(x, -CGFloat.leastNormalMagnitude)
 	}
 	
 	public init(y: CGFloat) {
-		self.init(-CGFloat.min, y)
+		self.init(-CGFloat.leastNormalMagnitude, y)
 	}
 }
 
@@ -619,11 +619,11 @@ public struct Size: TweenProp {
 	}
 	
 	public init(width: CGFloat) {
-		self.init(width, -CGFloat.min)
+		self.init(width, -CGFloat.leastNormalMagnitude)
 	}
 	
 	public init(height: CGFloat) {
-		self.init(-CGFloat.min, height)
+		self.init(-CGFloat.leastNormalMagnitude, height)
 	}
 }
 
@@ -676,7 +676,7 @@ public struct Scale: TweenProp, TransformType, Equatable {
 	}
 }
 public func ==(lhs: Scale, rhs: Scale) -> Bool {
-	if let lhs = lhs.value as? Vector3Prop, rhs = rhs.value as? Vector3Prop {
+	if let lhs = lhs.value as? Vector3Prop, let rhs = rhs.value as? Vector3Prop {
 		return lhs.value == rhs.value
 	}
 	return false
@@ -718,21 +718,21 @@ public struct Rotation: TweenProp, TransformType, Equatable {
 	}
 }
 extension Rotation {	
-	public mutating func apply(rotation: Rotation) {
+	public mutating func apply(_ rotation: Rotation) {
 		apply(rotation.value.interpolatable)
 		self.x = rotation.x
 		self.y = rotation.y
 		self.z = rotation.z
 	}
 	
-	public mutating func applyAxes(rotation: Rotation) {
+	public mutating func applyAxes(_ rotation: Rotation) {
 		self.x = rotation.x
 		self.y = rotation.y
 		self.z = rotation.z
 	}
 }
 public func ==(lhs: Rotation, rhs: Rotation) -> Bool {
-	if let a1 = lhs.value as? ValueProp, a2 = rhs.value as? ValueProp {
+	if let a1 = lhs.value as? ValueProp, let a2 = rhs.value as? ValueProp {
 		return (a1.value == a2.value && lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z)
 	}
 	return false
@@ -753,15 +753,15 @@ public struct Translation: TweenProp, TransformType, Equatable {
 	}
 	
 	public init(x: CGFloat) {
-		self.value = PointProp(x, CGFloat.min)
+		self.value = PointProp(x, CGFloat.leastNormalMagnitude)
 	}
 	
 	public init(y: CGFloat) {
-		self.value = PointProp(CGFloat.min, y)
+		self.value = PointProp(CGFloat.leastNormalMagnitude, y)
 	}
 }
 public func ==(lhs: Translation, rhs: Translation) -> Bool {
-	if let lhs = lhs.value as? PointProp, rhs = rhs.value as? PointProp {
+	if let lhs = lhs.value as? PointProp, let rhs = rhs.value as? PointProp {
 		return lhs.value == rhs.value
 	}
 	return false
@@ -772,8 +772,8 @@ public struct Transform: Equatable {
 	public var rotation: Rotation
 	public var translation: Translation
 	
-	private var orderedProps = [TransformType]()
-	private var orderedPropKeys = [String]()
+	fileprivate var orderedProps = [TransformType]()
+	fileprivate var orderedPropKeys = [String]()
 	
 	public static var zero: Transform {
 		return Transform()
@@ -812,7 +812,7 @@ public func ==(lhs: Transform, rhs: Transform) -> Bool {
 }
 
 extension Transform {
-	mutating func apply(type: TransformType) {
+	mutating func apply(_ type: TransformType) {
 		orderedProps.append(type)
 		
 		if let prop = type as? TweenProp {
@@ -836,13 +836,13 @@ extension Transform {
 		var removeTranslationForRotate = false
 				
 		// apply any existing transforms that aren't specified in this tween
-		if let currentScale = tweenObject.scale, value = currentScale.value.toInterpolatable() as? Vector3 where !orderedPropKeys.contains(currentScale.key) {
+		if let currentScale = tweenObject.scale, let value = currentScale.value.toInterpolatable() as? Vector3, !orderedPropKeys.contains(currentScale.key) {
 			t = CATransform3DScale(t, CGFloat(value.x), CGFloat(value.y), CGFloat(value.z))
 		}
-		if let currentRotation = tweenObject.rotation, angle = currentRotation.value.toInterpolatable() as? CGFloat where !orderedPropKeys.contains(currentRotation.key) {
-			t = CATransform3DRotate(t, angle, CGFloat(currentRotation.x), CGFloat(currentRotation.y), CGFloat(currentRotation.z))
+		if let currentRotation = tweenObject.rotation, let angle = currentRotation.value.toInterpolatable() as? CGFloat, !orderedPropKeys.contains(currentRotation.key) {
+			t = CATransform3DRotate(t, angle, (currentRotation.x ? 1 : 0), (currentRotation.y ? 1 : 0), (currentRotation.z ? 1 : 0))
 		}
-		if let currentTranslation = tweenObject.translation, value = currentTranslation.value.toInterpolatable() as? CGPoint where !orderedPropKeys.contains(currentTranslation.key) {
+		if let currentTranslation = tweenObject.translation, let value = currentTranslation.value.toInterpolatable() as? CGPoint, !orderedPropKeys.contains(currentTranslation.key) {
 			t = CATransform3DTranslate(t, value.x, value.y, 0)
 			removeTranslationForRotate = true
 		}
@@ -854,13 +854,13 @@ extension Transform {
 					t = CATransform3DScale(t, CGFloat(scale.x), CGFloat(scale.y), CGFloat(scale.z))
 				}
 			} else if prop is Rotation {
-				if let angle = rotation.value.toInterpolatable() as? CGFloat, originalTranslation = tweenObject.translation, translation = translation.value.toInterpolatable() as? CGPoint {
+				if let angle = rotation.value.toInterpolatable() as? CGFloat, let originalTranslation = tweenObject.translation, let translation = translation.value.toInterpolatable() as? CGPoint {
 					// if we have a translation, remove the translation before applying the rotation
 					if removeTranslationForRotate && originalTranslation != Translation.zero {
 						t = CATransform3DTranslate(t, -translation.x, -translation.y, 0)
 					}
 					
-					t = CATransform3DRotate(t, angle, CGFloat(rotation.x), CGFloat(rotation.y), CGFloat(rotation.z))
+					t = CATransform3DRotate(t, angle, (rotation.x ? 1 : 0), (rotation.y ? 1 : 0), (rotation.z ? 1 : 0))
 					
 					// add translation back
 					if removeTranslationForRotate && originalTranslation != Translation.zero {
@@ -913,7 +913,7 @@ public protocol Vector {
 	mutating func apply(vector: Vector)
 //	func associatedValue() -> Interpolatable
 //	static func fromInterpolatable(value: InterpolatableValue) -> Vector
-//	func interpolateTo(to: Vector, progress: Double) -> Vector
+//	func interpolate(to: Vector, progress: Double) -> Vector
 }
 
 public protocol AssociatedVectorType {

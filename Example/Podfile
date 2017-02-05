@@ -1,14 +1,14 @@
 source 'https://github.com/CocoaPods/Specs.git'
 use_frameworks!
 
-target 'Kinetic_Example', :exclusive => true do
+platform :ios, '9.0'
+
+target 'Kinetic_Example' do
   pod 'Kinetic', :path => '../'
   pod 'WatchdogInspector'
 end
 
-target 'Kinetic_Tests', :exclusive => true do
+target 'Kinetic_Tests' do
   pod 'Kinetic', :path => '../'
-
-  pod 'Quick', '~> 0.8.0'
-  pod 'Nimble', :git => 'https://github.com/Quick/Nimble.git'
+  pod 'Nimble', '~> 6.0'
 end

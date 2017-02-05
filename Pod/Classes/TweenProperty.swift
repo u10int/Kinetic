@@ -77,44 +77,6 @@ public enum Property {
 	}
 }
 
-public enum Anchor {
-	case Default
-	case Center
-	case Top
-	case TopLeft
-	case TopRight
-	case Bottom
-	case BottomLeft
-	case BottomRight
-	case Left
-	case Right
-	
-	public func point() -> CGPoint {
-		switch self {
-		case .Center:
-			return CGPoint(x: 0.5, y: 0.5)
-		case .Top:
-			return CGPoint(x: 0.5, y: 0)
-		case .TopLeft:
-			return CGPoint(x: 0, y: 0)
-		case .TopRight:
-			return CGPoint(x: 1, y: 0)
-		case .Bottom:
-			return CGPoint(x: 0.5, y: 1)
-		case .BottomLeft:
-			return CGPoint(x: 0, y: 1)
-		case .BottomRight:
-			return CGPoint(x: 1, y: 1)
-		case .Left:
-			return CGPoint(x: 0, y: 0.5)
-		case .Right:
-			return CGPoint(x: 1, y: 0.5)
-		default:
-			return CGPoint(x: 0.5, y: 0.5)
-		}
-	}
-}
-
 private struct RGBA {
 	var red: CGFloat = 0
 	var green: CGFloat = 0
@@ -151,7 +113,7 @@ public class TweenProperty: Equatable {
 		self.tweenObject = target
 	}
 	
-	func proceed(dt: CFTimeInterval, reversed: Bool = false) -> Bool {
+	func proceed(_ dt: CFTimeInterval, reversed: Bool = false) -> Bool {
 		self.dt = dt
 		let end = delay + duration
 		
@@ -308,7 +270,7 @@ public class ValueProperty: TweenProperty {
 public class StructProperty: ValueProperty {
 	var currentValue: CGFloat? {
 		get {
-			if let frame = tweenObject.frame, prop = property {
+			if let frame = tweenObject.frame, let prop = property {
 				switch prop {
 				case .X(_):
 					return CGRectGetMinX(frame)
@@ -377,9 +339,9 @@ public class PointProperty: TweenProperty {
 	}
 	
 	override func prepare() {
-		if let origin = tweenObject.origin, center = tweenObject.center, prop = property {
+		if let origin = tweenObject.origin, let center = tweenObject.center, let prop = property {
 			if additive {
-				if let target = tweenObject.target, lastProp = TweenManager.sharedInstance.lastPropertyForTarget(target, type: prop) as? PointProperty {
+				if let target = tweenObject.target, let lastProp = TweenManager.sharedInstance.lastPropertyForTarget(target, type: prop) as? PointProperty {
 					from = lastProp.to
 				}
 			} else {
@@ -433,7 +395,7 @@ public class PointProperty: TweenProperty {
 		let value = point
 		
 		if additive {
-			if let origin = tweenObject.origin, center = tweenObject.center {
+			if let origin = tweenObject.origin, let center = tweenObject.center {
 				let delta = CGPoint(x: point.x - current.x, y: point.y - current.y)
 				point.x = ((targetCenter) ? center.x : origin.x) + delta.x
 				point.y = ((targetCenter) ? center.y : origin.y) + delta.y
@@ -465,9 +427,9 @@ public class SizeProperty: TweenProperty {
 	}
 	
 	override func prepare() {
-		if let size = tweenObject.size, prop = property {
+		if let size = tweenObject.size, let prop = property {
 			if additive {
-				if let target = tweenObject.target, lastProp = TweenManager.sharedInstance.lastPropertyForTarget(target, type: prop) as? SizeProperty {
+				if let target = tweenObject.target, let lastProp = TweenManager.sharedInstance.lastPropertyForTarget(target, type: prop) as? SizeProperty {
 					from = lastProp.to
 				}
 			} else {
@@ -519,7 +481,7 @@ public class RectProperty: TweenProperty {
 	
 	override func prepare() {
 		if additive {
-			if let target = tweenObject.target, prop = property, lastProp = TweenManager.sharedInstance.lastPropertyForTarget(target, type: prop) as? RectProperty {
+			if let target = tweenObject.target, let prop = property, let lastProp = TweenManager.sharedInstance.lastPropertyForTarget(target, type: prop) as? RectProperty {
 				from = lastProp.to
 			}
 		} else {
@@ -759,7 +721,7 @@ public class ObjectProperty: ValueProperty {
 	
 	override func prepare() {
 		if additive {
-			if let target = tweenObject.target, value = target.valueForKeyPath(keyPath) as? CGFloat {
+			if let target = tweenObject.target, let value = target.valueForKeyPath(keyPath) as? CGFloat {
 				if mode == .To {
 					from = value
 				}

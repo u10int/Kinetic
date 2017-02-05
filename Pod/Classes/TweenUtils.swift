@@ -80,6 +80,7 @@ class TweenUtils {
 //		return propKey
 //	}
 	
+/*
 	static func sortProperties(props: [TweenProperty]) -> [TweenProperty] {
 		var sorted = [TweenProperty]()
 		var transform: TransformProperty?
@@ -98,4 +99,5 @@ class TweenUtils {
 		
 		return sorted
 	}
+*/
 }

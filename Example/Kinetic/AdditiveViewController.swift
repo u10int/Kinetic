@@ -13,7 +13,7 @@ class AdditiveViewController: ExampleViewController {
 	var square: UIView!
 	var timeline: Timeline!
 	
-	override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
+	override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
 		super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
 		
 		title = "Additive"
@@ -26,12 +26,12 @@ class AdditiveViewController: ExampleViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		
-		view.backgroundColor = UIColor.whiteColor()
+		view.backgroundColor = UIColor.white
 		hideButtons()
 		
 		square = UIView()
-		square.frame = CGRectMake(50, 50, 50, 50)
-		square.backgroundColor = UIColor.redColor()
+		square.frame = CGRect(x: 50, y: 50, width: 50, height: 50)
+		square.backgroundColor = UIColor.red
 		view.addSubview(square)
 		
 		let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(AdditiveViewController.handleTap(_:)))
@@ -41,8 +41,8 @@ class AdditiveViewController: ExampleViewController {
 		animation = timeline
 	}
 	
-	func handleTap(gestureRecognizer: UITapGestureRecognizer) {
-		let point = gestureRecognizer.locationInView(view)				
+	func handleTap(_ gestureRecognizer: UITapGestureRecognizer) {
+		let point = gestureRecognizer.location(in: view)				
 		let move = Kinetic.animate(square).to(Center(point.x, point.y)).duration(1).ease(.QuadInOut)
 		
 		move.play()

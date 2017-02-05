@@ -13,9 +13,9 @@ public protocol Animator {
 	var timingFunction: TimingFunctionType { get set }
 	var additive: Bool { get set }
 	var finished: Bool { get }
-	func seek(time: Double)
+	func seek(_ time: Double)
 	func reset()
-	func advance(time: Double)
+	func advance(_ time: Double)
 }
 
 final public class BasicAnimator: Animator {
@@ -49,7 +49,7 @@ final public class BasicAnimator: Animator {
 	
 	// MARK: Public Methods
 	
-	public func seek(time: Double) {
+	public func seek(_ time: Double) {
 		elapsed = time
 		advance(0)
 	}
@@ -61,7 +61,7 @@ final public class BasicAnimator: Animator {
 		}
 	}
 	
-	public func advance(time: Double) {
+	public func advance(_ time: Double) {
 		elapsed += time
 		elapsed = max(0, elapsed)
 		reversed = time < 0
@@ -79,13 +79,13 @@ final public class BasicAnimator: Animator {
 			adjustedProgress = timingFunction.solveForTime(progress)
 		}
 		
-		let test = from.value.interpolatable.interpolateTo(to.value.interpolatable, progress: adjustedProgress)
-		value.apply(test)		
+		let test = from.value.interpolatable.interpolate(to: to.value.interpolatable, progress: adjustedProgress)
+		value.apply(test)
 //		print("Animator.advance() - elapsed: \(elapsed), progress: \(progress), from: \(from.value), to: \(to.value)")
 		changed?(self, value)
 	}
 	
-	public func onChange(block: ((BasicAnimator, TweenProp) -> Void)?) {
+	public func onChange(_ block: ((BasicAnimator, TweenProp) -> Void)?) {
 		changed = block
 	}
 }
@@ -119,7 +119,7 @@ final public class TransformAnimator: Animator {
 	
 	// MARK: Public Methods
 	
-	public func seek(time: Double) {
+	public func seek(_ time: Double) {
 		elapsed = time
 		advance(0)
 	}
@@ -128,7 +128,7 @@ final public class TransformAnimator: Animator {
 		elapsed = 0
 	}
 	
-	public func advance(time: Double) {
+	public func advance(_ time: Double) {
 		elapsed += time
 		elapsed = max(0, elapsed)
 		reversed = time < 0
@@ -145,12 +145,12 @@ final public class TransformAnimator: Animator {
 			adjustedProgress = timingFunction.solveForTime(progress)
 		}
 		
-		let scale = from.scale.value.interpolatable.interpolateTo(to.scale.value.interpolatable, progress: adjustedProgress)
-		let rotation = from.rotation.value.interpolatable.interpolateTo(to.rotation.value.interpolatable, progress: adjustedProgress)
-		let translation = from.translation.value.interpolatable.interpolateTo(to.translation.value.interpolatable, progress: adjustedProgress)
+		let scale = from.scale.value.interpolatable.interpolate(to: to.scale.value.interpolatable, progress: adjustedProgress)
+		let rotation = from.rotation.value.interpolatable.interpolate(to: to.rotation.value.interpolatable, progress: adjustedProgress)
+		let translation = from.translation.value.interpolatable.interpolate(to: to.translation.value.interpolatable, progress: adjustedProgress)
 		
 		value.scale.apply(scale)
-		value.rotation.apply(rotation)
+		value.rotation.apply(rotation as! Rotation)
 		value.translation.apply(translation)
 		
 //		print("Animator.advance() - elapsed: \(elapsed), progress: \(progress), from: \(from), to: \(to)")
@@ -158,7 +158,7 @@ final public class TransformAnimator: Animator {
 		changed?(self, value)
 	}
 	
-	public func onChange(block: ((Animator, Transform) -> Void)?) {
+	public func onChange(_ block: ((Animator, Transform) -> Void)?) {
 		changed = block
 	}
 }

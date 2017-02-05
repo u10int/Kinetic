@@ -10,7 +10,7 @@ import UIKit
 
 protocol Subscriber: AnyObject {
 	var id: UInt32 { get set }
-	func advance(time: Double) -> Bool
+	func advance(_ time: Double) -> Bool
 }
 
 final public class Scheduler {
@@ -23,15 +23,15 @@ final public class Scheduler {
 			return tweenCache
 		}
 	}
-	var timestamp: NSTimeInterval {
+	var timestamp: TimeInterval {
 		return displayLink.timestamp
 	}
 	
 	private var tweenCache = [NSObject: [Tween]]()
 	private lazy var displayLink: CADisplayLink = {
 		let link = CADisplayLink(target: self, selector: #selector(Scheduler.update(_:)))
-		link.paused = true
-		link.addToRunLoop(NSRunLoop.currentRunLoop(), forMode: NSRunLoopCommonModes)
+		link.isPaused = true
+		link.add(to: RunLoop.current, forMode: RunLoopMode.commonModes)
 		return link
 	}()
 	private var lastLoopTime: CFTimeInterval
@@ -45,7 +45,7 @@ final public class Scheduler {
 	
 	// MARK: Internal Methods
 	
-	func add(tween: Animation) {
+	func add(_ tween: Animation) {
 		guard !contains(tween) else { return }
 		objc_sync_enter(self)
 		defer {
@@ -64,20 +64,20 @@ final public class Scheduler {
 	}
 	
 	func pause() {
-		displayLink.paused = true
+		displayLink.isPaused = true
 	}
 	
 	func resume() {
 		lastLoopTime = CACurrentMediaTime()
-		displayLink.paused = (subscribers.count == 0)
+		displayLink.isPaused = (subscribers.count == 0)
 	}
 	
 	func stop() {
-		displayLink.paused = true
+		displayLink.isPaused = true
 //		displayLink.invalidate()
 	}
 	
-	func remove(tween: Animation) {
+	func remove(_ tween: Animation) {
 		subscribers[tween.id] = nil
 		
 		if subscribers.count == 0 {
@@ -85,7 +85,7 @@ final public class Scheduler {
 		}
 	}
 	
-	@objc func update(displayLink: CADisplayLink) {
+	@objc func update(_ displayLink: CADisplayLink) {
 		let dt = displayLink.timestamp - lastLoopTime
 		defer {
 			lastLoopTime = displayLink.timestamp
@@ -103,19 +103,19 @@ final public class Scheduler {
 		}
 	}
 	
-	func cache(tween: Tween, target: NSObject) {
+	func cache(_ tween: Tween, target: NSObject) {
 		if tweenCache[target] == nil {
 			tweenCache[target] = [Tween]()
 		}
-		if let tweens = tweenCache[target] where tweens.contains(tween) == false {
+		if let tweens = tweenCache[target], tweens.contains(tween) == false {
 			tweenCache[target]?.append(tween)
 		}
 	}
 	
-	func removeFromCache(tween: Tween, target: NSObject) {
+	func removeFromCache(_ tween: Tween, target: NSObject) {
 		if let tweens = tweenCache[target] {
-			if let index = tweens.indexOf(tween) {
-				tweenCache[target]?.removeAtIndex(index)
+			if let index = tweens.index(of: tween) {
+				tweenCache[target]?.remove(at: index)
 			}
 			
 			// remove object reference if all tweens have been removed from cache
@@ -125,7 +125,7 @@ final public class Scheduler {
 		}
 	}
 	
-	func removeFromCache(target: NSObject) {
+	func removeFromCache(_ target: NSObject) {
 		tweenCache[target] = nil
 	}
 	
@@ -133,7 +133,7 @@ final public class Scheduler {
 		tweenCache.removeAll()
 	}
 	
-	func tweensOfTarget(target: NSObject, activeOnly: Bool = false) -> [Tween]? {
+	func tweens(ofTarget target: NSObject, activeOnly: Bool = false) -> [Tween]? {
 		return tweenCache[target]
 	}
 	
@@ -148,7 +148,7 @@ final public class Scheduler {
 	
 	// MARK: Private Methods
 	
-	private func contains(animation: Animation) -> Bool {
+	private func contains(_ animation: Animation) -> Bool {
 		var contains = false
 		
 		for (_, anim) in subscribers {

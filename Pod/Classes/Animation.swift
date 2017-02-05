@@ -9,7 +9,7 @@
 import UIKit
 
 public protocol Animatable: AnyObject {
-	typealias AnimationType
+	associatedtype AnimationType
 	
 	var active: Bool { get }
 	var paused: Bool { get }
@@ -24,10 +24,10 @@ public protocol Animatable: AnyObject {
 	var totalDuration: CFTimeInterval { get }
 	var elapsed: CFTimeInterval { get }
 	
-	func duration(duration: CFTimeInterval) -> AnimationType
-	func delay(delay: CFTimeInterval) -> AnimationType
-	func repeatCount(count: Int) -> AnimationType
-	func repeatDelay(delay: CFTimeInterval) -> AnimationType
+	func duration(_ duration: CFTimeInterval) -> AnimationType
+	func delay(_ delay: CFTimeInterval) -> AnimationType
+	func repeatCount(_ count: Int) -> AnimationType
+	func repeatDelay(_ delay: CFTimeInterval) -> AnimationType
 	func forever() -> AnimationType
 	func yoyo() -> AnimationType
 	
@@ -35,14 +35,14 @@ public protocol Animatable: AnyObject {
 	func stop()
 	func pause()
 	func resume()
-	func seek(time: CFTimeInterval) -> AnimationType
+	func seek(_ time: CFTimeInterval) -> AnimationType
 	func forward() -> AnimationType
 	func reverse() -> AnimationType
-	func restart(includeDelay: Bool)
+	func restart(_ includeDelay: Bool)
 	func progress() -> Float
-	func setProgress(progress: Float) -> AnimationType
+	func setProgress(_ progress: Float) -> AnimationType
 	func totalProgress() -> Float
-	func setTotalProgress(progress: Float) -> AnimationType
+	func setTotalProgress(_ progress: Float) -> AnimationType
 	func time() -> CFTimeInterval
 	
 	func kill()
@@ -118,7 +118,7 @@ public class Animation: NSObject, Animatable, Subscriber {
 	
 	// MARK: Animatable
 	
-	public func duration(duration: CFTimeInterval) -> AnimationType {
+	public func duration(_ duration: CFTimeInterval) -> AnimationType {
 		self.duration = duration
 		return self
 	}
@@ -131,17 +131,17 @@ public class Animation: NSObject, Animatable, Subscriber {
 //		return self
 //	}
 	
-	public func delay(delay: CFTimeInterval) -> AnimationType {
+	public func delay(_ delay: CFTimeInterval) -> AnimationType {
 		self.delay = delay
 		return self
 	}
 	
-	public func repeatCount(count: Int) -> AnimationType {
+	public func repeatCount(_ count: Int) -> AnimationType {
 		repeatCount = count
 		return self
 	}
 	
-	public func repeatDelay(delay: CFTimeInterval) -> AnimationType {
+	public func repeatDelay(_ delay: CFTimeInterval) -> AnimationType {
 		repeatDelay = delay
 		return self
 	}
@@ -186,7 +186,7 @@ public class Animation: NSObject, Animatable, Subscriber {
 		_animating = true
 	}
 	
-	public func seek(time: CFTimeInterval) -> AnimationType {
+	public func seek(_ time: CFTimeInterval) -> AnimationType {
 		let adjustedTime = elapsedTimeFromSeekTime(time)
 		elapsed = delay + adjustedTime
 		runningTime = time
@@ -203,7 +203,7 @@ public class Animation: NSObject, Animatable, Subscriber {
 		return self
 	}
 	
-	public func restart(includeDelay: Bool = false) {
+	public func restart(_ includeDelay: Bool = false) {
 		reset()
 		elapsed = includeDelay ? 0 : delay
 		play()
@@ -213,7 +213,7 @@ public class Animation: NSObject, Animatable, Subscriber {
 		return min(Float(elapsed / (delay + duration)), 1)
 	}
 	
-	public func setProgress(progress: Float) -> AnimationType {
+	public func setProgress(_ progress: Float) -> AnimationType {
 		seek(duration * CFTimeInterval(progress))
 		return self
 	}
@@ -222,7 +222,7 @@ public class Animation: NSObject, Animatable, Subscriber {
 		return min(Float(totalTime / totalDuration), 1)
 	}
 	
-	public func setTotalProgress(progress: Float) -> AnimationType {
+	public func setTotalProgress(_ progress: Float) -> AnimationType {
 		seek(totalDuration * CFTimeInterval(progress))
 		return self
 	}
@@ -275,7 +275,7 @@ public class Animation: NSObject, Animatable, Subscriber {
 		cycle = 0
 	}
 	
-	func advance(time: Double) -> Bool {
+	func advance(_ time: Double) -> Bool {
 		if !running {
 			return true
 		}
@@ -305,7 +305,7 @@ public class Animation: NSObject, Animatable, Subscriber {
 //		return false
 //	}
 	
-	func elapsedTimeFromSeekTime(time: CFTimeInterval) -> CFTimeInterval {
+	func elapsedTimeFromSeekTime(_ time: CFTimeInterval) -> CFTimeInterval {
 		var adjustedTime = time
 		
 		// seek time must be restricted to the duration of the timeline minus repeats and repeatDelays

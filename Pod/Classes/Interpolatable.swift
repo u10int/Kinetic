@@ -132,7 +132,7 @@ public struct InterpolatableValue {
 		self.type = type
 	}
 	
-	func interpolateTo(to: InterpolatableValue, progress: Double) -> InterpolatableValue {
+	func interpolate(to: InterpolatableValue, progress: Double) -> InterpolatableValue {
 		var diff = [CGFloat]()
 		let vectorCount = self.vectors.count
 		

@@ -12,7 +12,7 @@ import Kinetic
 class BasicFromToTweenViewController: ExampleViewController {
 	var square: UIView!
 	
-	override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
+	override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
 		super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
 		
 		title = "Basic From/To Tween"
@@ -25,11 +25,11 @@ class BasicFromToTweenViewController: ExampleViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		
-		view.backgroundColor = UIColor.whiteColor()
+		view.backgroundColor = UIColor.white
 		
 		square = UIView()
-		square.frame = CGRectMake(0, 200, 50, 50)
-		square.backgroundColor = UIColor.redColor()
+		square.frame = CGRect(x: 0, y: 200, width: 50, height: 50)
+		square.backgroundColor = UIColor.red
 		view.addSubview(square)
 		
 //		let tween = Kinetic.animate(square).from(.Position(50,50)).to(.Position(200,200), .Scale(2)).duration(0.5).ease(Easing.inOutCubic).delay(0.5)
@@ -40,6 +40,6 @@ class BasicFromToTweenViewController: ExampleViewController {
 	override func reset() {
 		super.reset()
 		square.layer.transform = CATransform3DIdentity
-		square.frame = CGRectMake(0, 200, 50, 50)
+		square.frame = CGRect(x: 0, y: 200, width: 50, height: 50)
 	}
 }

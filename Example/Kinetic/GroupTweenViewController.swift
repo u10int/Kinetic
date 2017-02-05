@@ -12,7 +12,7 @@ import Kinetic
 class GroupTweenViewController: ExampleViewController {
 	var square: UIView!
 	
-	override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
+	override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
 		super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
 		
 		title = "Grouped Tween"
@@ -25,11 +25,11 @@ class GroupTweenViewController: ExampleViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		
-		view.backgroundColor = UIColor.whiteColor()
+		view.backgroundColor = UIColor.white
 		
 		square = UIView()
-		square.frame = CGRectMake(50, 50, 50, 50)
-		square.backgroundColor = UIColor.redColor()
+		square.frame = CGRect(x: 50, y: 50, width: 50, height: 50)
+		square.backgroundColor = UIColor.red
 		view.addSubview(square)
 		
 		let moveX = Tween(target: square).to(X(200)).duration(0.5).ease(.CubicInOut)
@@ -44,8 +44,8 @@ class GroupTweenViewController: ExampleViewController {
 	
 	override func reset() {
 		super.reset()
-		square.frame = CGRectMake(50, 50, 50, 50)
-		square.backgroundColor = UIColor.redColor()
+		square.frame = CGRect(x: 50, y: 50, width: 50, height: 50)
+		square.backgroundColor = UIColor.red
 	}
 	
 }

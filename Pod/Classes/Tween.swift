@@ -8,7 +8,7 @@
 
 import UIKit
 
-public enum Anchor {
+public enum AnchorPoint {
 	case Default
 	case Center
 	case Top
@@ -53,19 +53,19 @@ public enum TweenMode {
 }
 
 public protocol Tweener {
-	typealias TweenType
+	associatedtype TweenType
 	
 	var antialiasing: Bool { get set }
 	weak var timeline: Timeline? { get set }
 	
-	func from(props: TweenProp...) -> TweenType
-	func to(props: TweenProp...) -> TweenType
+	func from(_ props: TweenProp...) -> TweenType
+	func to(_ props: TweenProp...) -> TweenType
 	
-	func ease(easing: Easing.EasingType) -> TweenType
+	func ease(_ easing: Easing.EasingType) -> TweenType
 	func spring(tension tension: Double, friction: Double) -> TweenType
-	func perspective(value: CGFloat) -> TweenType
-	func anchor(anchor: Anchor) -> TweenType
-	func anchorPoint(point: CGPoint) -> TweenType
+	func perspective(_ value: CGFloat) -> TweenType
+	func anchor(_ anchor: AnchorPoint) -> TweenType
+	func anchorPoint(_ point: CGPoint) -> TweenType
 }
 
 public class Tween: Animation, Tweener {
@@ -150,7 +150,7 @@ public class Tween: Animation, Tweener {
 	
 	// MARK: Animation Overrides
 	
-	override public func duration(duration: CFTimeInterval) -> Tween {
+	override public func duration(_ duration: CFTimeInterval) -> Tween {
 		super.duration(duration)
 		
 //		for prop in properties {
@@ -159,7 +159,7 @@ public class Tween: Animation, Tweener {
 		return self
 	}
 	
-	override public func delay(delay: CFTimeInterval) -> Tween {
+	override public func delay(_ delay: CFTimeInterval) -> Tween {
 		super.delay(delay)
 		
 		if timeline == nil {
@@ -169,7 +169,7 @@ public class Tween: Animation, Tweener {
 		return self
 	}
 	
-	override public func restart(includeDelay: Bool = false) {
+	override public func restart(_ includeDelay: Bool = false) {
 		super.restart(includeDelay)
 		
 //		for prop in properties {
@@ -231,19 +231,19 @@ public class Tween: Animation, Tweener {
 		return self
 	}
 	
-	public func from(props: TweenProp...) -> Tween {
-		return from(props)
+	public func from(_ props: TweenProp...) -> Tween {
+		return from(props: props as! [TweenProp])
 	}
 	
-	public func to(props: TweenProp...) -> Tween {
-		return to(props)
+	public func to(_ props: TweenProp...) -> Tween {
+		return to(props: props as! [TweenProp])
 	}
 	
 	// internal `from` and `to` methods that support a single array of Property types since we can't forward variadic arguments
 	func from(props: [TweenProp]) -> Tween {
 //		prepare(from: props, to: nil, mode: .From)
 		for prop in props {
-			add(prop, mode: .From)
+			add(prop: prop, mode: .From)
 		}
 		return self
 	}
@@ -251,12 +251,12 @@ public class Tween: Animation, Tweener {
 	func to(props: [TweenProp]) -> Tween {
 //		prepare(from: nil, to: props, mode: .To)
 		for prop in props {
-			add(prop, mode: .To)
+			add(prop: prop, mode: .To)
 		}
 		return self
 	}
 	
-	public func ease(easing: Easing.EasingType) -> Tween {
+	public func ease(_ easing: Easing.EasingType) -> Tween {
 		timingFunction = Easing(easing)
 //		for prop in properties {
 //			prop.easing = easing
@@ -272,16 +272,16 @@ public class Tween: Animation, Tweener {
 		return self
 	}
 	
-	public func perspective(value: CGFloat) -> Tween {
+	public func perspective(_ value: CGFloat) -> Tween {
 		tweenObject.perspective = value
 		return self
 	}
 	
-	public func anchor(anchor: Anchor) -> Tween {
+	public func anchor(_ anchor: AnchorPoint) -> Tween {
 		return anchorPoint(anchor.point())
 	}
 	
-	public func anchorPoint(point: CGPoint) -> Tween {
+	public func anchorPoint(_ point: CGPoint) -> Tween {
 		tweenObject.anchorPoint = point
 		return self
 	}
@@ -350,7 +350,7 @@ public class Tween: Animation, Tweener {
 		return self
 	}
 	
-	override public func seek(time: CFTimeInterval) -> Tween {
+	override public func seek(_ time: CFTimeInterval) -> Tween {
 		super.seek(time)
 		
 		let elapsedTime = elapsedTimeFromSeekTime(time)
@@ -423,7 +423,7 @@ public class Tween: Animation, Tweener {
 //		}
 //	}
 	
-	override func advance(time: Double) -> Bool {
+	override func advance(_ time: Double) -> Bool {
 //		print("Tween.advance() - id: \(id), running: \(running), paused: \(paused), startTime: \(startTime)")
 		if target == nil || !running {
 			return false
@@ -626,13 +626,13 @@ public class Tween: Animation, Tweener {
 				var to: TweenProp?
 				var type = prop.to ?? prop.from
 				
-				if let type = type, value = tweenObject.currentValueForTweenProp(type) {
+				if let type = type, let value = tweenObject.currentValueForTweenProp(type) {
 					from = value
 					to = value
 					
 					if let tweenFrom = prop.from {
 //						print("applying tweenFrom: \(tweenFrom)")
-						from?.apply(tweenFrom)
+						from?.apply(prop: tweenFrom)
 					} else if let previousTo = tweenedProps[key] {
 						from = previousTo
 //						print("no `from` value, using prevous tweened value \(previousTo)")
@@ -640,12 +640,12 @@ public class Tween: Animation, Tweener {
 					
 					if let tweenTo = prop.to {
 //						print("applying tweenTo: \(tweenTo)")
-						to?.apply(tweenTo)
+						to?.apply(prop: tweenTo)
 					}
 					
 					// need to update axes which are to be animated based on destination value
 					if type is Rotation {
-						if var _from = from as? Rotation, _to = to as? Rotation, tweenTo = prop.to as? Rotation {
+						if var _from = from as? Rotation, var _to = to as? Rotation, let tweenTo = prop.to as? Rotation {
 							_to.applyAxes(tweenTo)
 							_from.applyAxes(tweenTo)
 							from = _from
@@ -658,8 +658,8 @@ public class Tween: Animation, Tweener {
 				print(tweenedProps)				
 				print("ANIMATE - from: \(from), to: \(to)")
 				
-				if let from = from, to = to {
-					if let from = from as? TransformType, to = to as? TransformType {
+				if let from = from, let to = to {
+					if let from = from as? TransformType, let to = to as? TransformType {
 						transformFrom.apply(from)
 						transformTo.apply(to)
 						print("updating transform properties...")
@@ -685,8 +685,8 @@ public class Tween: Animation, Tweener {
 //				print("ANIMATE - transform - from: \(transformFrom), to: \(transformTo)")
 				let animator = TransformAnimator(from: transformFrom, to: transformTo, duration: duration, timingFunction: timingFunction)
 				animator.spring = spring
-				animator.onChange({ [unowned self] (animator, transform) in
-					transform.applyTo(self.tweenObject)
+				animator.onChange({ [weak self] (animator, transform) in
+					transform.applyTo(self?.tweenObject)
 				})
 				animators[key] = animator
 			}

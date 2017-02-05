@@ -18,8 +18,8 @@ class ViewController: UIViewController {
 	var square2: UIView!
 	var label: UILabel!
 	
-	private var originalSquareFrame = CGRectZero
-	private var originalSquare2Frame = CGRectZero
+	fileprivate var originalSquareFrame = CGRect.zero
+	fileprivate var originalSquare2Frame = CGRect.zero
 	
 	var tableView: UITableView!
 	var rows = [UIViewController]()
@@ -28,13 +28,13 @@ class ViewController: UIViewController {
 		super.viewDidLoad()
 		
 		title = "Kinetic"
-		view.backgroundColor = UIColor.whiteColor()
+		view.backgroundColor = UIColor.white
 		
 		tableView = UITableView()
 		tableView.frame = view.bounds
 		tableView.dataSource = self
 		tableView.delegate = self
-		tableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "Row")
+		tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Row")
 		view.addSubview(tableView)
 		
 		rows.append(BasicTweenViewController())
@@ -51,12 +51,12 @@ class ViewController: UIViewController {
 		rows.append(PreloaderViewController())
 	}
 	
-	override func viewWillAppear(animated: Bool) {
+	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 		tableView.reloadData()
 	}
 	
-	override func viewDidAppear(animated: Bool) {
+	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
 		
 //		let t = Tween(target: square).toTest(PositionProp(50, 60), SizeProp(width: 200), AlphaProp(0.2)).to(.X(100)).duration(0.5).delay(0.5)
@@ -67,16 +67,16 @@ class ViewController: UIViewController {
 
 extension ViewController: UITableViewDataSource {
 	
-	func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+	func numberOfSections(in tableView: UITableView) -> Int {
 		return 1
 	}
 	
-	func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 		return rows.count
 	}
 	
-	func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-		let cell = tableView.dequeueReusableCellWithIdentifier("Row", forIndexPath: indexPath)
+	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+		let cell = tableView.dequeueReusableCell(withIdentifier: "Row", for: indexPath)
 		let controller = rows[indexPath.row]
 		
 		cell.textLabel?.text = controller.title
@@ -87,7 +87,7 @@ extension ViewController: UITableViewDataSource {
 
 extension ViewController: UITableViewDelegate {
 	
-	func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+	func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 		let controller = rows[indexPath.row]
 		navigationController?.pushViewController(controller, animated: true)
 	}

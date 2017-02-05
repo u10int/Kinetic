@@ -17,7 +17,7 @@ public func animate(target: NSObject) -> Tween {
 public func animateAll(targets: [NSObject]) -> Timeline {
 	let timeline = Timeline()
 	
-	for (idx, target) in targets.enumerate() {
+	for (idx, target) in targets.enumerated() {
 		let tween = Tween(target: target)
 		timeline.add(tween, position: 0)
 	}
@@ -27,29 +27,29 @@ public func animateAll(targets: [NSObject]) -> Timeline {
 
 public func set(target: NSObject, props: TweenProp...) {
 	let tween = Tween(target: target)
-	tween.to(props)
+	tween.to(props as! TweenProp)
 	tween.duration = 0
 	tween.seek(tween.duration)
 }
 
 public func setAll(targets: [NSObject], props: TweenProp...) {
-	for (_, item) in targets.enumerate() {
+	for (_, item) in targets.enumerated() {
 		let tween = Tween(target: item)
-		tween.to(props)
+		tween.to(props as! TweenProp)
 		tween.duration = 0
 		tween.seek(tween.duration)
 	}
 }
 
 public func tweensOf(target: NSObject) -> [Tween]? {
-	return Scheduler.sharedInstance.tweensOfTarget(target)
+	return Scheduler.sharedInstance.tweens(ofTarget: target)
 }
 
 public func killTweensOf(target: NSObject) {
-	if let tweens = Scheduler.sharedInstance.tweensOfTarget(target) {
+	if let tweens = Scheduler.sharedInstance.tweens(ofTarget: target) {
 		for tween in tweens {
 			tween.kill()
-			tween.timeline?.remove(tween)
+			tween.timeline?.remove(tween: tween)
 		}
 	}
 	Scheduler.sharedInstance.removeFromCache(target)
@@ -59,7 +59,7 @@ public func killAll() {
 	for (_, var tweens) in Scheduler.sharedInstance.cache {
 		for tween in tweens {
 			tween.kill()
-			tween.timeline?.remove(tween)
+			tween.timeline?.remove(tween: tween)
 		}
 		tweens.removeAll()
 	}
