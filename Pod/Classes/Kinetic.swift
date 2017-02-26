@@ -8,16 +8,16 @@
 
 import UIKit
 
-public func animate(target: NSObject) -> Tween {
+public func animate(_ target: NSObject) -> Tween {
 	assert(target is [NSObject] == false, "Cannot create animation using `animate:` for array target, use `animateAll` instead.")
 	let tween = Tween(target: target)
 	return tween
 }
 
-public func animateAll(targets: [NSObject]) -> Timeline {
+public func animateAll(_ targets: [NSObject]) -> Timeline {
 	let timeline = Timeline()
 	
-	for (idx, target) in targets.enumerate() {
+	for (idx, target) in targets.enumerated() {
 		let tween = Tween(target: target)
 		timeline.add(tween, position: 0)
 	}
@@ -25,21 +25,21 @@ public func animateAll(targets: [NSObject]) -> Timeline {
 	return timeline
 }
 
-public func set(target: NSObject, props: Property...) {
+public func set(_ target: NSObject, props: Property...) {
 	set(target, props: props)
 }
 
-public func setAll(targets: [NSObject], props: Property...) {
-	for (_, target) in targets.enumerate() {
+public func setAll(_ targets: [NSObject], props: Property...) {
+	for (_, target) in targets.enumerated() {
 		set(target, props: props)
 	}
 }
 
-public func tweensOf(target: NSObject) -> [Tween]? {
+public func tweensOf(_ target: NSObject) -> [Tween]? {
 	return TweenManager.sharedInstance.tweensOfTarget(target)
 }
 
-public func killTweensOf(target: NSObject) {
+public func killTweensOf(_ target: NSObject) {
 	if let tweens = TweenManager.sharedInstance.tweensOfTarget(target) {
 		for tween in tweens {
 			tween.kill()
@@ -62,7 +62,7 @@ public func killAll() {
 
 // MARK: Private Methods
 
-private func set(target: NSObject, props: [Property]) {
+private func set(_ target: NSObject, props: [Property]) {
 	let tween = Tween(target: target)
 	tween.to(props)
 	tween.duration(0)

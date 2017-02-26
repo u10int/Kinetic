@@ -8,8 +8,8 @@
 
 import UIKit
 
-public class TweenManager {
-	public static let sharedInstance = TweenManager()
+open class TweenManager {
+	open static let sharedInstance = TweenManager()
 	
 	var tweens = [UInt32: Animation]()
 	var counter: UInt32
@@ -19,9 +19,9 @@ public class TweenManager {
 		}
 	}
 	
-	private var tweenCache = [NSObject: [Tween]]()
-	private var displayLink: CADisplayLink?
-	private var lastLoopTime: CFTimeInterval
+	fileprivate var tweenCache = [NSObject: [Tween]]()
+	fileprivate var displayLink: CADisplayLink?
+	fileprivate var lastLoopTime: CFTimeInterval
 	
 	// MARK: Lifecycle
 	
@@ -32,7 +32,7 @@ public class TweenManager {
 	
 	// MARK: Internal Methods
 	
-	func add(tween: Animation) {
+	func add(_ tween: Animation) {
 		guard !contains(tween) else { return }
 		objc_sync_enter(self)
 		defer {
@@ -51,19 +51,19 @@ public class TweenManager {
 		if displayLink == nil {
 			displayLink = CADisplayLink(target: self, selector: #selector(TweenManager.update(_:)))
 			lastLoopTime = CACurrentMediaTime()
-			displayLink?.addToRunLoop(NSRunLoop.currentRunLoop(), forMode: NSRunLoopCommonModes)
+			displayLink?.add(to: RunLoop.current, forMode: RunLoopMode.commonModes)
 		}
 	}
 	
 	func pause() {
 		guard let displayLink = displayLink else { return }
-		displayLink.paused = true
+		displayLink.isPaused = true
 	}
 	
 	func resume() {
 		guard let displayLink = displayLink else { return }
 		lastLoopTime = CACurrentMediaTime()
-		displayLink.paused = false
+		displayLink.isPaused = false
 	}
 	
 	func stop() {
@@ -72,7 +72,7 @@ public class TweenManager {
 		self.displayLink = nil
 	}
 	
-	func remove(tween: Animation) {
+	func remove(_ tween: Animation) {
 		tweens[tween.id] = nil
 		
 		if tweens.count == 0 {
@@ -80,7 +80,7 @@ public class TweenManager {
 		}
 	}
 	
-	@objc func update(displayLink: CADisplayLink) {
+	@objc func update(_ displayLink: CADisplayLink) {
 		let dt = displayLink.timestamp - lastLoopTime
 		defer {
 			lastLoopTime = displayLink.timestamp
@@ -100,19 +100,19 @@ public class TweenManager {
 		}
 	}
 	
-	func cache(tween: Tween, target: NSObject) {
+	func cache(_ tween: Tween, target: NSObject) {
 		if tweenCache[target] == nil {
 			tweenCache[target] = [Tween]()
 		}
-		if let tweens = tweenCache[target] where tweens.contains(tween) == false {
+		if let tweens = tweenCache[target], tweens.contains(tween) == false {
 			tweenCache[target]?.append(tween)
 		}
 	}
 	
-	func removeFromCache(tween: Tween, target: NSObject) {
+	func removeFromCache(_ tween: Tween, target: NSObject) {
 		if let tweens = tweenCache[target] {
-			if let index = tweens.indexOf(tween) {
-				tweenCache[target]?.removeAtIndex(index)
+			if let index = tweens.index(of: tween) {
+				tweenCache[target]?.remove(at: index)
 			}
 			
 			// remove object reference if all tweens have been removed from cache
@@ -122,7 +122,7 @@ public class TweenManager {
 		}
 	}
 	
-	func removeFromCache(target: NSObject) {
+	func removeFromCache(_ target: NSObject) {
 		tweenCache[target] = nil
 	}
 	
@@ -130,11 +130,11 @@ public class TweenManager {
 		tweenCache.removeAll()
 	}
 	
-	func tweensOfTarget(target: NSObject, activeOnly: Bool = false) -> [Tween]? {
+	func tweensOfTarget(_ target: NSObject, activeOnly: Bool = false) -> [Tween]? {
 		return tweenCache[target]
 	}
 	
-	func lastPropertyForTarget(target: NSObject, type: Property) -> TweenProperty? {
+	func lastPropertyForTarget(_ target: NSObject, type: Property) -> TweenProperty? {
 		let props = propertiesForTarget(target, type: type)
 		
 		if props.count > 1 {
@@ -145,7 +145,7 @@ public class TweenManager {
 	
 	// MARK: Private Methods
 	
-	private func contains(animation: Animation) -> Bool {
+	fileprivate func contains(_ animation: Animation) -> Bool {
 		var contains = false
 		
 		for (_, anim) in tweens {
@@ -158,7 +158,7 @@ public class TweenManager {
 		return contains
 	}
 	
-	private func propertiesForTarget(target: NSObject, type: Property) -> [TweenProperty] {
+	fileprivate func propertiesForTarget(_ target: NSObject, type: Property) -> [TweenProperty] {
 		var props = [TweenProperty]()
 		
 		if let tweens = tweensOfTarget(target) {

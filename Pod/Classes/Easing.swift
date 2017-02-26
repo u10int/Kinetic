@@ -13,7 +13,7 @@ import UIKit
 
 // MARK: - Easing
 
-public typealias Ease = (t: CGFloat, b: CGFloat, c: CGFloat) -> CGFloat
+public typealias Ease = (_ t: CGFloat, _ b: CGFloat, _ c: CGFloat) -> CGFloat
 
 public struct Easing {
 	public static let linear:Ease = { (t: CGFloat, b: CGFloat, c: CGFloat) -> CGFloat in
@@ -21,7 +21,7 @@ public struct Easing {
 	}
 	
 	// return easing with cubic bezier curve
-	public static func cubicBezier(c1x: CGFloat, _ c1y: CGFloat, _ c2x: CGFloat, _ c2y: CGFloat) -> Ease {
+	public static func cubicBezier(_ c1x: CGFloat, _ c1y: CGFloat, _ c2x: CGFloat, _ c2y: CGFloat) -> Ease {
 		let bezier = UnitBezier(p1x: c1x, p1y: c1y, p2x: c2x, p2y: c2y)
 		return { (t: CGFloat, b: CGFloat, c: CGFloat) -> CGFloat in
 			let y = bezier.solve(t)
@@ -81,19 +81,19 @@ struct UnitBezier {
 		ay = 1.0 - cy - by
 	}
 	
-	func sampleCurveX(t: CGFloat) -> CGFloat {
+	func sampleCurveX(_ t: CGFloat) -> CGFloat {
 		return ((ax * t + bx) * t + cx) * t
 	}
 	
-	func sampleCurveY(t: CGFloat) -> CGFloat {
+	func sampleCurveY(_ t: CGFloat) -> CGFloat {
 		return ((ay * t + by) * t + cy) * t
 	}
 	
-	func sampleCurveDerivativeX(t: CGFloat) -> CGFloat {
+	func sampleCurveDerivativeX(_ t: CGFloat) -> CGFloat {
 		return (3.0 * ax * t + 2.0 * bx) * t + cx
 	}
 	
-	func solveCurveX(x: CGFloat) -> CGFloat {
+	func solveCurveX(_ x: CGFloat) -> CGFloat {
 		var t0, t1, t2, x2, d2: CGFloat
 		
 		// first try a few iterations of Newton's method -- normally very fast
@@ -139,7 +139,7 @@ struct UnitBezier {
 		return t2
 	}
 	
-	func solve(x: CGFloat) -> CGFloat {
+	func solve(_ x: CGFloat) -> CGFloat {
 		return sampleCurveY(solveCurveX(x))
 	}
 }

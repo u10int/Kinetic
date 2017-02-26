@@ -12,7 +12,7 @@ import Kinetic
 class StaggerViewController: ExampleViewController {
 	var squares = [UIView]()
 	
-	override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
+	override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
 		super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
 		
 		title = "Stagger Tween"
@@ -25,21 +25,26 @@ class StaggerViewController: ExampleViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		
-		view.backgroundColor = UIColor.whiteColor()
+		view.backgroundColor = UIColor.white
 		
 		let total = 7
 		var y: CGFloat = 50
 		for _ in 0..<total {
 			let square = UIView()
-			square.frame = CGRectMake(50, y, 50, 50)
-			square.backgroundColor = UIColor.redColor()
+			square.frame = CGRect(x: 50, y: y, width: 50, height: 50)
+			square.backgroundColor = UIColor.red
 			view.addSubview(square)
 			
 			squares.append(square)
-			y = CGRectGetMaxY(square.frame) + 5
+			y = square.frame.maxY + 5
 		}
 				
-		let tween = Kinetic.animateAll(squares).to(.Width(200)).duration(1).stagger(0.08).spring(tension: 100, friction: 12)
+		let tween = Kinetic.animateAll(squares)
+			.to(.width(200))
+			.duration(1)
+			.stagger(0.08)
+			.spring(tension: 100, friction: 12)
+		
 		animation = tween
 	}
 	

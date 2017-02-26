@@ -12,7 +12,7 @@ import Kinetic
 class GroupTweenViewController: ExampleViewController {
 	var square: UIView!
 	
-	override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
+	override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
 		super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
 		
 		title = "Grouped Tween"
@@ -25,18 +25,18 @@ class GroupTweenViewController: ExampleViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		
-		view.backgroundColor = UIColor.whiteColor()
+		view.backgroundColor = UIColor.white
 		
 		square = UIView()
-		square.frame = CGRectMake(50, 50, 50, 50)
-		square.backgroundColor = UIColor.redColor()
+		square.frame = CGRect(x: 50, y: 50, width: 50, height: 50)
+		square.backgroundColor = UIColor.red
 		view.addSubview(square)
 		
-		let moveX = Tween(target: square).to(.X(200)).duration(0.5).ease(Easing.inOutCubic)
-		let moveY = Tween(target: square).to(.Y(290)).duration(0.75).ease(Easing.outSine)
-		let color = Tween(target: square).to(.BackgroundColor(UIColor.yellowColor())).duration(0.5).ease(Easing.outSine)
+		let moveX = Tween(target: square).to(.x(200)).duration(0.5).ease(Easing.inOutCubic)
+		let moveY = Tween(target: square).to(.y(290)).duration(0.75).ease(Easing.outSine)
+		let color = Tween(target: square).to(.backgroundColor(.yellow)).duration(0.5).ease(Easing.outSine)
 		
-		let timeline = Timeline(tweens: [moveX, moveY, color], align: .Start)
+		let timeline = Timeline(tweens: [moveX, moveY, color], align: .start)
 		timeline.yoyo().forever()
 		
 		animation = timeline
@@ -44,8 +44,8 @@ class GroupTweenViewController: ExampleViewController {
 	
 	override func reset() {
 		super.reset()
-		square.frame = CGRectMake(50, 50, 50, 50)
-		square.backgroundColor = UIColor.redColor()
+		square.frame = CGRect(x: 50, y: 50, width: 50, height: 50)
+		square.backgroundColor = UIColor.red
 	}
 	
 }

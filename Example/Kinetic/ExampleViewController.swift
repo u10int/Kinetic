@@ -18,11 +18,11 @@ class ExampleViewController: UIViewController {
 	
 	var animation: Animation?
 	
-	override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
+	override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
 		super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
 		
-		edgesForExtendedLayout = UIRectEdge.None
-		navigationController?.navigationBar.translucent = false
+		edgesForExtendedLayout = UIRectEdge()
+		navigationController?.navigationBar.isTranslucent = false
 	}
 
 	required init?(coder aDecoder: NSCoder) {
@@ -32,45 +32,45 @@ class ExampleViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-		playButton = UIButton(type: .RoundedRect)
+		playButton = UIButton(type: .roundedRect)
 		playButton.translatesAutoresizingMaskIntoConstraints = false
-		playButton.setTitle("Play", forState: .Normal)
-		playButton.addTarget(self, action: #selector(ExampleViewController.play), forControlEvents: .TouchUpInside)
+		playButton.setTitle("Play", for: UIControlState())
+		playButton.addTarget(self, action: #selector(ExampleViewController.play), for: .touchUpInside)
 		view.addSubview(playButton)
 		
-		stopButton = UIButton(type: .RoundedRect)
+		stopButton = UIButton(type: .roundedRect)
 		stopButton.translatesAutoresizingMaskIntoConstraints = false
-		stopButton.setTitle("Stop", forState: .Normal)
-		stopButton.addTarget(self, action: #selector(ExampleViewController.stop), forControlEvents: .TouchUpInside)
+		stopButton.setTitle("Stop", for: UIControlState())
+		stopButton.addTarget(self, action: #selector(ExampleViewController.stop), for: .touchUpInside)
 		view.addSubview(stopButton)
 		
-		pauseButton = UIButton(type: .RoundedRect)
+		pauseButton = UIButton(type: .roundedRect)
 		pauseButton.translatesAutoresizingMaskIntoConstraints = false
-		pauseButton.setTitle("Pause", forState: .Normal)
-		pauseButton.addTarget(self, action: #selector(ExampleViewController.pause), forControlEvents: .TouchUpInside)
+		pauseButton.setTitle("Pause", for: UIControlState())
+		pauseButton.addTarget(self, action: #selector(ExampleViewController.pause), for: .touchUpInside)
 		view.addSubview(pauseButton)
 		
-		resumeButton = UIButton(type: .RoundedRect)
+		resumeButton = UIButton(type: .roundedRect)
 		resumeButton.translatesAutoresizingMaskIntoConstraints = false
-		resumeButton.setTitle("Resume", forState: .Normal)
-		resumeButton.addTarget(self, action: #selector(ExampleViewController.resume), forControlEvents: .TouchUpInside)
+		resumeButton.setTitle("Resume", for: UIControlState())
+		resumeButton.addTarget(self, action: #selector(ExampleViewController.resume), for: .touchUpInside)
 		view.addSubview(resumeButton)
 		
-		resetButton = UIButton(type: .RoundedRect)
+		resetButton = UIButton(type: .roundedRect)
 		resetButton.translatesAutoresizingMaskIntoConstraints = false
-		resetButton.setTitle("Reset", forState: .Normal)
-		resetButton.addTarget(self, action: #selector(ExampleViewController.reset), forControlEvents: .TouchUpInside)
+		resetButton.setTitle("Reset", for: UIControlState())
+		resetButton.addTarget(self, action: #selector(ExampleViewController.reset), for: .touchUpInside)
 		view.addSubview(resetButton)
 		
 		// layout
 		let views = ["play": playButton, "stop": stopButton, "pause": pauseButton, "resume": resumeButton, "reset": resetButton]
-		let buttonHorizontal = NSLayoutConstraint.constraintsWithVisualFormat("H:|-10-[play(==60)]-[stop(==play)]-[pause(==play)]-[resume(==play)]-[reset(==play)]", options: .AlignAllBottom, metrics: nil, views: views)
-		let buttonVertical = NSLayoutConstraint.constraintsWithVisualFormat("V:[play]-20-|", options: [], metrics: nil, views: views)
+		let buttonHorizontal = NSLayoutConstraint.constraints(withVisualFormat: "H:|-10-[play(==60)]-[stop(==play)]-[pause(==play)]-[resume(==play)]-[reset(==play)]", options: .alignAllBottom, metrics: nil, views: views)
+		let buttonVertical = NSLayoutConstraint.constraints(withVisualFormat: "V:[play]-20-|", options: [], metrics: nil, views: views)
 		view.addConstraints(buttonHorizontal)
 		view.addConstraints(buttonVertical)
     }
 	
-	override func viewDidDisappear(animated: Bool) {
+	override func viewDidDisappear(_ animated: Bool) {
 		super.viewDidDisappear(animated)
 		
 		reset()
@@ -110,11 +110,11 @@ class ExampleViewController: UIViewController {
 	}
 	
 	func hideButtons() {
-		playButton.hidden = true
-		stopButton.hidden = true
-		pauseButton.hidden = true
-		resumeButton.hidden = true
-		resetButton.hidden = true
+		playButton.isHidden = true
+		stopButton.isHidden = true
+		pauseButton.isHidden = true
+		resumeButton.isHidden = true
+		resetButton.isHidden = true
 	}
 	
 }

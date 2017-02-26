@@ -17,7 +17,7 @@ class CountingLabelViewController: ExampleViewController {
 	var textLabel: UILabel!
 	var testObject: CustomObject!
 	
-	override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
+	override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
 		super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
 		
 		title = "Counting Label"
@@ -30,11 +30,11 @@ class CountingLabelViewController: ExampleViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		
-		view.backgroundColor = UIColor.whiteColor()
+		view.backgroundColor = UIColor.white
 		
 		textLabel = UILabel()
-		textLabel.font = UIFont.systemFontOfSize(40)
-		textLabel.textColor = UIColor.blackColor()
+		textLabel.font = UIFont.systemFont(ofSize: 40)
+		textLabel.textColor = UIColor.black
 		textLabel.frame = CGRect(x: 50, y: 50, width: 200, height: 50)
 		view.addSubview(textLabel)
 		
@@ -42,7 +42,7 @@ class CountingLabelViewController: ExampleViewController {
 		testObject.value = 50
 		textLabel.text = "\(testObject.value)"
 				
-		let tween = Kinetic.animate(testObject).to(.KeyPath("value", 250)).duration(1)
+		let tween = Kinetic.animate(testObject).to(.keyPath("value", 250)).duration(1)
 		tween.ease(Easing.outExpo).onUpdate { (animation) -> Void in
 			self.textLabel.text = "\(round(self.testObject.value))"
 		}.onComplete({ (animation) -> Void in

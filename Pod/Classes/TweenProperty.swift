@@ -9,62 +9,62 @@
 import UIKit
 
 public enum Property {
-	case X(CGFloat)
-	case Y(CGFloat)
-	case Position(CGFloat, CGFloat)
-	case CenterX(CGFloat)
-	case CenterY(CGFloat)
-	case Center(CGFloat, CGFloat)
-	case Shift(CGFloat, CGFloat)
-	case Width(CGFloat)
-	case Height(CGFloat)
-	case Size(CGFloat, CGFloat)
-	case Translate(CGFloat, CGFloat)
-	case Scale(CGFloat)
-	case ScaleXY(CGFloat, CGFloat)
-	case Rotate(CGFloat)
-	case RotateX(CGFloat)
-	case RotateY(CGFloat)
-	case Transform(CATransform3D)
-	case Alpha(CGFloat)
-	case BackgroundColor(UIColor)
-	case FillColor(UIColor)
-	case StrokeColor(UIColor)
-	case TintColor(UIColor)
-	case KeyPath(String, CGFloat)
+	case x(CGFloat)
+	case y(CGFloat)
+	case position(CGFloat, CGFloat)
+	case centerX(CGFloat)
+	case centerY(CGFloat)
+	case center(CGFloat, CGFloat)
+	case shift(CGFloat, CGFloat)
+	case width(CGFloat)
+	case height(CGFloat)
+	case size(CGFloat, CGFloat)
+	case translate(CGFloat, CGFloat)
+	case scale(CGFloat)
+	case scaleXY(CGFloat, CGFloat)
+	case rotate(CGFloat)
+	case rotateX(CGFloat)
+	case rotateY(CGFloat)
+	case transform(CATransform3D)
+	case alpha(CGFloat)
+	case backgroundColor(UIColor)
+	case fillColor(UIColor)
+	case strokeColor(UIColor)
+	case tintColor(UIColor)
+	case keyPath(String, CGFloat)
 }
 
 public enum Anchor {
-	case Default
-	case Center
-	case Top
-	case TopLeft
-	case TopRight
-	case Bottom
-	case BottomLeft
-	case BottomRight
-	case Left
-	case Right
+	case `default`
+	case center
+	case top
+	case topLeft
+	case topRight
+	case bottom
+	case bottomLeft
+	case bottomRight
+	case left
+	case right
 	
 	public func point() -> CGPoint {
 		switch self {
-		case .Center:
+		case .center:
 			return CGPoint(x: 0.5, y: 0.5)
-		case .Top:
+		case .top:
 			return CGPoint(x: 0.5, y: 0)
-		case .TopLeft:
+		case .topLeft:
 			return CGPoint(x: 0, y: 0)
-		case .TopRight:
+		case .topRight:
 			return CGPoint(x: 1, y: 0)
-		case .Bottom:
+		case .bottom:
 			return CGPoint(x: 0.5, y: 1)
-		case .BottomLeft:
+		case .bottomLeft:
 			return CGPoint(x: 0, y: 1)
-		case .BottomRight:
+		case .bottomRight:
 			return CGPoint(x: 1, y: 1)
-		case .Left:
+		case .left:
 			return CGPoint(x: 0, y: 0.5)
-		case .Right:
+		case .right:
 			return CGPoint(x: 1, y: 0.5)
 		default:
 			return CGPoint(x: 0.5, y: 0.5)
@@ -78,19 +78,19 @@ private struct RGBA {
 	var blue: CGFloat = 0
 	var alpha: CGFloat = 0
 	
-	static func fromUIColor(color: UIColor) -> RGBA {
+	static func fromUIColor(_ color: UIColor) -> RGBA {
 		var rgba = RGBA()
 		color.getRed(&rgba.red, green: &rgba.green, blue: &rgba.blue, alpha: &rgba.alpha)
 		return rgba
 	}
 }
 
-public class TweenProperty: Equatable {
+open class TweenProperty: Equatable {
 	unowned var tweenObject: TweenObject
 	var property: Property?
-	var mode: TweenMode = .To {
+	var mode: TweenMode = .to {
 		didSet {
-			if mode != .To {
+			if mode != .to {
 				additive = false
 			}
 		}
@@ -108,7 +108,7 @@ public class TweenProperty: Equatable {
 		self.tweenObject = target
 	}
 	
-	func proceed(dt: CFTimeInterval, reversed: Bool = false) -> Bool {
+	func proceed(_ dt: CFTimeInterval, reversed: Bool = false) -> Bool {
 		self.dt = dt
 		let end = delay + duration
 		
@@ -140,7 +140,7 @@ public class TweenProperty: Equatable {
 		return elapsed >= end
 	}
 	
-	func seek(time: CFTimeInterval) {
+	func seek(_ time: CFTimeInterval) {
 		elapsed = delay + time
 		proceed(0)
 	}
@@ -168,13 +168,13 @@ public class TweenProperty: Equatable {
 	
 	// MARK: LERP Calculations
 	
-	func lerpFloat(from: CGFloat, to: CGFloat) -> CGFloat {
+	func lerpFloat(_ from: CGFloat, to: CGFloat) -> CGFloat {
 		if let spring = spring {
 			spring.proceed(dt / duration)
 			return from + (to - from) * CGFloat(spring.current)
 		}
 		
-		var value = easing(t: time, b: from, c: to - from)
+		var value = easing(time, from, to - from)
 		// deal with floating point precision issues when updating the last time interval
 		if time == 1.0 {
 			value = to
@@ -182,28 +182,28 @@ public class TweenProperty: Equatable {
 		return value
 	}
 	
-	func lerpPoint(from: CGPoint, to: CGPoint) -> CGPoint {
+	func lerpPoint(_ from: CGPoint, to: CGPoint) -> CGPoint {
 		return CGPoint(
 			x: lerpFloat(from.x, to: to.x),
 			y: lerpFloat(from.y, to: to.y)
 		)
 	}
 	
-	func lerpSize(from: CGSize, to: CGSize) -> CGSize {
+	func lerpSize(_ from: CGSize, to: CGSize) -> CGSize {
 		return CGSize(width: lerpFloat(
 			from.width, to: to.width),
 			height: lerpFloat(from.height, to: to.height)
 		)
 	}
 	
-	func lerpRect(from: CGRect, to: CGRect) -> CGRect {
+	func lerpRect(_ from: CGRect, to: CGRect) -> CGRect {
 		return CGRect(origin: lerpPoint(
 			from.origin, to: to.origin),
 			size: lerpSize(from.size, to: to.size)
 		)
 	}
 	
-	func lerpTransform(from: CATransform3D, to: CATransform3D) -> CATransform3D {
+	func lerpTransform(_ from: CATransform3D, to: CATransform3D) -> CATransform3D {
 		var transform = CATransform3DIdentity
 		
 		transform.m11 = lerpFloat(from.m11, to: to.m11)
@@ -229,7 +229,7 @@ public class TweenProperty: Equatable {
 		return transform
 	}
 	
-	func lerpColor(from: UIColor, to: UIColor) -> UIColor {
+	func lerpColor(_ from: UIColor, to: UIColor) -> UIColor {
 		let fromRGBA = RGBA.fromUIColor(from)
 		let toRGBA = RGBA.fromUIColor(to)
 		
@@ -246,7 +246,7 @@ public func ==(lhs: TweenProperty, rhs: TweenProperty) -> Bool {
 	return ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
 }
 
-public class ValueProperty: TweenProperty {
+open class ValueProperty: TweenProperty {
 	var from: CGFloat = 0
 	var to: CGFloat = 0
 	var current: CGFloat = 0
@@ -262,23 +262,23 @@ public class ValueProperty: TweenProperty {
 	}
 }
 
-public class StructProperty: ValueProperty {
+open class StructProperty: ValueProperty {
 	var currentValue: CGFloat? {
 		get {
-			if let frame = tweenObject.frame, prop = property {
+			if let frame = tweenObject.frame, let prop = property {
 				switch prop {
-				case .X(_):
-					return CGRectGetMinX(frame)
-				case .Y(_):
-					return CGRectGetMinY(frame)
-				case .CenterX(_):
-					return CGRectGetMidX(frame)
-				case .CenterY(_):
-					return CGRectGetMidY(frame)
-				case .Width(_):
-					return CGRectGetWidth(frame)
-				case .Height(_):
-					return CGRectGetHeight(frame)
+				case .x(_):
+					return frame.minX
+				case .y(_):
+					return frame.minY
+				case .centerX(_):
+					return frame.midX
+				case .centerY(_):
+					return frame.midY
+				case .width(_):
+					return frame.width
+				case .height(_):
+					return frame.height
 				default:
 					break
 				}
@@ -289,7 +289,7 @@ public class StructProperty: ValueProperty {
 	
 	override func prepare() {
 		if let value = currentValue {
-			if mode == .To {
+			if mode == .to {
 				from = value
 			}
 		}
@@ -301,16 +301,16 @@ public class StructProperty: ValueProperty {
 		updateTarget(value)
 	}
 	
-	private func updateTarget(value: CGFloat) {
+	fileprivate func updateTarget(_ value: CGFloat) {
 		if var frame = tweenObject.frame, let prop = property {
 			switch prop {
-			case .X(_):
+			case .x(_):
 				frame.origin.x = value
-			case .Y(_):
+			case .y(_):
 				frame.origin.y = value
-			case .Width(_):
+			case .width(_):
 				frame.size.width = value
-			case .Height(_):
+			case .height(_):
 				frame.size.height = value
 			default:
 				break
@@ -321,10 +321,10 @@ public class StructProperty: ValueProperty {
 	}
 }
 
-public class PointProperty: TweenProperty {
-	var from: CGPoint = CGPointZero
-	var to: CGPoint = CGPointZero
-	var current: CGPoint = CGPointZero
+open class PointProperty: TweenProperty {
+	var from: CGPoint = CGPoint.zero
+	var to: CGPoint = CGPoint.zero
+	var current: CGPoint = CGPoint.zero
 	var targetCenter: Bool = false
 	
 	init(target: TweenObject, from: CGPoint, to: CGPoint) {
@@ -334,46 +334,46 @@ public class PointProperty: TweenProperty {
 	}
 	
 	override func prepare() {
-		if let origin = tweenObject.origin, center = tweenObject.center, prop = property {
+		if let origin = tweenObject.origin, let center = tweenObject.center, let prop = property {
 			if additive {
-				if let target = tweenObject.target, lastProp = TweenManager.sharedInstance.lastPropertyForTarget(target, type: prop) as? PointProperty {
+				if let target = tweenObject.target, let lastProp = TweenManager.sharedInstance.lastPropertyForTarget(target, type: prop) as? PointProperty {
 					from = lastProp.to
 				}
 			} else {
-				if mode == .To {
+				if mode == .to {
 					from = (targetCenter) ? center : origin
 				}
 			}
 			
 			switch prop {
-			case .X(_):
-				if mode == .To {
+			case .x(_):
+				if mode == .to {
 					to.y = origin.y
-				} else if mode == .From {
+				} else if mode == .from {
 					from.y = origin.y
 				}
-			case .Y(_):
-				if mode == .To {
+			case .y(_):
+				if mode == .to {
 					to.x = origin.x
-				} else if mode == .From {
+				} else if mode == .from {
 					from.x = origin.x
 				}
-			case .CenterX(_):
-				if mode == .To {
+			case .centerX(_):
+				if mode == .to {
 					to.y = center.y
-				} else if mode == .From {
+				} else if mode == .from {
 					from.y = center.y
 				}
-			case .CenterY(_):
-				if mode == .To {
+			case .centerY(_):
+				if mode == .to {
 					to.x = center.x
-				} else if mode == .From {
+				} else if mode == .from {
 					from.x = center.x
 				}
-			case .Shift(let shiftX, let shiftY):
-				if mode == .To {
+			case .shift(let shiftX, let shiftY):
+				if mode == .to {
 					to = CGPoint(x: origin.x + shiftX, y: origin.y + shiftY)
-				} else if mode == .From {
+				} else if mode == .from {
 					from = CGPoint(x: origin.x + shiftX, y: origin.y + shiftY)
 				}
 			default:
@@ -390,7 +390,7 @@ public class PointProperty: TweenProperty {
 		let value = point
 		
 		if additive {
-			if let origin = tweenObject.origin, center = tweenObject.center {
+			if let origin = tweenObject.origin, let center = tweenObject.center {
 				let delta = CGPoint(x: point.x - current.x, y: point.y - current.y)
 				point.x = ((targetCenter) ? center.x : origin.x) + delta.x
 				point.y = ((targetCenter) ? center.y : origin.y) + delta.y
@@ -401,7 +401,7 @@ public class PointProperty: TweenProperty {
 		updateTarget(point)
 	}
 	
-	private func updateTarget(value: CGPoint) {
+	fileprivate func updateTarget(_ value: CGPoint) {
 		if targetCenter {
 			tweenObject.center = value
 		} else {
@@ -410,10 +410,10 @@ public class PointProperty: TweenProperty {
 	}
 }
 
-public class SizeProperty: TweenProperty {
-	var from: CGSize = CGSizeZero
-	var to: CGSize = CGSizeZero
-	var current: CGSize = CGSizeZero
+open class SizeProperty: TweenProperty {
+	var from: CGSize = CGSize.zero
+	var to: CGSize = CGSize.zero
+	var current: CGSize = CGSize.zero
 	
 	init(target: TweenObject, from: CGSize, to: CGSize) {
 		super.init(target: target)
@@ -422,28 +422,28 @@ public class SizeProperty: TweenProperty {
 	}
 	
 	override func prepare() {
-		if let size = tweenObject.size, prop = property {
+		if let size = tweenObject.size, let prop = property {
 			if additive {
-				if let target = tweenObject.target, lastProp = TweenManager.sharedInstance.lastPropertyForTarget(target, type: prop) as? SizeProperty {
+				if let target = tweenObject.target, let lastProp = TweenManager.sharedInstance.lastPropertyForTarget(target, type: prop) as? SizeProperty {
 					from = lastProp.to
 				}
 			} else {
-				if mode == .To {
+				if mode == .to {
 					from = size
 				}
 			}
 			
 			switch prop {
-			case .Width(_):
-				if mode == .To {
+			case .width(_):
+				if mode == .to {
 					from.height = size.height
-				} else if mode == .From {
+				} else if mode == .from {
 					to.height = size.height
 				}
-			case .Height(_):
-				if mode == .To {
+			case .height(_):
+				if mode == .to {
 					from.width = size.width
-				} else if mode == .From {
+				} else if mode == .from {
 					to.width = size.width
 				}
 			default:
@@ -458,15 +458,15 @@ public class SizeProperty: TweenProperty {
 		updateTarget(value)
 	}
 	
-	private func updateTarget(value: CGSize) {
+	fileprivate func updateTarget(_ value: CGSize) {
 		tweenObject.size = value
 	}
 }
 
-public class RectProperty: TweenProperty {
-	var from: CGRect = CGRectZero
-	var to: CGRect = CGRectZero
-	var current: CGRect = CGRectZero
+open class RectProperty: TweenProperty {
+	var from: CGRect = CGRect.zero
+	var to: CGRect = CGRect.zero
+	var current: CGRect = CGRect.zero
 	
 	init(target: TweenObject, from: CGRect, to: CGRect) {
 		super.init(target: target)
@@ -476,12 +476,12 @@ public class RectProperty: TweenProperty {
 	
 	override func prepare() {
 		if additive {
-			if let target = tweenObject.target, prop = property, lastProp = TweenManager.sharedInstance.lastPropertyForTarget(target, type: prop) as? RectProperty {
+			if let target = tweenObject.target, let prop = property, let lastProp = TweenManager.sharedInstance.lastPropertyForTarget(target, type: prop) as? RectProperty {
 				from = lastProp.to
 			}
 		} else {
 			if let size = tweenObject.frame {
-				if mode == .To {
+				if mode == .to {
 					from = size
 				}
 			}
@@ -495,22 +495,22 @@ public class RectProperty: TweenProperty {
 		updateTarget(value)
 	}
 	
-	private func updateTarget(value: CGRect) {
+	fileprivate func updateTarget(_ value: CGRect) {
 		tweenObject.frame = value
 	}
 }
 
 // MARK: - Transforms
 
-public class TransformProperty: TweenProperty {
+open class TransformProperty: TweenProperty {
 	var from = Transform()
 	var to = Transform()
 	var current = Transform()
 	var propsByMode = [TweenMode: [Property]]()
 	
-	private var propOrder = [String]()
+	fileprivate var propOrder = [String]()
 	
-	func addProp(prop: Property, mode: TweenMode) {
+	func addProp(_ prop: Property, mode: TweenMode) {
 		if propsByMode[mode] == nil {
 			propsByMode[mode] = [Property]()
 		}
@@ -527,22 +527,22 @@ public class TransformProperty: TweenProperty {
 			
 			for prop in props {
 				switch prop {
-				case .Translate(_, _):
-					if mode == .From {
+				case .translate(_, _):
+					if mode == .from {
 						translateFrom = true
 					} else {
 						translateTo = true
 					}
 					propOrder.append(Translation.key)
-				case .Scale(_), .ScaleXY(_, _):
-					if mode == .From {
+				case .scale(_), .scaleXY(_, _):
+					if mode == .from {
 						scaleFrom = true
 					} else {
 						scaleTo = true
 					}
 					propOrder.append(Scale.key)
-				case .Rotate(_), .RotateX(_), .RotateY(_):
-					if mode == .From {
+				case .rotate(_), .rotateX(_), .rotateY(_):
+					if mode == .from {
 						rotateFrom = true
 					} else {
 						rotateTo = true
@@ -607,11 +607,11 @@ public class TransformProperty: TweenProperty {
 		updateTarget(t)
 	}
 	
-	private func updateTarget(value: Transform) {
+	fileprivate func updateTarget(_ value: Transform) {
 		tweenObject.transform = transformValue(value)
 	}
 	
-	private func transformValue(value: Transform) -> CATransform3D {
+	fileprivate func transformValue(_ value: Transform) -> CATransform3D {
 		var t = CATransform3DIdentity
 		var removeTranslationForRotate = false
 		
@@ -662,17 +662,17 @@ public class TransformProperty: TweenProperty {
 
 // MARK: - Color
 
-public class ColorProperty: TweenProperty {
+open class ColorProperty: TweenProperty {
 	var keyPath: String
-	var from: UIColor = UIColor.blackColor()
-	var to: UIColor = UIColor.blackColor()
+	var from: UIColor = UIColor.black
+	var to: UIColor = UIColor.black
 	
 	init(target: TweenObject, property: String, from: UIColor, to: UIColor) {
 		self.keyPath = property
 		super.init(target: target)
 		
 		if let target = tweenObject.target {
-			assert(target.respondsToSelector(Selector(property)), "Target for ColorProperty must contain a public property {\(property)}")
+			assert(target.responds(to: Selector(property)), "Target for ColorProperty must contain a public property {\(property)}")
 		}
 		
 		self.from = from
@@ -682,7 +682,7 @@ public class ColorProperty: TweenProperty {
 	override func prepare() {
 		if additive {
 			if let color = tweenObject.colorForKeyPath(keyPath) {
-				if mode == .To {
+				if mode == .to {
 					from = color
 				}
 			}
@@ -695,14 +695,14 @@ public class ColorProperty: TweenProperty {
 		updateTarget(value)
 	}
 	
-	private func updateTarget(value: UIColor) {
+	fileprivate func updateTarget(_ value: UIColor) {
 		tweenObject.setColor(value, forKeyPath: keyPath)
 	}
 }
 
 // MARK: Custom Objects
 
-public class ObjectProperty: ValueProperty {
+open class ObjectProperty: ValueProperty {
 	var keyPath: String
 	
 	init(target: TweenObject, keyPath: String, from: CGFloat, to: CGFloat) {
@@ -710,14 +710,14 @@ public class ObjectProperty: ValueProperty {
 		super.init(target: target, from: from, to: to)
 		
 		if let target = tweenObject.target {
-			assert(target.respondsToSelector(Selector(keyPath)), "Target for CustomProperty must contain a public property {\(keyPath)}")
+			assert(target.responds(to: Selector(keyPath)), "Target for CustomProperty must contain a public property {\(keyPath)}")
 		}
 	}
 	
 	override func prepare() {
 		if additive {
-			if let target = tweenObject.target, value = target.valueForKeyPath(keyPath) as? CGFloat {
-				if mode == .To {
+			if let target = tweenObject.target, let value = target.value(forKeyPath: keyPath) as? CGFloat {
+				if mode == .to {
 					from = value
 				}
 			}
@@ -730,7 +730,7 @@ public class ObjectProperty: ValueProperty {
 		updateTarget(value)
 	}
 	
-	private func updateTarget(value: CGFloat) {
+	fileprivate func updateTarget(_ value: CGFloat) {
 		if let target = tweenObject.target {
 			target.setValue(value, forKeyPath: keyPath)
 		}

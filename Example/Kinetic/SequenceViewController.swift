@@ -12,7 +12,7 @@ import Kinetic
 class SequenceViewController: ExampleViewController {
 	var square: UIView!
 
-	override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
+	override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
 		super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
 		
 		title = "Sequence"
@@ -25,26 +25,26 @@ class SequenceViewController: ExampleViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		
-		view.backgroundColor = UIColor.whiteColor()
+		view.backgroundColor = UIColor.white
 		
 		square = UIView()
-		square.frame = CGRectMake(50, 50, 50, 50)
-		square.backgroundColor = UIColor.redColor()
+		square.frame = CGRect(x: 50, y: 50, width: 50, height: 50)
+		square.backgroundColor = UIColor.red
 		view.addSubview(square)
 		
-		let moveX = Tween(target: square).to(.X(110)).duration(0.5).ease(Easing.inOutCubic)
+		let moveX = Tween(target: square).to(.x(110)).duration(0.5).ease(Easing.inOutCubic)
 		
-		let moveY = Tween(target: square).to(.Y(250), .BackgroundColor(UIColor.orangeColor())).duration(0.5).ease(Easing.inOutCubic)
+		let moveY = Tween(target: square).to(.y(250), .backgroundColor(.orange)).duration(0.5).ease(Easing.inOutCubic)
 		moveY.onStart { (animation) -> Void in
 			print("starting moveY")
 		}
 		
-		let resize = Tween(target: square).to(.Width(200), .BackgroundColor(UIColor.blueColor())).duration(0.5).ease(Easing.inOutCirc)
+		let resize = Tween(target: square).to(.width(200), .backgroundColor(.blue)).duration(0.5).ease(Easing.inOutCirc)
 		resize.onStart { (animation) -> Void in
 			print("starting resize")
 		}
 		
-		let timeline = Timeline(tweens: [moveX, moveY, resize], align: .Sequence)
+		let timeline = Timeline(tweens: [moveX, moveY, resize], align: .sequence)
 		timeline.yoyo().forever()
 		
 		animation = timeline
@@ -52,8 +52,8 @@ class SequenceViewController: ExampleViewController {
 	
 	override func reset() {
 		super.reset()
-		square.frame = CGRectMake(50, 50, 50, 50)
-		square.backgroundColor = UIColor.redColor()
+		square.frame = CGRect(x: 50, y: 50, width: 50, height: 50)
+		square.backgroundColor = UIColor.red
 	}
 
 }

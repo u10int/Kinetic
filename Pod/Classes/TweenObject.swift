@@ -242,7 +242,7 @@ class TweenObject {
 				targetLayer = view.layer
 			}
 			
-			if let layer = targetLayer, transform = layer.superlayer?.sublayerTransform {
+			if let layer = targetLayer, let transform = layer.superlayer?.sublayerTransform {
 				return transform.m34
 			}
 			return 0
@@ -266,8 +266,8 @@ class TweenObject {
 	
 	var backgroundColor: UIColor? {
 		get {
-			if let layer = target as? CALayer, color = layer.backgroundColor {
-				return UIColor(CGColor: color)
+			if let layer = target as? CALayer, let color = layer.backgroundColor {
+				return UIColor(cgColor: color)
 			} else if let view = target as? UIView {
 				return view.backgroundColor
 			}
@@ -276,7 +276,7 @@ class TweenObject {
 		set(newValue) {
 			if let value = newValue {
 				if let layer = target as? CALayer {
-					layer.backgroundColor = value.CGColor
+					layer.backgroundColor = value.cgColor
 				} else if let view = target as? UIView {
 					view.backgroundColor = value
 				}
@@ -302,8 +302,8 @@ class TweenObject {
 	
 	var fillColor: UIColor? {
 		get {
-			if let layer = target as? CAShapeLayer, color = layer.fillColor {
-				return UIColor(CGColor: color)
+			if let layer = target as? CAShapeLayer, let color = layer.fillColor {
+				return UIColor(cgColor: color)
 			}
 			return nil
 		}
@@ -311,7 +311,7 @@ class TweenObject {
 			if let value = newValue {
 				if let layer = target as? CAShapeLayer {
 					print("setting fill color to \(value)")
-					layer.fillColor = value.CGColor
+					layer.fillColor = value.cgColor
 				}
 			}
 		}
@@ -319,15 +319,15 @@ class TweenObject {
 	
 	var strokeColor: UIColor? {
 		get {
-			if let layer = target as? CAShapeLayer, color = layer.strokeColor {
-				return UIColor(CGColor: color)
+			if let layer = target as? CAShapeLayer, let color = layer.strokeColor {
+				return UIColor(cgColor: color)
 			}
 			return nil
 		}
 		set(newValue) {
 			if let value = newValue {
 				if let layer = target as? CAShapeLayer {
-					layer.strokeColor = value.CGColor
+					layer.strokeColor = value.cgColor
 				}
 			}
 		}
@@ -335,12 +335,12 @@ class TweenObject {
 	
 	// MARK: Public Methods
 	
-	func colorForKeyPath(keyPath: String) -> UIColor? {
+	func colorForKeyPath(_ keyPath: String) -> UIColor? {
 		if let target = target {
-			if target.respondsToSelector(Selector(keyPath)) {
-				if let color = target.valueForKeyPath(keyPath) as? UIColor {
-					if color is CGColorRef {
-						return UIColor(CGColor: color as! CGColorRef)
+			if target.responds(to: Selector(keyPath)) {
+				if let color = target.value(forKeyPath: keyPath) as? UIColor {
+					if color is CGColor {
+						return UIColor(cgColor: color as! CGColor)
 					} else {
 						return color
 					}
@@ -350,11 +350,11 @@ class TweenObject {
 		return nil
 	}
 	
-	func setColor(color: UIColor, forKeyPath keyPath: String) {
+	func setColor(_ color: UIColor, forKeyPath keyPath: String) {
 		if let target = target {
-			if target.respondsToSelector(Selector(keyPath)) {
+			if target.responds(to: Selector(keyPath)) {
 				if let layer = target as? CALayer {
-					layer.setValue(color.CGColor, forKeyPath: keyPath)
+					layer.setValue(color.cgColor, forKeyPath: keyPath)
 				} else {
 					target.setValue(color, forKeyPath: keyPath)
 				}
@@ -364,7 +364,7 @@ class TweenObject {
 	
 	// MARK: Private Methods
 	
-	private func performBlockByDisablingActions(block: () -> Void) {
+	fileprivate func performBlockByDisablingActions(_ block: () -> Void) {
 		CATransaction.begin()
 		CATransaction.setDisableActions(true)
 		block()

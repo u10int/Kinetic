@@ -13,7 +13,7 @@ class TransformViewController: ExampleViewController {
 	var greenSquare: UIView!
 	var blueSquare: UIView!
 	
-	override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
+	override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
 		super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
 		
 		title = "Transform"
@@ -26,36 +26,36 @@ class TransformViewController: ExampleViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		
-		view.backgroundColor = UIColor.whiteColor()
+		view.backgroundColor = UIColor.white
 		
 		greenSquare = UIView()
-		greenSquare.frame = CGRectMake(0, 50, 100, 100)
+		greenSquare.frame = CGRect(x: 0, y: 50, width: 100, height: 100)
 		greenSquare.backgroundColor = UIColor ( red: 0.0557, green: 0.7144, blue: 0.0677, alpha: 1.0 )
 		view.addSubview(greenSquare)
 		
 		blueSquare = UIView()
-		blueSquare.frame = CGRectMake(0, 50, 100, 100)
+		blueSquare.frame = CGRect(x: 0, y: 50, width: 100, height: 100)
 		blueSquare.backgroundColor = UIColor ( red: 0.0, green: 0.6126, blue: 0.9743, alpha: 1.0 )
 		view.addSubview(blueSquare)
 		
 		// layout
 		var frame = greenSquare.frame
-		frame.origin.x = CGRectGetMidX(view.frame) - CGRectGetWidth(frame) - 2
+		frame.origin.x = view.frame.midX - frame.width - 2
 		greenSquare.frame = frame
 		
-		frame.origin.x = CGRectGetMidX(view.frame) + 2
+		frame.origin.x = view.frame.midX + 2
 		blueSquare.frame = frame
 		
 		// animation
-		let timeline = Kinetic.animateAll([greenSquare, blueSquare]).to(.RotateY(CGFloat(M_PI_2))).duration(1)
+		let timeline = Kinetic.animateAll([greenSquare, blueSquare]).to(.rotateY(CGFloat(M_PI_2))).duration(1)
 		timeline.ease(Easing.inOutSine).perspective(1 / -1000).yoyo().repeatCount(3)
 		animation = timeline
 	}
 	
 	override func reset() {
 		super.reset()
-		greenSquare.transform = CGAffineTransformIdentity
-		blueSquare.transform = CGAffineTransformIdentity
+		greenSquare.transform = CGAffineTransform.identity
+		blueSquare.transform = CGAffineTransform.identity
 	}
 
 }

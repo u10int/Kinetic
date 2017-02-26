@@ -29,49 +29,49 @@ enum PropertyKey: String {
 
 class TweenUtils {
 	
-	static func propertyKeyForType(type: Property) -> String? {
+	static func propertyKeyForType(_ type: Property) -> String? {
 		var propKey: String?
 		
 		switch type {
-		case .KeyPath(let key, _):
+		case .keyPath(let key, _):
 			propKey = key
-		case .Alpha(_):
+		case .alpha(_):
 			propKey = PropertyKey.Alpha.rawValue
-		case .BackgroundColor(_):
+		case .backgroundColor(_):
 			propKey = PropertyKey.BackgroundColor.rawValue
-		case .FillColor(_):
+		case .fillColor(_):
 			propKey = PropertyKey.FillColor.rawValue
-		case .StrokeColor(_):
+		case .strokeColor(_):
 			propKey = PropertyKey.StrokeColor.rawValue
-		case .TintColor(_):
+		case .tintColor(_):
 			propKey = PropertyKey.TintColor.rawValue
-		case .X(_):
+		case .x(_):
 			propKey = PropertyKey.X.rawValue
-		case .Y(_):
+		case .y(_):
 			propKey = PropertyKey.Y.rawValue
-		case .Position(_, _), .Shift(_, _):
+		case .position(_, _), .shift(_, _):
 			propKey = PropertyKey.Position.rawValue
-		case .CenterX(_):
+		case .centerX(_):
 			propKey = PropertyKey.CenterX.rawValue
-		case .CenterY(_):
+		case .centerY(_):
 			propKey = PropertyKey.CenterY.rawValue
-		case .Center(_, _):
+		case .center(_, _):
 			propKey = PropertyKey.Center.rawValue
-		case .Width(_):
+		case .width(_):
 			propKey = PropertyKey.Width.rawValue
-		case .Height(_):
+		case .height(_):
 			propKey = PropertyKey.Height.rawValue
-		case .Size(_, _):
+		case .size(_, _):
 			propKey = PropertyKey.Size.rawValue
-		case .Translate(_, _):
+		case .translate(_, _):
 			propKey = PropertyKey.Transform.rawValue
-		case .Scale(_), .ScaleXY(_, _):
+		case .scale(_), .scaleXY(_, _):
 			propKey = PropertyKey.Transform.rawValue
-		case .Rotate(_):
+		case .rotate(_):
 			propKey = PropertyKey.Transform.rawValue
-		case .RotateX(_):
+		case .rotateX(_):
 			propKey = PropertyKey.Transform.rawValue
-		case .RotateY(_):
+		case .rotateY(_):
 			propKey = PropertyKey.Transform.rawValue
 		default:
 			propKey = PropertyKey.Transform.rawValue
@@ -80,7 +80,7 @@ class TweenUtils {
 		return propKey
 	}
 	
-	static func sortProperties(props: [TweenProperty]) -> [TweenProperty] {
+	static func sortProperties(_ props: [TweenProperty]) -> [TweenProperty] {
 		var sorted = [TweenProperty]()
 		var transform: TransformProperty?
 		
