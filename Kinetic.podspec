@@ -1,11 +1,11 @@
 
 Pod::Spec.new do |s|
   s.name             = "Kinetic"
-  s.version          = "0.9.3"
-  s.summary          = "A flexible tweening library for iOS written in Swift2 similar to GSAP and inspired by Cheetah."
+  s.version          = "0.9.5"
+  s.summary          = "A flexible tweening library for iOS written in Swift 3 similar to GSAP and inspired by Cheetah."
 
   s.description      = <<-DESC
-  						A flexible animation library written in Swift with features and usage very similar to Greensock's GSAP. Perform basic, grouped, sequential and staggered animations to achieve any type of animation, from the most basic to more complex. Supports both individual tweens and full-featured timelines to more easily create and control complex animations for multiple objects.
+  						A flexible animation library written in Swift 3 with features and usage very similar to Greensock's GSAP. Perform basic, grouped, sequential and staggered animations to achieve any type of animation, from the most basic to more complex. Supports both individual tweens and full-featured timelines to more easily create and control complex animations for multiple objects.
                        DESC
 
   s.homepage         = "https://github.com/u10int/Kinetic"
