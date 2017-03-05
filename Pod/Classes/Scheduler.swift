@@ -137,15 +137,6 @@ final public class Scheduler {
 		return tweenCache[target]
 	}
 	
-//	func lastPropertyForTarget(target: NSObject, type: Property) -> TweenProperty? {
-//		let props = propertiesForTarget(target, type: type)
-//		
-//		if props.count > 1 {
-//			return props[props.count - 2]
-//		}
-//		return nil
-//	}
-	
 	// MARK: Private Methods
 	
 	fileprivate func contains(_ animation: Animation) -> Bool {
@@ -160,18 +151,4 @@ final public class Scheduler {
 		
 		return contains
 	}
-	
-//	private func propertiesForTarget(target: NSObject, type: Property) -> [TweenProperty] {
-//		var props = [TweenProperty]()
-//		
-//		if let tweens = tweensOfTarget(target) {
-//			for tween in tweens {
-//				if let prop = tween.storedPropertyForType(type) {
-//					props.append(prop)
-//				}
-//			}
-//		}
-//		
-//		return props
-//	}
 }

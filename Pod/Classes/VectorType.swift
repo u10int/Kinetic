@@ -651,6 +651,16 @@ public struct FillColor: TweenProp {
 	}
 }
 
+public struct KeyPath: TweenProp {
+	public var key: String
+	public var value: Tweenable
+	
+	public init(_ keyPath: String, _ value: CGFloat) {
+		self.key = keyPath
+		self.value = ValueProp(value)
+	}
+}
+
 
 
 public protocol TransformType {}
