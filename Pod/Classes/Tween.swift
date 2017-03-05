@@ -683,12 +683,13 @@ open class Tween: Animation, Tweener {
 			let key = "transform"
 			if animators[key] == nil {
 //				print("ANIMATE - transform - from: \(transformFrom), to: \(transformTo)")
-				let animator = TransformAnimator(from: transformFrom, to: transformTo, duration: duration, timingFunction: timingFunction)
+				let animator = BasicAnimator(from: transformFrom, to: transformTo, duration: duration, timingFunction: timingFunction)
 				animator.spring = spring
-				animator.onChange({ [weak self] (animator, transform) in
-					if let target = self?.tweenObject {
-						transform.applyTo(target)
-					}
+				animator.onChange({ [weak self] (animator, value) in
+					self?.tweenObject.update(value)
+//					if let target = self?.tweenObject {
+//						transform.applyTo(target)
+//					}
 				})
 				animators[key] = animator
 			}

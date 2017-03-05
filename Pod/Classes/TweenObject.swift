@@ -335,6 +335,8 @@ class TweenObject {
 			self.backgroundColor = value
 		} else if let prop = prop as? FillColor, let value = prop.value.toInterpolatable() as? UIColor {
 			self.fillColor = value
+		} else if let transform = prop as? Transform {
+			transform.applyTo(self)
 		}
 	}
 	

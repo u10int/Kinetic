@@ -769,7 +769,12 @@ public func ==(lhs: Translation, rhs: Translation) -> Bool {
 	return false
 }
 
-public struct Transform: Equatable {
+public struct Transform: TweenProp, Equatable {
+	public var key: String {
+		return "transform"
+	}
+	public var value: Tweenable
+
 	public var scale: Scale
 	public var rotation: Rotation
 	public var translation: Translation
@@ -785,9 +790,11 @@ public struct Transform: Equatable {
 		self.scale = Scale.zero
 		self.rotation = Rotation.zero
 		self.translation = Translation.zero
+		self.value = ValueProp(NullValue)
 	}
 	
 	public init(_ transform: CATransform3D) {
+		self.init()
 		self.scale = transform.scale()
 		self.rotation = transform.rotation()
 		self.translation = transform.translation()
