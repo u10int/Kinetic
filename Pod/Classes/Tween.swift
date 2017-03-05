@@ -232,11 +232,11 @@ open class Tween: Animation, Tweener {
 	}
 	
 	open func from(_ props: TweenProp...) -> Tween {
-		return from(props )
+		return from(props)
 	}
 	
 	open func to(_ props: TweenProp...) -> Tween {
-		return to(props )
+		return to(props)
 	}
 	
 	// internal `from` and `to` methods that support a single array of Property types since we can't forward variadic arguments
@@ -437,7 +437,8 @@ open class Tween: Animation, Tweener {
 		
 		// if tween belongs to a timeline, don't start animating until the timeline's playhead reaches the tween's startTime
 		if let timeline = timeline {
-			if (!timeline.reversed && timeline.time() < startTime) || (timeline.reversed && timeline.time() > endTime) {
+//			print("Tween.advance() - id: \(id), timeline.time: \(timeline.time()), startTime: \(startTime), endTime: \(endTime), reversed: \(timeline.reversed)")
+			if timeline.time() < startTime || timeline.time() > endTime {
 				return false
 			}
 		}
@@ -446,7 +447,7 @@ open class Tween: Animation, Tweener {
 		let multiplier: CFTimeInterval = reversed ? -1 : 1
 		elapsed = max(0, min(elapsed + (time * multiplier), end))
 		runningTime += time
-//		print("Tween.advance() - time: \(runningTime), elapsed: \(elapsed)")
+//		print("Tween.advance() - id: \(id), time: \(runningTime), elapsed: \(elapsed), reversed: \(reversed)")
 		
 		let delayOffset = delay + staggerDelay + repeatDelay
 		if timeline == nil {
@@ -519,7 +520,6 @@ open class Tween: Animation, Tweener {
 //			}
 //		}
 		updateBlock?(self)
-//		print("...done: \(done)")
 		
 		if done {
 			return completed()
