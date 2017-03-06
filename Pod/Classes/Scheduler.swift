@@ -28,6 +28,7 @@ final public class Scheduler {
 	}
 	
 	fileprivate var tweenCache = [NSObject: [Tween]]()
+	fileprivate var tweenObjectCache = [NSObject: TweenObject]()
 	fileprivate lazy var displayLink: CADisplayLink = {
 		let link = CADisplayLink(target: self, selector: #selector(Scheduler.update(_:)))
 		link.isPaused = true
@@ -127,14 +128,40 @@ final public class Scheduler {
 	
 	func removeFromCache(_ target: NSObject) {
 		tweenCache[target] = nil
+		tweenObjectCache[target] = nil
 	}
 	
 	func removeAllFromCache() {
 		tweenCache.removeAll()
+		tweenObjectCache.removeAll()
 	}
 	
 	func tweens(ofTarget target: NSObject, activeOnly: Bool = false) -> [Tween]? {
 		return tweenCache[target]
+	}
+	
+	func cachedUpdater(ofTarget target: NSObject) -> TweenObject {
+		if let obj = tweenObjectCache[target] {
+			return obj
+		}
+		return TweenObject(target: target)
+	}
+	
+	func activeTweenPropsForKey(_ key: String, ofTarget target: NSObject) -> [FromToValue] {
+		var props = [FromToValue]()
+		if let tweens = tweens(ofTarget: target) {
+//			let reducedTweens = tweens.reversed()[0..<tweens.count]
+			tweens.forEach({ (tween) in
+				if tween.state == .running {
+					tween.properties.forEach({ (value) in
+						if value.to?.key == key {
+							props.append(value)
+						}
+					})
+				}
+			})
+		}
+		return props
 	}
 	
 	// MARK: Private Methods

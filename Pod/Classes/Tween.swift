@@ -484,7 +484,10 @@ open class Tween: Animation, Tweener {
 						from?.apply(tweenFrom)
 					} else if let previousTo = tweenedProps[key] {
 						from = previousTo
-//						print("no `from` value, using prevous tweened value \(previousTo)")
+						print("no `from` value, using prevous tweened value \(previousTo)")
+					} else if let tweenTo = prop.to, let activeValues = tweenObject.activeTweenValuesForKey(tweenTo.key), activeValues.count > 0 {
+						from = activeValues.last?.to
+						print("no `from` value, using last active tween value \(activeValues.last?.to)")
 					}
 					
 					if let tweenTo = prop.to {
@@ -513,13 +516,16 @@ open class Tween: Animation, Tweener {
 						transformTo.apply(to)
 						print("updating transform properties...")
 					} else {
-						let basicAnimator = BasicAnimator(from: from, to: to, duration: duration, timingFunction: timingFunction)
-						basicAnimator.spring = spring
-						basicAnimator.onChange({ [unowned self] (animator, value) in
+						let tweenAnimator = Animator(from: from, to: to, duration: duration, timingFunction: timingFunction)
+						tweenAnimator.spring = spring
+						tweenAnimator.setPresentation({ (prop) -> TweenProp? in
+							return self.tweenObject.currentValueForTweenProp(prop)
+						})
+						tweenAnimator.onChange({ [unowned self] (animator, value) in
 							self.tweenObject.update(value)
 						})
-						animator = basicAnimator
-						animators[key] = basicAnimator
+						animator = tweenAnimator
+						animators[key] = tweenAnimator
 						print("setting animator for key: \(key)")
 					}
 				} else {
@@ -532,7 +538,7 @@ open class Tween: Animation, Tweener {
 			let key = "transform"
 			if animators[key] == nil {
 //				print("ANIMATE - transform - from: \(transformFrom), to: \(transformTo)")
-				let animator = BasicAnimator(from: transformFrom, to: transformTo, duration: duration, timingFunction: timingFunction)
+				let animator = Animator(from: transformFrom, to: transformTo, duration: duration, timingFunction: timingFunction)
 				animator.spring = spring
 				animator.onChange({ [weak self] (animator, value) in
 					self?.tweenObject.update(value)
