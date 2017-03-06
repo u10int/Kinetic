@@ -52,6 +52,27 @@ public enum TweenMode {
 	case fromTo
 }
 
+public enum TweenState: Equatable {
+	case pending
+	case running
+	case cancelled
+	case completed
+}
+public func ==(lhs: TweenState, rhs: TweenState) -> Bool {
+	switch (lhs, rhs) {
+	case (.pending, .pending):
+		return true
+	case (.running, .running):
+		return true
+	case (.cancelled, .cancelled):
+		return true
+	case (.completed, .completed):
+		return true
+	default:
+		return false
+	}
+}
+
 public protocol Tweener {
 	associatedtype TweenType
 	
@@ -72,6 +93,7 @@ open class Tween: Animation, Tweener {
 	public typealias TweenType = Tween
 	public typealias AnimationType = Tween
 	
+	open var state: TweenState = .pending
 	open var target: NSObject? {
 		get {
 			return tweenObject.target
@@ -105,7 +127,7 @@ open class Tween: Animation, Tweener {
 		}
 	}
 	fileprivate var propertiesByType: Dictionary<String, FromToValue> = [String: FromToValue]()
-	fileprivate var animators = [String: Animator]()
+	private(set) var animators = [String: Animator]()
 	
 	var tweenObject: TweenObject
 	fileprivate var timingFunction: TimingFunctionType = LinearTimingFunction()
@@ -113,12 +135,15 @@ open class Tween: Animation, Tweener {
 	fileprivate var staggerDelay: CFTimeInterval = 0
 	fileprivate var needsPropertyPrep = false
 	fileprivate var spring: Spring?
+	
+	var additive = true;
 
 	
 	// MARK: Lifecycle
 	
 	required public init(target: NSObject) {
-		self.tweenObject = TweenObject(target: target)
+//		self.tweenObject = TweenObject(target: target)
+		self.tweenObject = Scheduler.sharedInstance.cachedUpdater(ofTarget: target)
 		super.init()
 		
 		Scheduler.sharedInstance.cache(self, target: target)
@@ -127,7 +152,7 @@ open class Tween: Animation, Tweener {
 	deinit {
 		kill()
 		propertiesByType.removeAll()
-		tweenObject.target = nil
+//		tweenObject.target = nil
 	}
 	
 	// MARK: Animation Overrides
@@ -385,12 +410,12 @@ open class Tween: Animation, Tweener {
 			}
 		}
 		
+		setupAnimatorsIfNeeded()
+		
 		// now we can finally animate
 		if !animating {
 			started()
 		}
-		
-		setupAnimatorsIfNeeded()
 		
 		var done = true
 		for (key, animator) in animators {
@@ -406,6 +431,22 @@ open class Tween: Animation, Tweener {
 			return completed()
 		}
 		return false
+	}
+	
+	override func started() {
+		super.started()
+		state = .running
+	}
+	
+	override func completed() -> Bool {
+		let done = super.completed()
+		
+		if done {
+			state = .completed
+			kill()
+		}
+		
+		return done
 	}
 	
 	// MARK: Private Methods
