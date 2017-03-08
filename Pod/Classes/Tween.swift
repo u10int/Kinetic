@@ -229,6 +229,10 @@ open class Tween: Animation, Tweener {
 		return to(props)
 	}
 	
+	func toTest(_ props: Property...) -> Tween {
+		return self
+	}
+	
 	// internal `from` and `to` methods that support a single array of Property types since we can't forward variadic arguments
 	func from(_ props: [TweenProp]) -> Tween {
 		for prop in props {

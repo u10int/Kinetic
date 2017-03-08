@@ -370,7 +370,65 @@ extension TweenProp {
 //	}
 //}
 
+
+
 let NullValue: CGFloat = -CGFloat.greatestFiniteMagnitude
+
+//public protocol Value {}
+public struct Value<T: Interpolatable> {
+	var interpolatable: T
+}
+//extension TweenValue {
+//	
+//}
+//
+
+public protocol Property {
+	var key: String { get }
+	var value: InterpolatableValue { get set }
+}
+extension Property {
+	
+	public mutating func apply(_ interpolatable: InterpolatableValue) {
+		var vectors = value.toInterpolatable().vectorize().vectors
+		let applyVectors = interpolatable.vectors
+		
+		for i in 0..<applyVectors.count {
+			if applyVectors[i] > NullValue { vectors[i] = applyVectors[i] }
+		}
+		
+		let type = self.value.type
+		self.value = InterpolatableValue(type: type, vectors: vectors)
+	}
+}
+
+public struct Frame: Property {
+	public var value: InterpolatableValue
+	public var key: String {
+		return "frame"
+	}
+	
+	init(value: Interpolatable) {
+		self.value = InterpolatableValue(type: .cgFloat, vectors: [NullValue])
+	}
+}
+
+//public struct Property<Value>: TweenValue {
+//	typealias Value
+//	
+//	public init<T: Interpolatable>(value: T) where Value == T {
+//		
+//	}
+//}
+//
+//
+//func testProp() {
+//	var size = TweenValue<CGSize>(value: .zero)
+//	size.value.width = 50
+//	size.value.vectorize().vectors
+//}
+
+
 
 public struct ValueProp: Tweenable {
 	public var interpolatable: InterpolatableValue {
@@ -416,7 +474,6 @@ public struct PointProp: Tweenable, Equatable {
 	fileprivate var value: CGPoint
 	
 	public init(_ x: CGFloat, _ y: CGFloat) {
-//		self.value = PointValue(Double(x), Double(y))
 		self.value = CGPoint(x: x, y: y)
 	}
 	
@@ -643,6 +700,17 @@ public struct BackgroundColor: TweenProp {
 public struct FillColor: TweenProp {
 	public var key: String {
 		return "fillColor"
+	}
+	public var value: Tweenable
+	
+	public init(_ color: UIColor) {
+		self.value = ColorProp(color)
+	}
+}
+
+public struct StrokeColor: TweenProp {
+	public var key: String {
+		return "strokeColor"
 	}
 	public var value: Tweenable
 	

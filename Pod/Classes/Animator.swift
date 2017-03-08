@@ -110,7 +110,7 @@ final public class Animator: Equatable {
 			}
 		}
 		
-		print("animator - progress: \(progress), current: \(current.value), from: \(from.value), to: \(to.value)")
+//		print("animator - progress: \(progress), current: \(current.value), from: \(from.value), to: \(to.value)")
 //		print("Animator.advance() - elapsed: \(elapsed), progress: \(progress), from: \(from.value), to: \(to.value)")
 		changed?(self, presentationValue)
 	}
