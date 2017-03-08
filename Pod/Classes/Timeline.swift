@@ -101,10 +101,10 @@ open class Timeline: Animation, Tweener {
 		var pos: CFTimeInterval = 0
 		for (idx, tween) in tweensToAdd.enumerated() {
 			if idx == 0 {
-				if let time = position as? CFTimeInterval {
-					pos = time
-				} else if let label = position as? NSString {
+				if let label = position as? String {
 					pos = time(fromString:label, relativeToTime: endTime)
+				} else if let time = position as? Float {
+					pos = CFTimeInterval(time)
 				}
 			}
 			if align != .start {
@@ -144,10 +144,10 @@ open class Timeline: Animation, Tweener {
 	open func add(label: String, position: Any = 0) -> Timeline {
 		var pos: CFTimeInterval = 0
 		
-		if let time = position as? CFTimeInterval {
-			pos = time
-		} else if let label = position as? NSString {
+		if let label = position as? String {
 			pos = time(fromString:label, relativeToTime: endTime)
+		} else if let time = position as? Float {
+			pos = CFTimeInterval(time)
 		}
 		
 		labels[label] = pos
@@ -159,10 +159,10 @@ open class Timeline: Animation, Tweener {
 	open func addCallback(_ position: Any, block: @escaping () -> Void) -> Timeline {
 		var pos: CFTimeInterval = 0
 		
-		if let time = position as? CFTimeInterval {
-			pos = time
-		} else if let label = position as? NSString {
+		if let label = position as? String {
 			pos = time(fromString:label, relativeToTime: endTime)
+		} else if let time = position as? Float {
+			pos = CFTimeInterval(time)
 		}
 		
 		callbacks[pos] = TimelineCallback(block: block)
@@ -443,7 +443,7 @@ open class Timeline: Animation, Tweener {
 		}
 		
 		let multiplier: CFTimeInterval = reversed ? -1 : 1
-		elapsed = max(0, min(elapsed + (time * multiplier), endTime))
+		elapsed = max(0, min(elapsed + (time * multiplier), endTime + repeatDelay))
 		runningTime += time
 		
 		// if animation doesn't repeat forever, cap elapsed time to endTime
@@ -461,6 +461,8 @@ open class Timeline: Animation, Tweener {
 				}
 			}
 		}
+		
+//		print("Timeline.advance() - elapsed: \(elapsed), delay: \(delay), duration: \(duration), repeatDelay: \(repeatDelay)")
 		
 		if elapsed < (delay + repeatDelay) {
 			if reversed {
@@ -484,7 +486,7 @@ open class Timeline: Animation, Tweener {
 		updateBlock?(self)
 		
 		// make sure we don't consider timeline done if we currently don't have any tweens playing
-		done = (elapsed <= delay || elapsed >= (delay + endTime))
+		done = (elapsed <= delay || elapsed >= (delay + endTime + repeatDelay))
 		if done {
 			return completed()
 		}
@@ -498,8 +500,9 @@ open class Timeline: Animation, Tweener {
 		Scheduler.sharedInstance.add(self)
 	}
 	
-	fileprivate func time(fromString string: NSString, relativeToTime time: CFTimeInterval = 0) -> CFTimeInterval {
+	fileprivate func time(fromString str: String, relativeToTime time: CFTimeInterval = 0) -> CFTimeInterval {
 		var position: CFTimeInterval = time
+		let string = NSString(string: str)
 		
 		let regex = try! NSRegularExpression(pattern: "(\\w+)?([\\+,\\-]=)(\\d+)", options: [])
 		let match = regex.firstMatch(in: string as String, options: [], range: NSRange(location: 0, length: string.length))
