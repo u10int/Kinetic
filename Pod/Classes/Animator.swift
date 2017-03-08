@@ -62,6 +62,7 @@ final public class Animator: Equatable {
 	
 	public func reset() {
 		elapsed = 0
+		current = from
 		if let spring = spring {
 			spring.reset()
 		}
@@ -101,11 +102,15 @@ final public class Animator: Equatable {
 			var interpolatedValue = from.value.interpolatable.interpolateTo(to.value.interpolatable, progress: adjustedProgress)
 			current.apply(interpolatedValue)
 			
-			// when an animation is additive, its presentation value needs to be adjusted so the transition is smooth
-			presentationValue = adjustForAdditive(prop: presentationValue, interpolatable: interpolatedValue)
+			if additive {
+				// when an animation is additive, its presentation value needs to be adjusted so the transition is smooth
+				presentationValue = adjustForAdditive(prop: presentationValue, interpolatable: interpolatedValue)
+			} else {
+				presentationValue = current
+			}
 		}
 		
-//		print("animator - value: \(value.value), from: \(from.value), to: \(to.value)")
+		print("animator - progress: \(progress), current: \(current.value), from: \(from.value), to: \(to.value)")
 //		print("Animator.advance() - elapsed: \(elapsed), progress: \(progress), from: \(from.value), to: \(to.value)")
 		changed?(self, presentationValue)
 	}

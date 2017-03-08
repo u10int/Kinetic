@@ -338,6 +338,10 @@ class TweenObject {
 			self.fillColor = value
 		} else if let transform = prop as? Transform {
 			transform.applyTo(self)
+		} else if let keyPath = prop as? KeyPath {
+			if let target = target, target.responds(to:Selector(keyPath.key)) {
+				target.setValue(prop.value.toInterpolatable(), forKey: keyPath.key)
+			}
 		}
 	}
 	
@@ -368,6 +372,9 @@ class TweenObject {
 			vectorValue = rotation
 		} else if let translation = translation, prop is Translation {
 			vectorValue = translation
+		} else if let target = target, prop is KeyPath {
+			let value = target.value(forKey: prop.key)
+			vectorValue = KeyPath(prop.key, value)
 		}
 		
 		return vectorValue

@@ -655,9 +655,28 @@ public struct KeyPath: TweenProp {
 	public var key: String
 	public var value: Tweenable
 	
-	public init(_ keyPath: String, _ value: CGFloat) {
+	public init(_ keyPath: String, _ value: Any) {
 		self.key = keyPath
-		self.value = ValueProp(value)
+		
+		if let number = value as? CGFloat {
+			self.value = ValueProp(number)
+		} else if let number = value as? Float {
+			self.value = ValueProp(CGFloat(number))
+		} else if let number = value as? Double {
+			self.value = ValueProp(CGFloat(number))
+		} else if let number = value as? Int {
+			self.value = ValueProp(CGFloat(number))
+		} else if let number = value as? NSNumber {
+			self.value = ValueProp(CGFloat(number))
+		} else if let point = value as? CGPoint {
+			self.value = PointProp(point.x, point.y)
+		} else if let size = value as? CGSize {
+			self.value = SizeProp(size.width, size.height)
+		} else if let color = value as? UIColor {
+			self.value = ColorProp(color)
+		} else {
+			self.value = ValueProp(NullValue)
+		}
 	}
 }
 

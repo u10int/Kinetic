@@ -517,6 +517,7 @@ open class Tween: Animation, Tweener {
 						print("updating transform properties...")
 					} else {
 						let tweenAnimator = Animator(from: from, to: to, duration: duration, timingFunction: timingFunction)
+						tweenAnimator.additive = (to is KeyPath == false)
 						tweenAnimator.spring = spring
 						tweenAnimator.setPresentation({ (prop) -> TweenProp? in
 							return self.tweenObject.currentValueForTweenProp(prop)
