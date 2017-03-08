@@ -89,9 +89,9 @@ final public class Animator: Equatable {
 		var presentationValue: TweenProp = current
 		
 		if let from = from as? Transform, let to = to as? Transform, var value = current as? Transform {
-			let scale = from.scale.value.interpolatable.interpolateTo(to.scale.value.interpolatable, progress: adjustedProgress)
-			let rotation = from.rotation.value.interpolatable.interpolateTo(to.rotation.value.interpolatable, progress: adjustedProgress)
-			let translation = from.translation.value.interpolatable.interpolateTo(to.translation.value.interpolatable, progress: adjustedProgress)
+			let scale = from.scale.value.interpolateTo(to.scale.value, progress: adjustedProgress)
+			let rotation = from.rotation.value.interpolateTo(to.rotation.value, progress: adjustedProgress)
+			let translation = from.translation.value.interpolateTo(to.translation.value, progress: adjustedProgress)
 			
 			value.scale.apply(scale)
 			value.rotation.apply(rotation)
@@ -99,7 +99,7 @@ final public class Animator: Equatable {
 			self.current = value
 			
 		} else {
-			var interpolatedValue = from.value.interpolatable.interpolateTo(to.value.interpolatable, progress: adjustedProgress)
+			var interpolatedValue = from.value.interpolateTo(to.value, progress: adjustedProgress)
 			current.apply(interpolatedValue)
 			
 			if additive {
@@ -110,7 +110,7 @@ final public class Animator: Equatable {
 			}
 		}
 		
-//		print("animator - progress: \(progress), current: \(current.value), from: \(from.value), to: \(to.value)")
+		print("animator - progress: \(progress), current: \(current.value.vectors), presentation: \(presentationValue.value.vectors), from: \(from.value.vectors), to: \(to.value.vectors)")
 //		print("Animator.advance() - elapsed: \(elapsed), progress: \(progress), from: \(from.value), to: \(to.value)")
 		changed?(self, presentationValue)
 	}

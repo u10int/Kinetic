@@ -229,10 +229,6 @@ open class Tween: Animation, Tweener {
 		return to(props)
 	}
 	
-	func toTest(_ props: Property...) -> Tween {
-		return self
-	}
-	
 	// internal `from` and `to` methods that support a single array of Property types since we can't forward variadic arguments
 	func from(_ props: [TweenProp]) -> Tween {
 		for prop in props {
@@ -369,6 +365,14 @@ open class Tween: Animation, Tweener {
 		
 		if mode == .from {
 			value.from = prop
+			// immediately set initial state for this property
+			if var current = tweenObject.currentValueForTweenProp(prop) {
+				if value.to == nil {
+					value.to = current
+				}
+				current.apply(prop)
+				tweenObject.update(current)
+			}
 		} else {
 			value.to = prop
 		}
@@ -474,7 +478,7 @@ open class Tween: Animation, Tweener {
 			var animator = animators[key]
 			
 			if animator == nil {
-				print("--------- tween.id: \(id) ------------")
+				print("--------- tween.id: \(id) - key: \(key) ------------")
 				var from: TweenProp?
 				var to: TweenProp?
 				var type = prop.to ?? prop.from
@@ -512,7 +516,7 @@ open class Tween: Animation, Tweener {
 					tweenedProps[key] = to
 				}
 				print(tweenedProps)				
-				print("ANIMATE - from: \(from), to: \(to)")
+				print("ANIMATE - \(key) - from: \(from), to: \(to)")
 				
 				if let from = from, let to = to {
 					if let from = from as? TransformType, let to = to as? TransformType {
@@ -527,6 +531,7 @@ open class Tween: Animation, Tweener {
 							return self.tweenObject.currentValueForTweenProp(prop)
 						})
 						tweenAnimator.onChange({ [unowned self] (animator, value) in
+							print("update: \(value)")
 							self.tweenObject.update(value)
 						})
 						animator = tweenAnimator

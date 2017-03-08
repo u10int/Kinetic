@@ -325,6 +325,7 @@ class TweenObject {
 		} else if let prop = prop as? Y, let value = prop.value.toInterpolatable() as? CGFloat {
 			self.origin?.y = value
 		} else if let prop = prop as? Position, let point = prop.value.toInterpolatable() as? CGPoint {
+			print(point)
 			self.origin = point
 		} else if let prop = prop as? Center, var value = prop.value.toInterpolatable() as? CGPoint {
 			self.center = value
@@ -355,11 +356,11 @@ class TweenObject {
 				vectorValue = Y(position.y)
 			}
 		} else if let position = origin, prop is Position {
-			vectorValue = Position(position.x, position.y)
+			vectorValue = Position(position)
 		} else if let center = center, prop is Center {
-			vectorValue = Center(center.x, center.y)
+			vectorValue = Center(center)
 		} else if let size = size, prop is Size {
-			vectorValue = Size(size.width, size.height)
+			vectorValue = Size(size)
 		} else if let alpha = alpha, prop is Alpha {
 			vectorValue = Alpha(alpha)
 		} else if let color = backgroundColor, prop is BackgroundColor {
@@ -372,8 +373,8 @@ class TweenObject {
 			vectorValue = rotation
 		} else if let translation = translation, prop is Translation {
 			vectorValue = translation
-		} else if let target = target, prop is KeyPath {
-			let value = target.value(forKey: prop.key)
+		} else if let target = target, let value = target.value(forKey: prop.key) as? Interpolatable, prop is KeyPath {
+//			let value = target.value(forKey: prop.key)
 			vectorValue = KeyPath(prop.key, value)
 		}
 		

@@ -8,16 +8,16 @@
 
 import UIKit
 
-protocol Tweenable {
-	
-}
-
-extension Tweenable where Self: UIView {
-	
-	
-}
-
-extension Tweenable where Self: CALayer {
-	
-	
-}
+//protocol Tweenable {
+//	
+//}
+//
+//extension Tweenable where Self: UIView {
+//	
+//	
+//}
+//
+//extension Tweenable where Self: CALayer {
+//	
+//	
+//}

@@ -125,7 +125,7 @@ extension Vector3: Interpolatable {
 	}
 }
 
-public struct InterpolatableValue {
+public struct InterpolatableValue: Equatable {
 	let type: InterpolatableType
 	var vectors: [CGFloat]
 	
@@ -188,4 +188,22 @@ public struct InterpolatableValue {
 			return Vector3(Double(vectors[0]), Double(vectors[1]), Double(vectors[2]))
 		}
 	}
+}
+public func ==(lhs: InterpolatableValue, rhs: InterpolatableValue) -> Bool {
+	var equals = true
+	
+	let vectors1 = lhs.vectors
+	let vectors2 = rhs.vectors
+	
+	if vectors1.count != vectors2.count {
+		return false
+	}
+	
+	for i in 0..<vectors1.count {
+		if vectors1[i] != vectors2[i] {
+			equals = false
+		}
+	}
+	
+	return equals
 }

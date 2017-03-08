@@ -268,18 +268,21 @@ extension Tweenable {
 	}
 }
 
-public protocol TweenProp {
-	var key: String { get }
-	var value: Tweenable { get set }
-}
-extension TweenProp {
-	public mutating func apply(_ prop: TweenProp) {
-		apply(prop.value.interpolatable)
-	}
-	public mutating func apply(_ interpolatable: InterpolatableValue) {
-		value.apply(interpolatable)
-	}
-}
+//public protocol TweenProp {
+//	var key: String { get }
+//	var value: Tweenable { get set }
+//}
+//extension TweenProp {
+//	public mutating func apply(_ prop: TweenProp) {
+//		apply(prop.value.interpolatable)
+//	}
+//	public mutating func apply(_ interpolatable: InterpolatableValue) {
+//		value.apply(interpolatable)
+//	}
+//}
+
+
+
 //public func ==<T: TweenProp>(lhs: T, rhs: T) -> Bool {
 //	return lhs.value == rhs.value
 //}
@@ -400,6 +403,104 @@ extension Property {
 		let type = self.value.type
 		self.value = InterpolatableValue(type: type, vectors: vectors)
 	}
+	
+	public mutating func apply(_ prop: Property) {
+		self.apply(prop.value)
+	}
+}
+
+public typealias TweenProp = Property
+public protocol TransformType {}
+
+public struct X: Property {
+	public var value: InterpolatableValue
+	public var key: String {
+		return "frame.x"
+	}
+	
+	public init(_ value: Interpolatable) {
+		self.value = InterpolatableValue(type: .cgFloat, vectors: value.vectorize().vectors)
+	}
+}
+
+public struct Y: Property {
+	public var value: InterpolatableValue
+	public var key: String {
+		return "frame.y"
+	}
+	
+	public init(_ value: Interpolatable) {
+		self.value = InterpolatableValue(type: .cgFloat, vectors: value.vectorize().vectors)
+	}
+}
+
+public struct Position: Property {
+	public var value: InterpolatableValue
+	public var key: String {
+		return "frame.origin"
+	}
+	
+	public init(_ value: Interpolatable) {
+		self.value = InterpolatableValue(type: .cgPoint, vectors: value.vectorize().vectors)
+	}
+	
+	public init(_ x: CGFloat, _ y: CGFloat) {
+		self.init(CGPoint(x: x, y: y))
+	}
+	
+	public init(x: CGFloat) {
+		self.init(CGPoint(x: x, y: NullValue))
+	}
+	
+	public init(y: CGFloat) {
+		self.init(CGPoint(x: NullValue, y: y))
+	}
+}
+
+public struct Center: Property {
+	public var value: InterpolatableValue
+	public var key: String {
+		return "center"
+	}
+	
+	public init(_ value: Interpolatable) {
+		self.value = InterpolatableValue(type: .cgPoint, vectors: value.vectorize().vectors)
+	}
+	
+	public init(_ x: CGFloat, _ y: CGFloat) {
+		self.init(CGPoint(x: x, y: y))
+	}
+	
+	public init(x: CGFloat) {
+		self.init(CGPoint(x: x, y: NullValue))
+	}
+	
+	public init(y: CGFloat) {
+		self.init(CGPoint(x: NullValue, y: y))
+	}
+}
+
+public struct Size: Property {
+	public var value: InterpolatableValue
+	public var key: String {
+		return "frame.size"
+	}
+	
+	public init(_ value: Interpolatable) {
+		self.value = InterpolatableValue(type: .cgSize, vectors: value.vectorize().vectors)
+	}
+	
+	public init(_ width: CGFloat, _ height: CGFloat) {
+		self.init(CGSize(width: width, height: height))
+	}
+	
+	public init(width: CGFloat) {
+		self.init(CGSize(width: width, height: NullValue))
+	}
+	
+	public init(height: CGFloat) {
+		self.init(CGSize(width: NullValue, height: height))
+	}
 }
 
 public struct Frame: Property {
@@ -408,8 +509,142 @@ public struct Frame: Property {
 		return "frame"
 	}
 	
-	init(value: Interpolatable) {
+	public init(_ value: Interpolatable) {
 		self.value = InterpolatableValue(type: .cgFloat, vectors: [NullValue])
+	}
+}
+
+public struct Alpha: Property {
+	public var value: InterpolatableValue
+	public var key: String {
+		return "alpha"
+	}
+	
+	public init(_ value: Interpolatable) {
+		self.value = InterpolatableValue(type: .cgFloat, vectors: value.vectorize().vectors)
+	}
+}
+
+public struct BackgroundColor: Property {
+	public var value: InterpolatableValue
+	public var key: String {
+		return "backgroundColor"
+	}
+	
+	public init(_ value: Interpolatable) {
+		self.value = InterpolatableValue(type: .colorRGB, vectors: value.vectorize().vectors)
+	}
+}
+
+public struct FillColor: Property {
+	public var value: InterpolatableValue
+	public var key: String {
+		return "fillColor"
+	}
+	
+	public init(_ value: Interpolatable) {
+		self.value = InterpolatableValue(type: .colorRGB, vectors: value.vectorize().vectors)
+	}
+}
+
+public struct Scale: Property, Equatable, TransformType {
+	public var value: InterpolatableValue
+	public var key: String {
+		return "transform.scale"
+	}
+	
+	static var zero: Scale {
+		let value = Double(NullValue)
+		return Scale(Vector3(value, value, value))
+	}
+	
+	public init(_ value: Interpolatable) {
+		self.value = InterpolatableValue(type: .vector3, vectors: value.vectorize().vectors)
+	}
+	
+	public init(_ x: CGFloat, _ y: CGFloat, _ z: CGFloat) {
+		self.init(Vector3(Double(x), Double(y), Double(z)))
+	}
+}
+public func ==(lhs: Scale, rhs: Scale) -> Bool {
+	return lhs.value == rhs.value
+}
+
+public struct Rotation: Property, Equatable, TransformType {
+	public var value: InterpolatableValue
+	public var key: String {
+		return "transform.rotation"
+	}
+	
+	public var x: Bool
+	public var y: Bool
+	public var z: Bool
+	
+	static var zero: Rotation {
+		return Rotation(0)
+	}
+	
+	public init(_ value: Interpolatable) {
+		self.x = false
+		self.y = false
+		self.z = true
+		self.value = InterpolatableValue(type: .cgFloat, vectors: value.vectorize().vectors)
+	}
+	
+	public init(x angle: CGFloat) {
+		self.init(angle)
+		self.x = true
+		self.y = false
+		self.z = false
+	}
+	
+	public init(y angle: CGFloat) {
+		self.init(angle)
+		self.x = false
+		self.y = true
+		self.z = false
+	}
+	
+	public mutating func applyAxes(_ rotation: Rotation) {
+		self.x = rotation.x
+		self.y = rotation.y
+		self.z = rotation.z
+	}
+}
+public func ==(lhs: Rotation, rhs: Rotation) -> Bool {
+	return (lhs.value == rhs.value && lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z)
+}
+
+public struct Translation: Property, Equatable, TransformType {
+	public var value: InterpolatableValue
+	public var key: String {
+		return "transform.translation"
+	}
+	
+	static var zero: Translation {
+		return Translation(CGPoint.zero)
+	}
+	
+	public init(_ value: Interpolatable) {
+		self.value = InterpolatableValue(type: .cgPoint, vectors: value.vectorize().vectors)
+	}
+	
+	public init(_ x: CGFloat, _ y: CGFloat) {
+		self.init(CGPoint(x: x, y: y))
+	}
+}
+public func ==(lhs: Translation, rhs: Translation) -> Bool {
+	return lhs.value == rhs.value
+}
+
+public struct KeyPath: Property {
+	public var value: InterpolatableValue
+	public var key: String {
+		return ""
+	}
+	
+	public init(_ key: String, _ value: Interpolatable) {
+		self.value = InterpolatableValue(type: .cgFloat, vectors: [0.0])
 	}
 }
 
@@ -427,6 +662,10 @@ public struct Frame: Property {
 //	size.value.width = 50
 //	size.value.vectorize().vectors
 //}
+
+
+
+
 
 
 
@@ -596,281 +835,283 @@ public struct Vector3Prop: Tweenable {
 }
 
 
-public struct Alpha: TweenProp {
-	public var key: String {
-		return "alpha"
-	}
-	public var value: Tweenable
-	
-	public init(_ value: CGFloat) {
-		self.value = ValueProp(value)
-	}
-}
+//public struct Alpha: TweenProp {
+//	public var key: String {
+//		return "alpha"
+//	}
+//	public var value: Tweenable
+//	
+//	public init(_ value: CGFloat) {
+//		self.value = ValueProp(value)
+//	}
+//}
+//
+//public struct X: TweenProp {
+//	public var key: String {
+//		return "position.x"
+//	}
+//	public var value: Tweenable
+//	
+//	public init(_ value: CGFloat) {
+//		self.value = ValueProp(value)
+//	}
+//}
+//
+//public struct Y: TweenProp {
+//	public var key: String {
+//		return "position.y"
+//	}
+//	public var value: Tweenable
+//	
+//	public init(_ value: CGFloat) {
+//		self.value = ValueProp(value)
+//	}
+//}
+//
+//public struct Position: TweenProp {
+//	public var key: String {
+//		return "position"
+//	}
+//	public var value: Tweenable
+//	
+//	public init(_ x: CGFloat, _ y: CGFloat) {
+//		self.value = PointProp(x, y)
+//	}
+//	
+//	public init(x: CGFloat) {
+//		self.value = PointProp(x, NullValue)
+//	}
+//	
+//	public init(y: CGFloat) {
+//		self.value = PointProp(NullValue, y)
+//	}
+//}
+//
+//public struct Center: TweenProp {
+//	public var key: String {
+//		return "center"
+//	}
+//	public var value: Tweenable
+//	
+//	public init(_ x: CGFloat, _ y: CGFloat) {
+//		self.value = PointProp(x, y)
+//	}
+//	
+//	public init(x: CGFloat) {
+//		self.init(x, NullValue)
+//	}
+//	
+//	public init(y: CGFloat) {
+//		self.init(NullValue, y)
+//	}
+//}
+//
+//public struct Size: TweenProp {
+//	public var key: String {
+//		return "size"
+//	}
+//	public var value: Tweenable
+//	
+//	public init(_ width: CGFloat, _ height: CGFloat) {
+//		self.value = SizeProp(width, height)
+//	}
+//	
+//	public init(width: CGFloat) {
+//		self.init(width, NullValue)
+//	}
+//	
+//	public init(height: CGFloat) {
+//		self.init(NullValue, height)
+//	}
+//}
+//
+//public struct BackgroundColor: TweenProp {
+//	public var key: String {
+//		return "backgroundColor"
+//	}
+//	public var value: Tweenable
+//	
+//	public init(_ color: UIColor) {
+//		self.value = ColorProp(color)
+//	}
+//}
+//
+//public struct FillColor: TweenProp {
+//	public var key: String {
+//		return "fillColor"
+//	}
+//	public var value: Tweenable
+//	
+//	public init(_ color: UIColor) {
+//		self.value = ColorProp(color)
+//	}
+//}
 
-public struct X: TweenProp {
-	public var key: String {
-		return "position.x"
-	}
-	public var value: Tweenable
-	
-	public init(_ value: CGFloat) {
-		self.value = ValueProp(value)
-	}
-}
-
-public struct Y: TweenProp {
-	public var key: String {
-		return "position.y"
-	}
-	public var value: Tweenable
-	
-	public init(_ value: CGFloat) {
-		self.value = ValueProp(value)
-	}
-}
-
-public struct Position: TweenProp {
-	public var key: String {
-		return "position"
-	}
-	public var value: Tweenable
-	
-	public init(_ x: CGFloat, _ y: CGFloat) {
-		self.value = PointProp(x, y)
-	}
-	
-	public init(x: CGFloat) {
-		self.value = PointProp(x, NullValue)
-	}
-	
-	public init(y: CGFloat) {
-		self.value = PointProp(NullValue, y)
-	}
-}
-
-public struct Center: TweenProp {
-	public var key: String {
-		return "center"
-	}
-	public var value: Tweenable
-	
-	public init(_ x: CGFloat, _ y: CGFloat) {
-		self.value = PointProp(x, y)
-	}
-	
-	public init(x: CGFloat) {
-		self.init(x, NullValue)
-	}
-	
-	public init(y: CGFloat) {
-		self.init(NullValue, y)
-	}
-}
-
-public struct Size: TweenProp {
-	public var key: String {
-		return "size"
-	}
-	public var value: Tweenable
-	
-	public init(_ width: CGFloat, _ height: CGFloat) {
-		self.value = SizeProp(width, height)
-	}
-	
-	public init(width: CGFloat) {
-		self.init(width, NullValue)
-	}
-	
-	public init(height: CGFloat) {
-		self.init(NullValue, height)
-	}
-}
-
-public struct BackgroundColor: TweenProp {
-	public var key: String {
-		return "backgroundColor"
-	}
-	public var value: Tweenable
-	
-	public init(_ color: UIColor) {
-		self.value = ColorProp(color)
-	}
-}
-
-public struct FillColor: TweenProp {
-	public var key: String {
-		return "fillColor"
-	}
-	public var value: Tweenable
-	
-	public init(_ color: UIColor) {
-		self.value = ColorProp(color)
-	}
-}
-
-public struct StrokeColor: TweenProp {
-	public var key: String {
-		return "strokeColor"
-	}
-	public var value: Tweenable
-	
-	public init(_ color: UIColor) {
-		self.value = ColorProp(color)
-	}
-}
-
-public struct KeyPath: TweenProp {
-	public var key: String
-	public var value: Tweenable
-	
-	public init(_ keyPath: String, _ value: Any) {
-		self.key = keyPath
-		
-		if let number = value as? CGFloat {
-			self.value = ValueProp(number)
-		} else if let number = value as? Float {
-			self.value = ValueProp(CGFloat(number))
-		} else if let number = value as? Double {
-			self.value = ValueProp(CGFloat(number))
-		} else if let number = value as? Int {
-			self.value = ValueProp(CGFloat(number))
-		} else if let number = value as? NSNumber {
-			self.value = ValueProp(CGFloat(number))
-		} else if let point = value as? CGPoint {
-			self.value = PointProp(point.x, point.y)
-		} else if let size = value as? CGSize {
-			self.value = SizeProp(size.width, size.height)
-		} else if let color = value as? UIColor {
-			self.value = ColorProp(color)
-		} else {
-			self.value = ValueProp(NullValue)
-		}
-	}
-}
+//public struct StrokeColor: TweenProp {
+//	public var key: String {
+//		return "strokeColor"
+//	}
+//	public var value: Tweenable
+//	
+//	public init(_ color: UIColor) {
+//		self.value = ColorProp(color)
+//	}
+//}
+//
+//public struct KeyPath: TweenProp {
+//	public var key: String
+//	public var value: Tweenable
+//	
+//	public init(_ keyPath: String, _ value: Any) {
+//		self.key = keyPath
+//		
+//		if let number = value as? CGFloat {
+//			self.value = ValueProp(number)
+//		} else if let number = value as? Float {
+//			self.value = ValueProp(CGFloat(number))
+//		} else if let number = value as? Double {
+//			self.value = ValueProp(CGFloat(number))
+//		} else if let number = value as? Int {
+//			self.value = ValueProp(CGFloat(number))
+//		} else if let number = value as? NSNumber {
+//			self.value = ValueProp(CGFloat(number))
+//		} else if let point = value as? CGPoint {
+//			self.value = PointProp(point.x, point.y)
+//		} else if let size = value as? CGSize {
+//			self.value = SizeProp(size.width, size.height)
+//		} else if let color = value as? UIColor {
+//			self.value = ColorProp(color)
+//		} else {
+//			self.value = ValueProp(NullValue)
+//		}
+//	}
+//}
 
 
 
-public protocol TransformType {}
+//public protocol TransformType {}
 
-public struct Scale: TweenProp, TransformType, Equatable {
-	public var key: String {
-		return "transform.scale"
-	}
-	public var value: Tweenable
-	
-	static var zero: Scale {
-		return Scale(1, 1, 1)
-	}
-	
-	public init(_ x: CGFloat, _ y: CGFloat, _ z: CGFloat) {
-		self.value = Vector3Prop(x, y, z)
-	}
-	
-	public init(x: CGFloat) {
-		self.init(x, 1, 1)
-	}
-	
-	public init(y: CGFloat) {
-		self.init(1, y, 1)
-	}
-}
-public func ==(lhs: Scale, rhs: Scale) -> Bool {
-	if let lhs = lhs.value as? Vector3Prop, let rhs = rhs.value as? Vector3Prop {
-		return lhs.value == rhs.value
-	}
-	return false
-}
-
-public struct Rotation: TweenProp, TransformType, Equatable {
-	public var key: String {
-		return "transform.rotation"
-	}
-	public var value: Tweenable
-	
-	public var x: Bool
-	public var y: Bool
-	public var z: Bool
-	
-	static var zero: Rotation {
-		return Rotation(0)
-	}
-	
-	public init(_ angle: CGFloat) {
-		self.value = ValueProp(angle)
-		self.x = false
-		self.y = false
-		self.z = true
-	}
-	
-	public init(x angle: CGFloat) {
-		self.value = ValueProp(angle)
-		self.x = true
-		self.y = false
-		self.z = false
-	}
-	
-	public init(y angle: CGFloat) {
-		self.value = ValueProp(angle)
-		self.x = false
-		self.y = true
-		self.z = false
-	}
-}
-extension Rotation {	
-	public mutating func apply(_ rotation: Rotation) {
-		apply(rotation.value.interpolatable)
-		self.x = rotation.x
-		self.y = rotation.y
-		self.z = rotation.z
-	}
-	
-	public mutating func applyAxes(_ rotation: Rotation) {
-		self.x = rotation.x
-		self.y = rotation.y
-		self.z = rotation.z
-	}
-}
-public func ==(lhs: Rotation, rhs: Rotation) -> Bool {
-	if let a1 = lhs.value as? ValueProp, let a2 = rhs.value as? ValueProp {
-		return (a1.value == a2.value && lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z)
-	}
-	return false
-}
-
-public struct Translation: TweenProp, TransformType, Equatable {
-	public var key: String {
-		return "transform.translation"
-	}
-	public var value: Tweenable
-	
-	static var zero: Translation {
-		return Translation(0, 0)
-	}
-	
-	public init(_ x: CGFloat, _ y: CGFloat) {
-		self.value = PointProp(x, y)
-	}
-	
-	public init(x: CGFloat) {
-		self.value = PointProp(x, NullValue)
-	}
-	
-	public init(y: CGFloat) {
-		self.value = PointProp(NullValue, y)
-	}
-}
-public func ==(lhs: Translation, rhs: Translation) -> Bool {
-	if let lhs = lhs.value as? PointProp, let rhs = rhs.value as? PointProp {
-		return lhs.value == rhs.value
-	}
-	return false
-}
+//public struct Scale: TweenProp, TransformType, Equatable {
+//	public var key: String {
+//		return "transform.scale"
+//	}
+//	public var value: Tweenable
+//	
+//	static var zero: Scale {
+//		return Scale(1, 1, 1)
+//	}
+//	
+//	public init(_ x: CGFloat, _ y: CGFloat, _ z: CGFloat) {
+//		self.value = Vector3Prop(x, y, z)
+//	}
+//	
+//	public init(x: CGFloat) {
+//		self.init(x, 1, 1)
+//	}
+//	
+//	public init(y: CGFloat) {
+//		self.init(1, y, 1)
+//	}
+//}
+//public func ==(lhs: Scale, rhs: Scale) -> Bool {
+//	if let lhs = lhs.value as? Vector3Prop, let rhs = rhs.value as? Vector3Prop {
+//		return lhs.value == rhs.value
+//	}
+//	return false
+//}
+//
+//public struct Rotation: TweenProp, TransformType, Equatable {
+//	public var key: String {
+//		return "transform.rotation"
+//	}
+//	public var value: Tweenable
+//	
+//	public var x: Bool
+//	public var y: Bool
+//	public var z: Bool
+//	
+//	static var zero: Rotation {
+//		return Rotation(0)
+//	}
+//	
+//	public init(_ angle: CGFloat) {
+//		self.value = ValueProp(angle)
+//		self.x = false
+//		self.y = false
+//		self.z = true
+//	}
+//	
+//	public init(x angle: CGFloat) {
+//		self.value = ValueProp(angle)
+//		self.x = true
+//		self.y = false
+//		self.z = false
+//	}
+//	
+//	public init(y angle: CGFloat) {
+//		self.value = ValueProp(angle)
+//		self.x = false
+//		self.y = true
+//		self.z = false
+//	}
+//}
+//extension Rotation {	
+//	public mutating func apply(_ rotation: Rotation) {
+//		apply(rotation.value.interpolatable)
+//		self.x = rotation.x
+//		self.y = rotation.y
+//		self.z = rotation.z
+//	}
+//	
+//	public mutating func applyAxes(_ rotation: Rotation) {
+//		self.x = rotation.x
+//		self.y = rotation.y
+//		self.z = rotation.z
+//	}
+//}
+//public func ==(lhs: Rotation, rhs: Rotation) -> Bool {
+//	if let a1 = lhs.value as? ValueProp, let a2 = rhs.value as? ValueProp {
+//		return (a1.value == a2.value && lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z)
+//	}
+//	return false
+//}
+//
+//public struct Translation: TweenProp, TransformType, Equatable {
+//	public var key: String {
+//		return "transform.translation"
+//	}
+//	public var value: Tweenable
+//	
+//	static var zero: Translation {
+//		return Translation(0, 0)
+//	}
+//	
+//	public init(_ x: CGFloat, _ y: CGFloat) {
+//		self.value = PointProp(x, y)
+//	}
+//	
+//	public init(x: CGFloat) {
+//		self.value = PointProp(x, NullValue)
+//	}
+//	
+//	public init(y: CGFloat) {
+//		self.value = PointProp(NullValue, y)
+//	}
+//}
+//public func ==(lhs: Translation, rhs: Translation) -> Bool {
+//	if let lhs = lhs.value as? PointProp, let rhs = rhs.value as? PointProp {
+//		return lhs.value == rhs.value
+//	}
+//	return false
+//}
 
 public struct Transform: TweenProp, Equatable {
+	public var value: InterpolatableValue
+
 	public var key: String {
 		return "transform"
 	}
-	public var value: Tweenable
+//	public var value: Tweenable
 
 	public var scale: Scale
 	public var rotation: Rotation
@@ -887,7 +1128,7 @@ public struct Transform: TweenProp, Equatable {
 		self.scale = Scale.zero
 		self.rotation = Rotation.zero
 		self.translation = Translation.zero
-		self.value = ValueProp(NullValue)
+		self.value = InterpolatableValue(type: .cgFloat, vectors: [0.0])
 	}
 	
 	public init(_ transform: CATransform3D) {
@@ -926,14 +1167,14 @@ extension Transform {
 		}
 		
 		if let scale = type as? Scale {
-			self.scale.value.apply(scale.value.interpolatable)
+			self.scale.apply(scale.value)
 		} else if let rotation = type as? Rotation {
-			self.rotation.value.apply(rotation.value.interpolatable)
+			self.rotation.apply(rotation.value)
 			self.rotation.x = rotation.x
 			self.rotation.y = rotation.y
 			self.rotation.z = rotation.z
 		} else if let translation = type as? Translation {
-			self.translation.value.apply(translation.value.interpolatable)
+			self.translation.apply(translation.value)
 		}
 	}
 	
