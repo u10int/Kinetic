@@ -80,11 +80,13 @@ open class Timeline: Animation, Tweener {
 	
 	// MARK: Public Methods
 	
+	@discardableResult
 	open func add(_ tween: Tween) -> Timeline {
 		add(tween, position: endTime)
 		return self
 	}
 	
+	@discardableResult
 	open func add(_ value: Any, position: Any, align: TweenAlign = .normal) -> Timeline {
 		var tweensToAdd = [Tween]()
 		if let tween = value as? Tween {
@@ -125,6 +127,7 @@ open class Timeline: Animation, Tweener {
 		return self
 	}
 	
+	@discardableResult
 	open func add(_ tween: Tween, relativeToLabel label: String, offset: CFTimeInterval) -> Timeline {
 		if labels[label] == nil {
 			add(label: label)
@@ -137,6 +140,7 @@ open class Timeline: Animation, Tweener {
 		return self
 	}
 	
+	@discardableResult
 	open func add(label: String, position: Any = 0) -> Timeline {
 		var pos: CFTimeInterval = 0
 		
@@ -151,6 +155,7 @@ open class Timeline: Animation, Tweener {
 		return self
 	}
 	
+	@discardableResult
 	open func addCallback(_ position: Any, block: @escaping () -> Void) -> Timeline {
 		var pos: CFTimeInterval = 0
 		
@@ -185,6 +190,7 @@ open class Timeline: Animation, Tweener {
 		}
 	}
 	
+	@discardableResult
 	open func shift(_ amount: CFTimeInterval, afterTime time: CFTimeInterval = 0) -> Timeline {
 		for tween in tweens {
 			if tween.startTime >= time {
@@ -228,6 +234,7 @@ open class Timeline: Animation, Tweener {
 	
 	// MARK: Tweenable
 	
+	@discardableResult
 	open func from(_ props: TweenProp...) -> Timeline {
 		for tween in tweens {
 			tween.from(props)
@@ -235,6 +242,7 @@ open class Timeline: Animation, Tweener {
 		return self
 	}
 	
+	@discardableResult
 	open func to(_ props: TweenProp...) -> Timeline {
 		for tween in tweens {
 			tween.to(props)
@@ -242,6 +250,7 @@ open class Timeline: Animation, Tweener {
 		return self
 	}
 	
+	@discardableResult
 	override open func duration(_ duration: CFTimeInterval) -> Timeline {
 		for tween in tweens {
 			tween.duration(duration)
@@ -249,6 +258,7 @@ open class Timeline: Animation, Tweener {
 		return self
 	}
 	
+	@discardableResult
 	open func ease(_ easing: Easing.EasingType) -> Timeline {
 		for tween in tweens {
 			tween.ease(easing)
@@ -256,6 +266,7 @@ open class Timeline: Animation, Tweener {
 		return self
 	}
 	
+	@discardableResult
 	open func spring(tension: Double, friction: Double) -> Timeline {
 		for tween in tweens {
 			tween.spring(tension: tension, friction: friction)
@@ -263,6 +274,7 @@ open class Timeline: Animation, Tweener {
 		return self
 	}
 	
+	@discardableResult
 	open func perspective(_ value: CGFloat) -> Timeline {
 		for tween in tweens {
 			tween.perspective(value)
@@ -270,10 +282,12 @@ open class Timeline: Animation, Tweener {
 		return self
 	}
 	
+	@discardableResult
 	open func anchor(_ anchor: AnchorPoint) -> Timeline {
 		return anchorPoint(anchor.point())
 	}
 	
+	@discardableResult
 	open func anchorPoint(_ point: CGPoint) -> Timeline {
 		for tween in tweens {
 			tween.anchorPoint(point)
@@ -281,6 +295,7 @@ open class Timeline: Animation, Tweener {
 		return self
 	}
 	
+	@discardableResult
 	open func stagger(_ offset: CFTimeInterval) -> Timeline {
 		for (idx, tween) in tweens.enumerated() {
 			tween.startTime = tween.delay + offset * CFTimeInterval(idx)
@@ -290,6 +305,7 @@ open class Timeline: Animation, Tweener {
 	
 	// MARK: Animation
 	
+	@discardableResult
 	override open func play() -> Timeline {
 		guard !active else { return self }
 		
@@ -303,6 +319,7 @@ open class Timeline: Animation, Tweener {
 		return self
 	}
 	
+	@discardableResult
 	open func goToAndPlay(_ label: String) -> Timeline {
 		let position = time(forLabel: label)
 		seek(position)
@@ -318,6 +335,7 @@ open class Timeline: Animation, Tweener {
 		}
 	}
 	
+	@discardableResult
 	open func goToAndStop(_ label: String) -> Timeline {
 		seek(toLabel: label, pause: true)
 		
@@ -342,6 +360,7 @@ open class Timeline: Animation, Tweener {
 		}
 	}
 	
+	@discardableResult
 	override open func seek(_ time: CFTimeInterval) -> Timeline {
 		super.seek(time)
 		
@@ -363,6 +382,7 @@ open class Timeline: Animation, Tweener {
 		return self
 	}
 	
+	@discardableResult
 	override open func reverse() -> Timeline {
 		super.reverse()
 		for tween in tweens {
@@ -372,6 +392,7 @@ open class Timeline: Animation, Tweener {
 		return self
 	}
 	
+	@discardableResult
 	override open func forward() -> Timeline {
 		super.forward()
 		for tween in tweens {

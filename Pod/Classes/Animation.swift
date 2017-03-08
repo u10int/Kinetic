@@ -118,6 +118,7 @@ open class Animation: NSObject, Animatable, Subscriber {
 	
 	// MARK: Animatable
 	
+	@discardableResult
 	open func duration(_ duration: CFTimeInterval) -> AnimationType {
 		self.duration = duration
 		return self
@@ -131,26 +132,31 @@ open class Animation: NSObject, Animatable, Subscriber {
 //		return self
 //	}
 	
+	@discardableResult
 	open func delay(_ delay: CFTimeInterval) -> AnimationType {
 		self.delay = delay
 		return self
 	}
 	
+	@discardableResult
 	open func repeatCount(_ count: Int) -> AnimationType {
 		repeatCount = count
 		return self
 	}
 	
+	@discardableResult
 	open func repeatDelay(_ delay: CFTimeInterval) -> AnimationType {
 		repeatDelay = delay
 		return self
 	}
 	
+	@discardableResult
 	open func forever() -> AnimationType {
 		repeatForever = true
 		return self
 	}
 	
+	@discardableResult
 	open func yoyo() -> AnimationType {
 		reverseOnComplete = true
 		return self
@@ -158,6 +164,7 @@ open class Animation: NSObject, Animatable, Subscriber {
 	
 	// MARK: Playback
 	
+	@discardableResult
 	open func play() -> AnimationType {
 		if running {
 			return self
@@ -186,6 +193,7 @@ open class Animation: NSObject, Animatable, Subscriber {
 		_animating = true
 	}
 	
+	@discardableResult
 	open func seek(_ time: CFTimeInterval) -> AnimationType {
 		let adjustedTime = elapsedTimeFromSeekTime(time)
 		elapsed = delay + adjustedTime
@@ -193,11 +201,13 @@ open class Animation: NSObject, Animatable, Subscriber {
 		return self
 	}
 	
+	@discardableResult
 	open func forward() -> AnimationType {
 		_reversed = false
 		return self
 	}
 	
+	@discardableResult
 	open func reverse() -> AnimationType {
 		_reversed = true
 		return self
@@ -213,6 +223,7 @@ open class Animation: NSObject, Animatable, Subscriber {
 		return min(Float(elapsed / (delay + duration)), 1)
 	}
 	
+	@discardableResult
 	open func setProgress(_ progress: Float) -> AnimationType {
 		seek(duration * CFTimeInterval(progress))
 		return self
@@ -222,6 +233,7 @@ open class Animation: NSObject, Animatable, Subscriber {
 		return min(Float(totalTime / totalDuration), 1)
 	}
 	
+	@discardableResult
 	open func setTotalProgress(_ progress: Float) -> AnimationType {
 		seek(totalDuration * CFTimeInterval(progress))
 		return self
@@ -237,6 +249,7 @@ open class Animation: NSObject, Animatable, Subscriber {
 	
 	// MARK: Event Handlers
 	
+	@discardableResult
 	open func onStart(_ callback: ((Animation) -> Void)?) -> AnimationType {
 		startBlock = { (animation) in
 			callback?(animation)
@@ -244,6 +257,7 @@ open class Animation: NSObject, Animatable, Subscriber {
 		return self
 	}
 	
+	@discardableResult
 	open func onUpdate(_ callback: ((Animation) -> Void)?) -> AnimationType {
 		updateBlock = { (animation) in
 			callback?(animation)
@@ -251,6 +265,7 @@ open class Animation: NSObject, Animatable, Subscriber {
 		return self
 	}
 	
+	@discardableResult
 	open func onComplete(_ callback: ((Animation) -> Void)?) -> AnimationType {
 		completionBlock = { (animation) in
 			callback?(animation)
@@ -258,6 +273,7 @@ open class Animation: NSObject, Animatable, Subscriber {
 		return self
 	}
 	
+	@discardableResult
 	open func onRepeat(_ callback: ((Animation) -> Void)?) -> AnimationType {
 		repeatBlock = { (animation) in
 			callback?(animation)

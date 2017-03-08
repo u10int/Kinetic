@@ -197,39 +197,18 @@ open class Tween: Animation, Tweener {
 	
 	// MARK: Tweenable
 	
-	open func fromTest(_ props: TweenProp...) -> Tween {
-		for prop in props {
-			var value = propertiesByType[prop.key]
-			if value == nil {
-				value = FromToValue()
-			}
-			value?.from = prop
-			propertiesByType[prop.key] = value
-		}
-		return self
-	}
-	
-	open func toTest(_ props: TweenProp...) -> Tween {
-		for prop in props {
-			var value = propertiesByType[prop.key]
-			if value == nil {
-				value = FromToValue()
-			}
-			value?.to = prop
-			propertiesByType[prop.key] = value
-		}
-		return self
-	}
-	
+	@discardableResult
 	open func from(_ props: TweenProp...) -> Tween {
 		return from(props)
 	}
 	
+	@discardableResult
 	open func to(_ props: TweenProp...) -> Tween {
 		return to(props)
 	}
 	
 	// internal `from` and `to` methods that support a single array of Property types since we can't forward variadic arguments
+	@discardableResult
 	func from(_ props: [TweenProp]) -> Tween {
 		for prop in props {
 			add(prop, mode: .from)
@@ -237,6 +216,7 @@ open class Tween: Animation, Tweener {
 		return self
 	}
 	
+	@discardableResult
 	func to(_ props: [TweenProp]) -> Tween {
 //		prepare(from: nil, to: props, mode: .To)
 		for prop in props {
@@ -245,6 +225,7 @@ open class Tween: Animation, Tweener {
 		return self
 	}
 	
+	@discardableResult
 	open func ease(_ easing: Easing.EasingType) -> Tween {
 		timingFunction = Easing(easing)
 //		for prop in properties {
@@ -253,6 +234,7 @@ open class Tween: Animation, Tweener {
 		return self
 	}
 	
+	@discardableResult
 	open func spring(tension: Double, friction: Double = 3) -> Tween {
 		spring = Spring(tension: tension, friction: friction)
 //		for prop in properties {
@@ -261,20 +243,24 @@ open class Tween: Animation, Tweener {
 		return self
 	}
 	
+	@discardableResult
 	open func perspective(_ value: CGFloat) -> Tween {
 		tweenObject.perspective = value
 		return self
 	}
 	
+	@discardableResult
 	open func anchor(_ anchor: AnchorPoint) -> Tween {
 		return anchorPoint(anchor.point())
 	}
 	
+	@discardableResult
 	open func anchorPoint(_ point: CGPoint) -> Tween {
 		tweenObject.anchorPoint = point
 		return self
 	}
 	
+	@discardableResult
 	open func stagger(_ offset: CFTimeInterval) -> Tween {
 		staggerDelay = offset
 		
@@ -285,11 +271,13 @@ open class Tween: Animation, Tweener {
 		return self
 	}
 	
+	@discardableResult
 	open func timeScale(_ scale: Float) -> Tween {
 		timeScale = scale
 		return self
 	}
 	
+	@discardableResult
 	override open func play() -> Tween {
 		guard !active else { return self }
 		
@@ -315,6 +303,7 @@ open class Tween: Animation, Tweener {
 		}
 	}
 	
+	@discardableResult
 	override open func reverse() -> Tween {
 		super.reverse()
 		run()
@@ -322,6 +311,7 @@ open class Tween: Animation, Tweener {
 		return self
 	}
 	
+	@discardableResult
 	override open func forward() -> Tween {
 		super.forward()
 		run()
@@ -329,6 +319,7 @@ open class Tween: Animation, Tweener {
 		return self
 	}
 	
+	@discardableResult
 	override open func seek(_ time: CFTimeInterval) -> Tween {
 		super.seek(time)
 		
