@@ -122,6 +122,11 @@ public struct InterpolatableValue {
 	let type: InterpolatableType
 	var vectors: [CGFloat]
 	
+	init(value: InterpolatableValue) {
+		self.vectors = value.vectors
+		self.type = value.type
+	}
+	
 	init(type: InterpolatableType, vectors: CGFloat...) {
 		self.vectors = vectors
 		self.type = type
