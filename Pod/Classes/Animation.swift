@@ -343,7 +343,7 @@ open class Animation: NSObject, Animatable, Subscriber {
 		
 		if shouldRepeat {
 			repeatBlock?(self)
-			print("completed - repeating, reverseOnComplete: \(reverseOnComplete)")
+			print("\(self) completed - repeating, reverseOnComplete: \(reverseOnComplete), reversed: \(reversed)")
 			if reverseOnComplete {
 				if reversed {
 					forward()

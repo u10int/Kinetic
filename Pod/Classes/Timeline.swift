@@ -230,14 +230,14 @@ open class Timeline: Animation, Tweener {
 	
 	open func from(_ props: TweenProp...) -> Timeline {
 		for tween in tweens {
-			tween.from(props as! TweenProp)
+			tween.from(props)
 		}
 		return self
 	}
 	
 	open func to(_ props: TweenProp...) -> Timeline {
 		for tween in tweens {
-			tween.to(props as! TweenProp)
+			tween.to(props)
 		}
 		return self
 	}
@@ -422,13 +422,14 @@ open class Timeline: Animation, Tweener {
 		}
 		
 		let multiplier: CFTimeInterval = reversed ? -1 : 1
-		elapsed = elapsed + (time * multiplier)
+		elapsed = max(0, min(elapsed + (time * multiplier), endTime))
 		runningTime += time
 		
 		// if animation doesn't repeat forever, cap elapsed time to endTime
 		if !repeatForever {
 			elapsed = min(elapsed, (delay + endTime))
 		}
+//		print("timeline.advance() - time: \(time), multiplier: \(multiplier), elapsed: \(elapsed), endTime: \(endTime), delay: \(delay), reversed: \(reversed)")
 		
 		// check for callbacks
 		if callbacks.count > 0 {

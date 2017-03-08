@@ -370,6 +370,8 @@ extension TweenProp {
 //	}
 //}
 
+let NullValue: CGFloat = -CGFloat.greatestFiniteMagnitude
+
 public struct ValueProp: Tweenable {
 	public var interpolatable: InterpolatableValue {
 		return value.vectorize()
@@ -379,7 +381,7 @@ public struct ValueProp: Tweenable {
 	}
 	
 	public var zero: CGFloat {
-		return -CGFloat.greatestFiniteMagnitude
+		return NullValue
 	}
 	
 	fileprivate var value: CGFloat
@@ -408,7 +410,7 @@ public struct PointProp: Tweenable, Equatable {
 	}
 	
 	public var zero: CGFloat {
-		return -CGFloat.greatestFiniteMagnitude
+		return NullValue
 	}
 	
 	fileprivate var value: CGPoint
@@ -442,7 +444,7 @@ public struct SizeProp: Tweenable, Equatable {
 		return value.vectorize().vectors
 	}
 	public var zero: CGFloat {
-		return -CGFloat.greatestFiniteMagnitude
+		return NullValue
 	}
 	
 	fileprivate var value: CGSize
@@ -514,7 +516,7 @@ public struct Vector3Prop: Tweenable {
 		return value.vectorize().vectors
 	}
 	public var zero: CGFloat {
-		return -CGFloat.greatestFiniteMagnitude
+		return NullValue
 	}
 	
 	fileprivate var value: CGSize
@@ -581,11 +583,11 @@ public struct Position: TweenProp {
 	}
 	
 	public init(x: CGFloat) {
-		self.value = PointProp(x, -CGFloat.leastNormalMagnitude)
+		self.value = PointProp(x, NullValue)
 	}
 	
 	public init(y: CGFloat) {
-		self.value = PointProp(-CGFloat.leastNormalMagnitude, y)
+		self.value = PointProp(NullValue, y)
 	}
 }
 
@@ -600,11 +602,11 @@ public struct Center: TweenProp {
 	}
 	
 	public init(x: CGFloat) {
-		self.init(x, -CGFloat.leastNormalMagnitude)
+		self.init(x, NullValue)
 	}
 	
 	public init(y: CGFloat) {
-		self.init(-CGFloat.leastNormalMagnitude, y)
+		self.init(NullValue, y)
 	}
 }
 
@@ -619,11 +621,11 @@ public struct Size: TweenProp {
 	}
 	
 	public init(width: CGFloat) {
-		self.init(width, -CGFloat.leastNormalMagnitude)
+		self.init(width, NullValue)
 	}
 	
 	public init(height: CGFloat) {
-		self.init(-CGFloat.leastNormalMagnitude, height)
+		self.init(NullValue, height)
 	}
 }
 
@@ -646,6 +648,16 @@ public struct FillColor: TweenProp {
 	
 	public init(_ color: UIColor) {
 		self.value = ColorProp(color)
+	}
+}
+
+public struct KeyPath: TweenProp {
+	public var key: String
+	public var value: Tweenable
+	
+	public init(_ keyPath: String, _ value: CGFloat) {
+		self.key = keyPath
+		self.value = ValueProp(value)
 	}
 }
 
@@ -753,11 +765,11 @@ public struct Translation: TweenProp, TransformType, Equatable {
 	}
 	
 	public init(x: CGFloat) {
-		self.value = PointProp(x, CGFloat.leastNormalMagnitude)
+		self.value = PointProp(x, NullValue)
 	}
 	
 	public init(y: CGFloat) {
-		self.value = PointProp(CGFloat.leastNormalMagnitude, y)
+		self.value = PointProp(NullValue, y)
 	}
 }
 public func ==(lhs: Translation, rhs: Translation) -> Bool {
@@ -767,7 +779,12 @@ public func ==(lhs: Translation, rhs: Translation) -> Bool {
 	return false
 }
 
-public struct Transform: Equatable {
+public struct Transform: TweenProp, Equatable {
+	public var key: String {
+		return "transform"
+	}
+	public var value: Tweenable
+
 	public var scale: Scale
 	public var rotation: Rotation
 	public var translation: Translation
@@ -783,9 +800,11 @@ public struct Transform: Equatable {
 		self.scale = Scale.zero
 		self.rotation = Rotation.zero
 		self.translation = Translation.zero
+		self.value = ValueProp(NullValue)
 	}
 	
 	public init(_ transform: CATransform3D) {
+		self.init()
 		self.scale = transform.scale()
 		self.rotation = transform.rotation()
 		self.translation = transform.translation()

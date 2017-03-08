@@ -10,6 +10,7 @@ import UIKit
 
 class TweenObject {
 	weak var target: NSObject?
+	var additive = true
 	
 	init(target: NSObject) {
 		self.target = target
@@ -325,8 +326,8 @@ class TweenObject {
 			self.origin?.y = value
 		} else if let prop = prop as? Position, let point = prop.value.toInterpolatable() as? CGPoint {
 			self.origin = point
-		} else if let prop = prop as? Center, let center = prop.value.toInterpolatable() as? CGPoint {
-			self.center = center
+		} else if let prop = prop as? Center, var value = prop.value.toInterpolatable() as? CGPoint {
+			self.center = value
 		} else if let prop = prop as? Size, let size = prop.value.toInterpolatable() as? CGSize {
 			self.size = size
 		} else if let prop = prop as? Alpha, let value = prop.value.toInterpolatable() as? CGFloat {
@@ -335,6 +336,8 @@ class TweenObject {
 			self.backgroundColor = value
 		} else if let prop = prop as? FillColor, let value = prop.value.toInterpolatable() as? UIColor {
 			self.fillColor = value
+		} else if let transform = prop as? Transform {
+			transform.applyTo(self)
 		}
 	}
 	
@@ -368,6 +371,13 @@ class TweenObject {
 		}
 		
 		return vectorValue
+	}
+	
+	func activeTweenValuesForKey(_ key: String) -> [FromToValue]? {
+		if let target = target {
+			return Scheduler.sharedInstance.activeTweenPropsForKey(key, ofTarget: target)
+		}
+		return nil
 	}
 	
 	// MARK: Private Methods

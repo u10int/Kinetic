@@ -42,14 +42,14 @@ class CountingLabelViewController: ExampleViewController {
 		testObject.value = 50
 		textLabel.text = "\(testObject.value)"
 				
-//		let tween = Kinetic.animate(testObject).to(.KeyPath("value", 250)).duration(1)
-//		tween.ease(Easing.outExpo).onUpdate { (animation) -> Void in
-//			self.textLabel.text = "\(round(self.testObject.value))"
-//		}.onComplete({ (animation) -> Void in
-//			self.textLabel.text = "\(round(self.testObject.value))"
-//		})
-//		
-//		animation = tween
+		let tween = Kinetic.animate(testObject).to(KeyPath("value", 250)).duration(1)
+		tween.ease(.expoOut).onUpdate { (animation) -> Void in
+			self.textLabel.text = "\(round(self.testObject.value))"
+		}.onComplete({ (animation) -> Void in
+			self.textLabel.text = "\(round(self.testObject.value))"
+		})
+		
+		animation = tween
 	}
 	
 	override func reset() {
