@@ -293,6 +293,7 @@ open class Tween: Animation, Tweener {
 	override open func play() -> Tween {
 		guard !active else { return self }
 		
+		print("--------- tween.id: \(id) - play ------------")
 		super.play()
 		
 		if let target = target {
@@ -302,17 +303,6 @@ open class Tween: Animation, Tweener {
 		for (key, animator) in animators {
 			animator.reset()
 		}
-		
-		// properties must be sorted so that the first in the array is the transform property, if exists
-		// so that each property afterwards isn't set with a transform in place
-//		for prop in TweenUtils.sortProperties(properties).reverse() {
-//			prop.reset()
-//			prop.calc()
-//			
-//			if prop.mode == .From || prop.mode == .FromTo {
-//				prop.seek(0)
-//			}
-//		}
 		run()
 		
 		return self
@@ -465,20 +455,15 @@ open class Tween: Animation, Tweener {
 	}
 	
 	fileprivate func setupAnimatorsIfNeeded() {
-		var transformFrom = Transform.zero
-		var transformTo = Transform.zero
-		
-		if let transform = tweenObject.transform {
-			transformFrom = Transform(transform)
-			transformTo = Transform(transform)
-		}
+		var transformFrom: Transform?
+		var transformTo: Transform?
 		
 		var tweenedProps = [String: TweenProp]()
 		for (key, prop) in propertiesByType {
 			var animator = animators[key]
 			
 			if animator == nil {
-				print("--------- tween.id: \(id) - key: \(key) ------------")
+				print("--------- tween.id: \(id) - animator key: \(key) ------------")
 				var from: TweenProp?
 				var to: TweenProp?
 				var type = prop.to ?? prop.from
@@ -515,13 +500,20 @@ open class Tween: Animation, Tweener {
 					
 					tweenedProps[key] = to
 				}
-				print(tweenedProps)				
-				print("ANIMATE - \(key) - from: \(from), to: \(to)")
+//				print(tweenedProps)				
+				print("ANIMATE - \(key) - from: \(from?.value.vectors), to: \(to?.value.vectors)")
 				
 				if let from = from, let to = to {
+					// update stored from/to property that other tweens may reference
+					propertiesByType[key] = FromToValue(from, to)
+					
 					if let from = from as? TransformType, let to = to as? TransformType {
-						transformFrom.apply(from)
-						transformTo.apply(to)
+						if let transform = tweenObject.transform, transformFrom == nil && transformTo == nil {
+							transformFrom = Transform(transform)
+							transformTo = Transform(transform)
+						}
+						transformFrom?.apply(from)
+						transformTo?.apply(to)
 						print("updating transform properties...")
 					} else {
 						let tweenAnimator = Animator(from: from, to: to, duration: duration, timingFunction: timingFunction)
@@ -544,7 +536,7 @@ open class Tween: Animation, Tweener {
 			}
 		}
 		
-		if transformFrom != Transform.zero || transformTo != Transform.zero {
+		if let transformFrom = transformFrom, let transformTo = transformTo {
 			let key = "transform"
 			if animators[key] == nil {
 //				print("ANIMATE - transform - from: \(transformFrom), to: \(transformTo)")

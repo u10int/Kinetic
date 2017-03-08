@@ -25,7 +25,7 @@ final public class Animator: Equatable {
 	fileprivate (set) public var from: TweenProp
 	fileprivate (set) public var to: TweenProp
 	fileprivate (set) public var duration: Double
-	
+	fileprivate (set) public var key: String
 	public var timingFunction: TimingFunctionType = LinearTimingFunction()
 	var spring: Spring?
 	public var additive: Bool = true
@@ -51,6 +51,7 @@ final public class Animator: Equatable {
 		self.timingFunction = timingFunction
 		self.current = from
 		self.additiveCurrent = from
+		self.key = from.key
 	}
 	
 	// MARK: Public Methods
@@ -110,7 +111,7 @@ final public class Animator: Equatable {
 			}
 		}
 		
-		print("animator - progress: \(progress), current: \(current.value.vectors), presentation: \(presentationValue.value.vectors), from: \(from.value.vectors), to: \(to.value.vectors)")
+		print("animator \(key) - progress: \(progress), current: \(current.value.vectors), presentation: \(presentationValue.value.vectors), from: \(from.value.vectors), to: \(to.value.vectors)")
 //		print("Animator.advance() - elapsed: \(elapsed), progress: \(progress), from: \(from.value), to: \(to.value)")
 		changed?(self, presentationValue)
 	}

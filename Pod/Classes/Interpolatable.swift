@@ -27,6 +27,7 @@ public enum InterpolatableType {
 }
 
 public protocol Interpolatable {
+	var interpolatableType: InterpolatableType { get }
 	func vectorize() -> InterpolatableValue
 }
 
@@ -38,60 +39,100 @@ extension Interpolatable {
 }
 
 extension CATransform3D: Interpolatable {
+	public var interpolatableType: InterpolatableType {
+		return .caTransform3D
+	}
+	
 	public func vectorize() -> InterpolatableValue {
-		return InterpolatableValue(type: .caTransform3D, vectors: m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44)
+		return InterpolatableValue(type: self.interpolatableType, vectors: m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44)
 	}
 }
 
 extension CGAffineTransform: Interpolatable {
+	public var interpolatableType: InterpolatableType {
+		return .cgAffineTransform
+	}
+	
 	public func vectorize() -> InterpolatableValue {
-		return InterpolatableValue(type: .cgAffineTransform, vectors: a, b, c, d, tx, ty)
+		return InterpolatableValue(type: self.interpolatableType, vectors: a, b, c, d, tx, ty)
 	}
 }
 
 extension CGFloat: Interpolatable {
+	public var interpolatableType: InterpolatableType {
+		return .cgFloat
+	}
+	
 	public func vectorize() -> InterpolatableValue {
-		return InterpolatableValue(type: .cgFloat, vectors: self)
+		return InterpolatableValue(type: self.interpolatableType, vectors: self)
 	}
 }
 
 extension CGPoint: Interpolatable {
+	public var interpolatableType: InterpolatableType {
+		return .cgPoint
+	}
+	
 	public func vectorize() -> InterpolatableValue {
-		return InterpolatableValue(type: .cgPoint, vectors: x, y)
+		return InterpolatableValue(type: self.interpolatableType, vectors: x, y)
 	}
 }
 
 extension CGRect: Interpolatable {
+	public var interpolatableType: InterpolatableType {
+		return .cgRect
+	}
+	
 	public func vectorize() -> InterpolatableValue {
-		return InterpolatableValue(type: .cgRect, vectors: origin.x, origin.y, size.width, size.height)
+		return InterpolatableValue(type: self.interpolatableType, vectors: origin.x, origin.y, size.width, size.height)
 	}
 }
 
 extension CGSize: Interpolatable {
+	public var interpolatableType: InterpolatableType {
+		return .cgSize
+	}
+	
 	public func vectorize() -> InterpolatableValue {
-		return InterpolatableValue(type: .cgSize, vectors: width, height)
+		return InterpolatableValue(type: self.interpolatableType, vectors: width, height)
 	}
 }
 
 extension Double: Interpolatable {
+	public var interpolatableType: InterpolatableType {
+		return .double
+	}
+	
 	public func vectorize() -> InterpolatableValue {
-		return InterpolatableValue(type: .double, vectors: CGFloat(self))
+		return InterpolatableValue(type: self.interpolatableType, vectors: CGFloat(self))
 	}
 }
 
 extension Int: Interpolatable {
+	public var interpolatableType: InterpolatableType {
+		return .int
+	}
+	
 	public func vectorize() -> InterpolatableValue {
-		return InterpolatableValue(type: .int, vectors: CGFloat(self))
+		return InterpolatableValue(type: self.interpolatableType, vectors: CGFloat(self))
 	}
 }
 
 extension NSNumber: Interpolatable {
+	public var interpolatableType: InterpolatableType {
+		return .nsNumber
+	}
+	
 	public func vectorize() -> InterpolatableValue {
-		return InterpolatableValue(type: .nsNumber, vectors: CGFloat(self))
+		return InterpolatableValue(type: self.interpolatableType, vectors: CGFloat(self))
 	}
 }
 
 extension UIColor: Interpolatable {
+	public var interpolatableType: InterpolatableType {
+		return .colorRGB
+	}
+	
 	public func vectorize() -> InterpolatableValue {
 		var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
 		
@@ -114,14 +155,22 @@ extension UIColor: Interpolatable {
 }
 
 extension UIEdgeInsets: Interpolatable {
+	public var interpolatableType: InterpolatableType {
+		return .uiEdgeInsets
+	}
+	
 	public func vectorize() -> InterpolatableValue {
-		return InterpolatableValue(type: .uiEdgeInsets, vectors: top, left, bottom, right)
+		return InterpolatableValue(type: self.interpolatableType, vectors: top, left, bottom, right)
 	}
 }
 
 extension Vector3: Interpolatable {
+	public var interpolatableType: InterpolatableType {
+		return .vector3
+	}
+	
 	public func vectorize() -> InterpolatableValue {
-		return InterpolatableValue(type: .vector3, vectors: CGFloat(x), CGFloat(y), CGFloat(z))
+		return InterpolatableValue(type: self.interpolatableType, vectors: CGFloat(x), CGFloat(y), CGFloat(z))
 	}
 }
 

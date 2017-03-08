@@ -640,11 +640,13 @@ public func ==(lhs: Translation, rhs: Translation) -> Bool {
 public struct KeyPath: Property {
 	public var value: InterpolatableValue
 	public var key: String {
-		return ""
+		return _key
 	}
+	private var _key: String
 	
 	public init(_ key: String, _ value: Interpolatable) {
-		self.value = InterpolatableValue(type: .cgFloat, vectors: [0.0])
+		self._key = key
+		self.value = InterpolatableValue(type: value.interpolatableType, vectors: value.vectorize().vectors)
 	}
 }
 
@@ -1274,4 +1276,9 @@ public struct FromToValue {
 	var to: TweenProp?
 	
 	init() {}
+	
+	init(_ from: TweenProp, _ to: TweenProp) {
+		self.from = from
+		self.to = to
+	}
 }

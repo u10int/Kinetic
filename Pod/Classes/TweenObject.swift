@@ -373,7 +373,7 @@ class TweenObject {
 			vectorValue = rotation
 		} else if let translation = translation, prop is Translation {
 			vectorValue = translation
-		} else if let target = target, let value = target.value(forKey: prop.key) as? Interpolatable, prop is KeyPath {
+		} else if let value = target?.value(forKey: prop.key) as? Interpolatable, prop is KeyPath {
 //			let value = target.value(forKey: prop.key)
 			vectorValue = KeyPath(prop.key, value)
 		}
