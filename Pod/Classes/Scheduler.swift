@@ -144,7 +144,11 @@ final public class Scheduler {
 		if let obj = tweenObjectCache[target] {
 			return obj
 		}
-		return TweenObject(target: target)
+		
+		let obj = TweenObject(target: target)
+		tweenObjectCache[target] = obj
+		
+		return obj
 	}
 	
 	func activeTweenPropsForKey(_ key: String, ofTarget target: NSObject) -> [FromToValue] {

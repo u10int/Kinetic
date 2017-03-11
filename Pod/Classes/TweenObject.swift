@@ -10,7 +10,8 @@ import UIKit
 
 class TweenObject {
 	weak var target: NSObject?
-	var additive = true
+	
+	private var activeKeys = [String: Int]()
 	
 	init(target: NSObject) {
 		self.target = target
@@ -381,11 +382,43 @@ class TweenObject {
 		return vectorValue
 	}
 	
-	func activeTweenValuesForKey(_ key: String) -> [FromToValue]? {
+	func activeTweenValuesForKey(_ key: String) -> [FromToValue] {
 		if let target = target {
 			return Scheduler.sharedInstance.activeTweenPropsForKey(key, ofTarget: target)
 		}
-		return nil
+		return []
+	}
+	
+	func activeTweenKeys() -> [String: Int] {
+		return activeKeys
+	}
+	
+	func addActiveKeys(keys: [String]) {
+		keys.forEach { (key) in
+			var count = 1
+			if let pcount = activeKeys[key] {
+				count = pcount + 1
+			}
+			activeKeys[key] = count
+		}
+	}
+	
+	func removeActiveKeys(keys: [String]) {
+		keys.forEach { (key) in
+			var count = 0
+			if let pcount = activeKeys[key] {
+				count = pcount - 1
+			}
+			if count <= 0  {
+				activeKeys[key] = nil
+			} else {
+				activeKeys[key] = count
+			}
+		}
+	}
+	
+	func hasActiveTween(forKey key: String) -> Bool {
+		return activeKeys[key] != nil
 	}
 	
 	// MARK: Private Methods

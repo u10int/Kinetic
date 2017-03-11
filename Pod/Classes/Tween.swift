@@ -136,7 +136,7 @@ open class Tween: Animation, Tweener {
 	fileprivate var needsPropertyPrep = false
 	fileprivate var spring: Spring?
 	
-	var additive = true;
+	open var additive = true;
 
 	
 	// MARK: Lifecycle
@@ -193,6 +193,9 @@ open class Tween: Animation, Tweener {
 		if let target = target {
 			Scheduler.sharedInstance.removeFromCache(self, target: target)
 		}
+		
+		let keys = propertiesByType.map { return $0.key }
+		tweenObject.removeActiveKeys(keys: keys)
 	}
 	
 	// MARK: Tweenable
@@ -458,20 +461,33 @@ open class Tween: Animation, Tweener {
 				var from: TweenProp?
 				var to: TweenProp?
 				var type = prop.to ?? prop.from
+//				let additive = (prop.from == nil && !prop.isAutoTo)
+				
+				var isAdditive = self.additive
+				
+				// if we have any currently running animations for this same property, animation needs to be additive
+				// but animation should not be additive if we have a `from` value
+				if isAdditive {
+					isAdditive = (prop.from != nil) ? false : tweenObject.hasActiveTween(forKey: key)
+				}
+//				print("active tween props for key \(key): \(activeTweens.count), additive: \(additive)")
 				
 				if let type = type, let value = tweenObject.currentValueForTweenProp(type) {
 					from = value
 					to = value
 					
 					if let tweenFrom = prop.from {
-//						print("applying tweenFrom: \(tweenFrom)")
+						print("applying tweenFrom: \(tweenFrom)")
 						from?.apply(tweenFrom)
 					} else if let previousTo = tweenedProps[key] {
 						from = previousTo
 						print("no `from` value, using prevous tweened value \(previousTo)")
-					} else if let tweenTo = prop.to, let activeValues = tweenObject.activeTweenValuesForKey(tweenTo.key), activeValues.count > 0 {
-						from = activeValues.last?.to
-						print("no `from` value, using last active tween value \(activeValues.last?.to)")
+					} else if let tweenTo = prop.to {
+						let activeTweens = tweenObject.activeTweenValuesForKey(key)
+						if activeTweens.count > 0 {
+							from = activeTweens.last?.to
+							print("no `from` value, using last active tween value \(activeTweens.last?.to)")
+						}
 					}
 					
 					if let tweenTo = prop.to {
@@ -492,11 +508,12 @@ open class Tween: Animation, Tweener {
 					tweenedProps[key] = to
 				}
 //				print(tweenedProps)				
-				print("ANIMATE - \(key) - from: \(from?.value.vectors), to: \(to?.value.vectors)")
+				print("ANIMATE - \(key) - from: \(from?.value.vectors), to: \(to?.value.vectors), additive: \(isAdditive)")
 				
 				if let from = from, let to = to {
 					// update stored from/to property that other tweens may reference
 					propertiesByType[key] = FromToValue(from, to)
+					tweenObject.addActiveKeys(keys: [key])
 					
 					if let from = from as? TransformType, let to = to as? TransformType {
 						if let transform = tweenObject.transform, transformFrom == nil && transformTo == nil {
@@ -508,13 +525,17 @@ open class Tween: Animation, Tweener {
 						print("updating transform properties...")
 					} else {
 						let tweenAnimator = Animator(from: from, to: to, duration: duration, timingFunction: timingFunction)
-						tweenAnimator.additive = (to is KeyPath == false)
+						tweenAnimator.additive = isAdditive
 						tweenAnimator.spring = spring
 						tweenAnimator.setPresentation({ (prop) -> TweenProp? in
 							return self.tweenObject.currentValueForTweenProp(prop)
 						})
 						tweenAnimator.onChange({ [unowned self] (animator, value) in
-							print("update: \(value)")
+//							print("update: \(value)")
+							if self.additive {
+								// update running animator's `additive` property based on existance of other running animators for the same property
+								animator.additive = self.tweenObject.hasActiveTween(forKey: animator.key)
+							}
 							self.tweenObject.update(value)
 						})
 						animator = tweenAnimator
@@ -539,6 +560,5 @@ open class Tween: Animation, Tweener {
 				animators[key] = animator
 			}
 		}
-		
 	}
 }
