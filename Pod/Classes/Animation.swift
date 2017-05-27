@@ -291,6 +291,7 @@ open class Animation: NSObject, Animatable, Subscriber {
 		cycle = 0
 	}
 	
+	@discardableResult
 	func advance(_ time: Double) -> Bool {
 		if !running {
 			return true
@@ -350,6 +351,7 @@ open class Animation: NSObject, Animatable, Subscriber {
 		startBlock?(self)
 	}
 	
+	@discardableResult
 	func completed() -> Bool {
 		var shouldRepeat = false
 		if repeatForever || (repeatCount > 0 && cycle < repeatCount) {
@@ -359,7 +361,7 @@ open class Animation: NSObject, Animatable, Subscriber {
 		
 		if shouldRepeat {
 			repeatBlock?(self)
-			print("\(self) completed - repeating, reverseOnComplete: \(reverseOnComplete), reversed: \(reversed)")
+			print("\(self) completed - repeating, reverseOnComplete: \(reverseOnComplete), reversed: \(reversed), repeat count \(cycle) of \(repeatCount)")
 			if reverseOnComplete {
 				if reversed {
 					forward()

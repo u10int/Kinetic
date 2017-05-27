@@ -103,14 +103,15 @@ open class Timeline: Animation, Tweener {
 			if idx == 0 {
 				if let label = position as? String {
 					pos = time(fromString:label, relativeToTime: endTime)
-				} else if let time = position as? Float {
-					pos = CFTimeInterval(time)
+				} else if let time = Double("\(position)") {
+					pos = CFTimeInterval(time * 1.0)
 				}
 			}
 			if align != .start {
 				pos += tween.delay
 			}
 			tween.startTime = pos
+			print("timeline - added tween at position \(position) with start time \(tween.startTime)")
 			
 			if align == .sequence {
 				pos += tween.totalDuration
@@ -146,7 +147,7 @@ open class Timeline: Animation, Tweener {
 		
 		if let label = position as? String {
 			pos = time(fromString:label, relativeToTime: endTime)
-		} else if let time = position as? Float {
+		} else if let time = Double("\(position)") {
 			pos = CFTimeInterval(time)
 		}
 		
@@ -161,7 +162,7 @@ open class Timeline: Animation, Tweener {
 		
 		if let label = position as? String {
 			pos = time(fromString:label, relativeToTime: endTime)
-		} else if let time = position as? Float {
+		} else if let time = Double("\(position)") {
 			pos = CFTimeInterval(time)
 		}
 		
@@ -486,7 +487,7 @@ open class Timeline: Animation, Tweener {
 		updateBlock?(self)
 		
 		// make sure we don't consider timeline done if we currently don't have any tweens playing
-		done = (elapsed <= delay || elapsed >= (delay + endTime + repeatDelay))
+		done = ((reversed && elapsed <= delay) || (!reversed && elapsed >= (delay + endTime + repeatDelay)))
 		if done {
 			return completed()
 		}

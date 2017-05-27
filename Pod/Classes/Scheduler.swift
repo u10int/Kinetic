@@ -87,7 +87,7 @@ final public class Scheduler {
 	}
 	
 	@objc func update(_ displayLink: CADisplayLink) {
-		let dt = displayLink.timestamp - lastLoopTime
+		let dt = max(displayLink.timestamp - lastLoopTime, 0)
 		defer {
 			lastLoopTime = displayLink.timestamp
 		}

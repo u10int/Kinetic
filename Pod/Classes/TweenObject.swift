@@ -326,9 +326,8 @@ class TweenObject {
 		} else if let prop = prop as? Y, let value = prop.value.toInterpolatable() as? CGFloat {
 			self.origin?.y = value
 		} else if let prop = prop as? Position, let point = prop.value.toInterpolatable() as? CGPoint {
-			print(point)
 			self.origin = point
-		} else if let prop = prop as? Center, var value = prop.value.toInterpolatable() as? CGPoint {
+		} else if let prop = prop as? Center, let value = prop.value.toInterpolatable() as? CGPoint {
 			self.center = value
 		} else if let prop = prop as? Size, let size = prop.value.toInterpolatable() as? CGSize {
 			self.size = size

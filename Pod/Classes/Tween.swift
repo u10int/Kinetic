@@ -291,7 +291,7 @@ open class Tween: Animation, Tweener {
 			Scheduler.sharedInstance.cache(self, target: target)
 		}
 		
-		for (key, animator) in animators {
+		for (_, animator) in animators {
 			animator.reset()
 		}
 		run()
@@ -331,7 +331,7 @@ open class Tween: Animation, Tweener {
 		
 		setupAnimatorsIfNeeded()
 		
-		for (key, animator) in animators {
+		for (_, animator) in animators {
 			animator.seek(elapsedTime)
 		}
 		
@@ -410,7 +410,7 @@ open class Tween: Animation, Tweener {
 		}
 		
 		var done = true
-		for (key, animator) in animators {
+		for (_, animator) in animators {
 			animator.advance(time * multiplier)
 			if !animator.finished {
 				done = false
@@ -430,6 +430,7 @@ open class Tween: Animation, Tweener {
 		state = .running
 	}
 	
+	@discardableResult
 	override func completed() -> Bool {
 		let done = super.completed()
 		
@@ -482,7 +483,7 @@ open class Tween: Animation, Tweener {
 					} else if let previousTo = tweenedProps[key] {
 						from = previousTo
 						print("no `from` value, using prevous tweened value \(previousTo)")
-					} else if let tweenTo = prop.to {
+					} else if prop.to != nil {
 						let activeTweens = tweenObject.activeTweenValuesForKey(key)
 						if activeTweens.count > 0 {
 							from = activeTweens.last?.to

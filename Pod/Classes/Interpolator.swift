@@ -13,7 +13,7 @@ public class Interpolator {
 		didSet {
 			progress = max(0, min(progress, 1.0))
 			
-			var adjustedProgress = timingFunction.solveForTime(Double(progress))
+			let adjustedProgress = timingFunction.solveForTime(Double(progress))
 			current = current.interpolateTo(self.to, progress: adjustedProgress)
 			apply?(current.toInterpolatable())
 		}
