@@ -157,6 +157,7 @@ open class Tween: Animation, Tweener {
 	
 	// MARK: Animation Overrides
 	
+	@discardableResult
 	override open func duration(_ duration: CFTimeInterval) -> Tween {
 		super.duration(duration)
 		
@@ -166,6 +167,7 @@ open class Tween: Animation, Tweener {
 		return self
 	}
 	
+	@discardableResult
 	override open func delay(_ delay: CFTimeInterval) -> Tween {
 		super.delay(delay)
 		
@@ -240,9 +242,9 @@ open class Tween: Animation, Tweener {
 	@discardableResult
 	open func spring(tension: Double, friction: Double = 3) -> Tween {
 		spring = Spring(tension: tension, friction: friction)
-//		for prop in properties {
-//			prop.spring = Spring(tension: tension, friction: friction)
-//		}
+		for (_, animator) in animators {
+			animator.spring = spring
+		}
 		return self
 	}
 	
@@ -378,7 +380,7 @@ open class Tween: Animation, Tweener {
 		
 		// if tween belongs to a timeline, don't start animating until the timeline's playhead reaches the tween's startTime
 		if let timeline = timeline {
-//			print("Tween.advance() - id: \(id), timeline.time: \(timeline.time()), startTime: \(startTime), endTime: \(endTime), reversed: \(timeline.reversed)")
+			print("Tween.advance() - id: \(id), timeline.time: \(timeline.time()), startTime: \(startTime), endTime: \(endTime), reversed: \(timeline.reversed)")
 			if timeline.time() < startTime || timeline.time() > endTime {
 				return false
 			}
@@ -452,6 +454,8 @@ open class Tween: Animation, Tweener {
 	fileprivate func setupAnimatorsIfNeeded() {
 		var transformFrom: Transform?
 		var transformTo: Transform?
+		print("setupAnimatorsIfNeeded...")
+		print(animators)
 		
 		var tweenedProps = [String: TweenProp]()
 		for (key, prop) in propertiesByType {

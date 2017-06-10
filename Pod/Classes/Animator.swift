@@ -27,16 +27,16 @@ final public class Animator: Equatable {
 	fileprivate (set) public var duration: Double
 	fileprivate (set) public var key: String
 	public var timingFunction: TimingFunctionType = LinearTimingFunction()
-	var spring: Spring?
 	public var additive: Bool = true
 	public var changed: ((Animator, TweenProp) -> Void)?
-	
 	public var finished: Bool {
 		if let spring = spring {
 			return spring.ended
 		}
 		return (!reversed && elapsed >= duration) || (reversed && elapsed <= 0)
 	}
+	
+	internal var spring: Spring?
 	
 	fileprivate (set) public var current: TweenProp
 	fileprivate var additiveCurrent: TweenProp
