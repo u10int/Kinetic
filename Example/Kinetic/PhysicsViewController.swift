@@ -95,11 +95,21 @@ class PhysicsViewController: ExampleViewController {
 		
 		frictionSlider.setValue(10, animated: false)
 		frictionValue.text = "\(Int(round(frictionSlider.value)))"
+		
+		let tween = Kinetic.animate(square)
+			.to(Position(x: 250), Size(height: 100))
+			.duration(0.5)
+		
+		animation = tween
+		animation?.onComplete({ (animation) in
+			print("tween complete")
+		})
 	}
 	
 	override func play() {
-		let tween = Kinetic.animate(square).to(Position(x: 250), Size(height: 100)).duration(0.5).spring(tension: Double(tensionSlider.value), friction: Double(frictionSlider.value))
-		animation = tween
+		if let tween = animation as? Tween {
+			tween.spring(tension: Double(tensionSlider.value), friction: Double(frictionSlider.value))
+		}
 		animation?.play()
 	}
 	
