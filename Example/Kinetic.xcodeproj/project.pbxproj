@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2B19E88D1EEB8E9100041E70 /* InterpolateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B19E88C1EEB8E9100041E70 /* InterpolateTests.swift */; };
 		2B92960F1E46B11900056AAC /* AdditiveViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B9296001E46B11900056AAC /* AdditiveViewController.swift */; };
 		2B9296101E46B11900056AAC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B9296011E46B11900056AAC /* AppDelegate.swift */; };
 		2B9296111E46B11900056AAC /* BasicFromToTweenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B9296021E46B11900056AAC /* BasicFromToTweenViewController.swift */; };
@@ -43,6 +44,7 @@
 /* Begin PBXFileReference section */
 		0483570A75EB862226962D21 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		21AB81254F1F387056DDCDAA /* Kinetic.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Kinetic.podspec; path = ../Kinetic.podspec; sourceTree = "<group>"; };
+		2B19E88C1EEB8E9100041E70 /* InterpolateTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InterpolateTests.swift; sourceTree = "<group>"; };
 		2B9296001E46B11900056AAC /* AdditiveViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AdditiveViewController.swift; sourceTree = "<group>"; };
 		2B9296011E46B11900056AAC /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2B9296021E46B11900056AAC /* BasicFromToTweenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BasicFromToTweenViewController.swift; sourceTree = "<group>"; };
@@ -172,6 +174,7 @@
 		607FACE81AFB9204008FA782 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				2B19E88C1EEB8E9100041E70 /* InterpolateTests.swift */,
 				607FACEB1AFB9204008FA782 /* Tests.swift */,
 				607FACE91AFB9204008FA782 /* Supporting Files */,
 			);
@@ -423,6 +426,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				607FACEC1AFB9204008FA782 /* Tests.swift in Sources */,
+				2B19E88D1EEB8E9100041E70 /* InterpolateTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -541,6 +545,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEVELOPMENT_TEAM = RCNW495Q44;
 				INFOPLIST_FILE = Kinetic/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MODULE_NAME = ExampleApp;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.$(PRODUCT_NAME:rfc1034identifier)";
@@ -559,6 +564,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEVELOPMENT_TEAM = RCNW495Q44;
 				INFOPLIST_FILE = Kinetic/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MODULE_NAME = ExampleApp;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.$(PRODUCT_NAME:rfc1034identifier)";

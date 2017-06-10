@@ -58,6 +58,7 @@ public enum TweenState: Equatable {
 	case cancelled
 	case completed
 }
+
 public func ==(lhs: TweenState, rhs: TweenState) -> Bool {
 	switch (lhs, rhs) {
 	case (.pending, .pending):
@@ -380,7 +381,7 @@ open class Tween: Animation, Tweener {
 		
 		// if tween belongs to a timeline, don't start animating until the timeline's playhead reaches the tween's startTime
 		if let timeline = timeline {
-			print("Tween.advance() - id: \(id), timeline.time: \(timeline.time()), startTime: \(startTime), endTime: \(endTime), reversed: \(timeline.reversed)")
+//			print("Tween.advance() - id: \(id), timeline.time: \(timeline.time()), startTime: \(startTime), endTime: \(endTime), elapsed: \(elapsed), reversed: \(timeline.reversed)")
 			if timeline.time() < startTime || timeline.time() > endTime {
 				return false
 			}

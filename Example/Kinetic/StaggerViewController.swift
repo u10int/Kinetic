@@ -39,8 +39,11 @@ class StaggerViewController: ExampleViewController {
 			y = square.frame.maxY + 5
 		}
 				
-		let tween = Kinetic.animateAll(squares).to(Size(width: 200)).duration(1).stagger(0.08).spring(tension: 100, friction: 12)
-		animation = tween
+		let timeline = Kinetic.animateAll(squares).to(Size(width: 200)).duration(1).stagger(0.08).spring(tension: 100, friction: 12)
+		timeline.onComplete { (animation) in
+			print("timeline done")
+		}
+		animation = timeline
 	}
 	
 	override func reset() {

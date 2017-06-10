@@ -17,7 +17,7 @@ public func animate(_ target: NSObject) -> Tween {
 public func animateAll(_ targets: [NSObject]) -> Timeline {
 	let timeline = Timeline()
 	
-	for (idx, target) in targets.enumerated() {
+	for (_, target) in targets.enumerated() {
 		let tween = Tween(target: target)
 		timeline.add(tween, position: 0)
 	}
@@ -57,9 +57,11 @@ public func killTweensOf(_ target: NSObject) {
 
 public func killAll() {
 	for (_, var tweens) in Scheduler.sharedInstance.cache {
-		for tween in tweens {
-			tween.kill()
-			tween.timeline?.remove(tween: tween)
+		for target in tweens {
+			if let tween = target as? Tween {
+				tween.kill()
+				tween.timeline?.remove(tween: tween)
+			}
 		}
 		tweens.removeAll()
 	}
