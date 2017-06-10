@@ -451,7 +451,7 @@ open class Timeline: Animation, Tweener {
 		if !repeatForever {
 			elapsed = min(elapsed, (delay + endTime))
 		}
-//		print("timeline.advance() - time: \(time), multiplier: \(multiplier), elapsed: \(elapsed), endTime: \(endTime), delay: \(delay), reversed: \(reversed)")
+		print("timeline.advance() - time: \(time), multiplier: \(multiplier), elapsed: \(elapsed), endTime: \(endTime), delay: \(delay), duration: \(duration), repeatDelay: \(repeatDelay), reversed: \(reversed)")
 		
 		// check for callbacks
 		if callbacks.count > 0 {
@@ -462,8 +462,6 @@ open class Timeline: Animation, Tweener {
 				}
 			}
 		}
-		
-//		print("Timeline.advance() - elapsed: \(elapsed), delay: \(delay), duration: \(duration), repeatDelay: \(repeatDelay)")
 		
 		if elapsed < (delay + repeatDelay) {
 			if reversed {
@@ -492,6 +490,18 @@ open class Timeline: Animation, Tweener {
 			return completed()
 		}
 		return false
+	}
+	
+	@discardableResult
+	override func completed() -> Bool {
+		let done = super.completed()
+		
+		if done {
+//			state = .completed
+			kill()
+		}
+		
+		return done
 	}
 	
 	// MARK: Private Methods
