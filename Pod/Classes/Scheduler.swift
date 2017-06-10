@@ -8,7 +8,7 @@
 
 import UIKit
 
-protocol Subscriber: AnyObject {
+protocol Subscriber {
 	var id: UInt32 { get set }
 	func advance(_ time: Double) -> Bool
 }
@@ -16,9 +16,9 @@ protocol Subscriber: AnyObject {
 final public class Scheduler {
 	public static let sharedInstance = Scheduler()
 	
-	var subscribers = [UInt32: Animation]()
+	var subscribers = [UInt32: Subscriber]()
 	var counter: UInt32
-	var cache: [NSObject: [Tween]] {
+	var cache: [NSObject: [Subscriber]] {
 		get {
 			return tweenCache
 		}
@@ -32,7 +32,7 @@ final public class Scheduler {
 	fileprivate lazy var displayLink: CADisplayLink = {
 		let link = CADisplayLink(target: self, selector: #selector(Scheduler.update(_:)))
 		link.isPaused = true
-		link.add(to: RunLoop.current, forMode: RunLoopMode.commonModes)
+		link.add(to: .current, forMode: .commonModes)
 		return link
 	}()
 	fileprivate var lastLoopTime: CFTimeInterval
@@ -46,21 +46,23 @@ final public class Scheduler {
 	
 	// MARK: Internal Methods
 	
-	func add(_ tween: Animation) {
-		guard !contains(tween) else { return }
+	func add(_ target: Subscriber) {
+		guard !contains(target) else { return }
 		objc_sync_enter(self)
 		defer {
 			objc_sync_exit(self)
 		}
 		
-		if tween.id == 0 {
+		var subscriber = target
+		if subscriber.id == 0 {
 			counter += 1
 			if counter == 0 {
 				counter = 1
 			}
-			tween.id = counter
+			subscriber.id = counter
 		}
-		subscribers[tween.id] = tween
+		subscribers[subscriber.id] = target
+		
 		resume()
 	}
 	
@@ -170,11 +172,11 @@ final public class Scheduler {
 	
 	// MARK: Private Methods
 	
-	fileprivate func contains(_ animation: Animation) -> Bool {
+	fileprivate func contains(_ target: Subscriber) -> Bool {
 		var contains = false
 		
-		for (_, anim) in subscribers {
-			if anim == animation {
+		for (_, subscriber) in subscribers {
+			if subscriber.id == target.id {
 				contains = true
 				break
 			}

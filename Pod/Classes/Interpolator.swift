@@ -8,7 +8,8 @@
 
 import Foundation
 
-public class Interpolator {
+public class Interpolator : Subscriber {
+	public var id: UInt32 = 0
 	public var progress: CGFloat = 0.0 {
 		didSet {
 			progress = max(0, min(progress, 1.0))
@@ -36,16 +37,20 @@ public class Interpolator {
 	fileprivate var reversed = false
 	fileprivate var apply: ((Interpolatable) -> Void)?
 	
-	public init(from: Interpolatable, to: Interpolatable, duration: CGFloat, function: TimingFunctionType, apply: @escaping ((Interpolatable) -> Void)) {
+	public init<T: Interpolatable>(from: T, to: T, duration: CGFloat, function: TimingFunctionType, apply: @escaping ((T) -> Void)) {
 		self.from = InterpolatableValue(value: from.vectorize())
 		self.to = InterpolatableValue(value: to.vectorize())
 		self.current = InterpolatableValue(value: self.from)
 		self.duration = duration
 		self.timingFunction = function
-		self.apply = { let _ = ($0 as? Interpolatable).flatMap(apply) }
+		self.apply = { let _ = ($0 as? T).flatMap(apply) }
 	}
 	
-	fileprivate func advance(_ time: Double) {
+	public func run() {
+		Scheduler.sharedInstance.add(self)
+	}
+	
+	internal func advance(_ time: Double) -> Bool {
 		let direction: CGFloat = reversed ? -1.0 : 1.0
 		
 		elapsed += CGFloat(time)
@@ -53,10 +58,14 @@ public class Interpolator {
 		reversed = time < 0
 		
 		progress = (elapsed / duration) * direction
+		print(progress)
 		
 		if (direction > 0 && progress >= 1.0) || (direction < 0 && progress <= -1.0) {
 			
 		}
 		
+		
+		
+		return true
 	}
 }
