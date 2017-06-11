@@ -236,7 +236,7 @@ open class Timeline: Animation, Tweener {
 	// MARK: Tweenable
 	
 	@discardableResult
-	open func from(_ props: TweenProp...) -> Timeline {
+	open func from(_ props: Property...) -> Timeline {
 		for tween in tweens {
 			tween.from(props)
 		}
@@ -244,7 +244,7 @@ open class Timeline: Animation, Tweener {
 	}
 	
 	@discardableResult
-	open func to(_ props: TweenProp...) -> Timeline {
+	open func to(_ props: Property...) -> Timeline {
 		for tween in tweens {
 			tween.to(props)
 		}

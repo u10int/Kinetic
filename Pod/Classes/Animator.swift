@@ -22,13 +22,13 @@ import Foundation
 //}
 
 final public class Animator: Equatable {
-	fileprivate (set) public var from: TweenProp
-	fileprivate (set) public var to: TweenProp
+	fileprivate (set) public var from: Property
+	fileprivate (set) public var to: Property
 	fileprivate (set) public var duration: Double
 	fileprivate (set) public var key: String
 	public var timingFunction: TimingFunctionType = LinearTimingFunction()
 	public var additive: Bool = true
-	public var changed: ((Animator, TweenProp) -> Void)?
+	public var changed: ((Animator, Property) -> Void)?
 	public var finished: Bool {
 		if let spring = spring {
 			return spring.ended
@@ -38,13 +38,13 @@ final public class Animator: Equatable {
 	
 	internal var spring: Spring?
 	
-	fileprivate (set) public var current: TweenProp
-	fileprivate var additiveCurrent: TweenProp
+	fileprivate (set) public var current: Property
+	fileprivate var additiveCurrent: Property
 	fileprivate var elapsed: Double = 0.0
 	fileprivate var reversed = false
-	fileprivate var presentation: ((TweenProp) -> TweenProp?)?
+	fileprivate var presentation: ((Property) -> Property?)?
 	
-	public init(from: TweenProp, to: TweenProp, duration: Double, timingFunction: TimingFunctionType) {
+	public init(from: Property, to: Property, duration: Double, timingFunction: TimingFunctionType) {
 		self.from = from
 		self.to = to
 		self.duration = duration
@@ -92,7 +92,7 @@ final public class Animator: Equatable {
 			adjustedProgress = timingFunction.solveForTime(progress)
 		}
 		
-		var presentationValue: TweenProp = current
+		var presentationValue: Property = current
 		
 		if let from = from as? Transform, let to = to as? Transform, var value = current as? Transform {
 			let scale = from.scale.value.interpolateTo(to.scale.value, progress: adjustedProgress)
@@ -125,11 +125,11 @@ final public class Animator: Equatable {
 		current.apply(interpolatable)
 	}
 	
-	public func onChange(_ block: ((Animator, TweenProp) -> Void)?) {
+	public func onChange(_ block: ((Animator, Property) -> Void)?) {
 		changed = block
 	}
 	
-	public func setPresentation(_ block: ((TweenProp) -> TweenProp?)?) {
+	public func setPresentation(_ block: ((Property) -> Property?)?) {
 		presentation = block
 	}
 	
@@ -140,7 +140,7 @@ final public class Animator: Equatable {
 	
 	presentation = presentation + (current - previous)
 	*/
-	private func adjustForAdditive(prop: TweenProp, interpolatable: InterpolatableValue) -> TweenProp {
+	private func adjustForAdditive(prop: Property, interpolatable: InterpolatableValue) -> Property {
 		if let pres = presentation?(prop) {
 			var adjustedValue = prop
 			

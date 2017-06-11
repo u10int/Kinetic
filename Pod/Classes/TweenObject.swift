@@ -320,7 +320,7 @@ class TweenObject {
 	
 	// MARK: VectorType Utilities
 	
-	func update(_ prop: TweenProp) {
+	func update(_ prop: Property) {
 		if let prop = prop as? X, let value = prop.value.toInterpolatable() as? CGFloat {
 			self.origin?.x = value
 		} else if let prop = prop as? Y, let value = prop.value.toInterpolatable() as? CGFloat {
@@ -338,7 +338,7 @@ class TweenObject {
 		} else if let prop = prop as? FillColor, let value = prop.value.toInterpolatable() as? UIColor {
 			self.fillColor = value
 		} else if let transform = prop as? Transform {
-			transform.applyTo(self)
+//			transform.applyTo(self)
 		} else if let keyPath = prop as? KeyPath {
 			if let target = target, target.responds(to:Selector(keyPath.key)) {
 				target.setValue(prop.value.toInterpolatable(), forKey: keyPath.key)
@@ -346,8 +346,8 @@ class TweenObject {
 		}
 	}
 	
-	func currentValueForTweenProp(_ prop: TweenProp) -> TweenProp? {
-		var vectorValue: TweenProp?
+	func currentValueForTweenProp(_ prop: Property) -> Property? {
+		var vectorValue: Property?
 		
 		if let position = origin, prop is X || prop is Y {
 			if prop is X {
@@ -381,44 +381,44 @@ class TweenObject {
 		return vectorValue
 	}
 	
-	func activeTweenValuesForKey(_ key: String) -> [FromToValue] {
-		if let target = target {
-			return Scheduler.sharedInstance.activeTweenPropsForKey(key, ofTarget: target)
-		}
-		return []
-	}
-	
-	func activeTweenKeys() -> [String: Int] {
-		return activeKeys
-	}
-	
-	func addActiveKeys(keys: [String]) {
-		keys.forEach { (key) in
-			var count = 1
-			if let pcount = activeKeys[key] {
-				count = pcount + 1
-			}
-			activeKeys[key] = count
-		}
-	}
-	
-	func removeActiveKeys(keys: [String]) {
-		keys.forEach { (key) in
-			var count = 0
-			if let pcount = activeKeys[key] {
-				count = pcount - 1
-			}
-			if count <= 0  {
-				activeKeys[key] = nil
-			} else {
-				activeKeys[key] = count
-			}
-		}
-	}
-	
-	func hasActiveTween(forKey key: String) -> Bool {
-		return activeKeys[key] != nil
-	}
+//	func activeTweenValuesForKey(_ key: String) -> [FromToValue] {
+//		if let target = target {
+//			return Scheduler.sharedInstance.activeTweenPropsForKey(key, ofTarget: target)
+//		}
+//		return []
+//	}
+//	
+//	func activeTweenKeys() -> [String: Int] {
+//		return activeKeys
+//	}
+//	
+//	func addActiveKeys(keys: [String]) {
+//		keys.forEach { (key) in
+//			var count = 1
+//			if let pcount = activeKeys[key] {
+//				count = pcount + 1
+//			}
+//			activeKeys[key] = count
+//		}
+//	}
+//	
+//	func removeActiveKeys(keys: [String]) {
+//		keys.forEach { (key) in
+//			var count = 0
+//			if let pcount = activeKeys[key] {
+//				count = pcount - 1
+//			}
+//			if count <= 0  {
+//				activeKeys[key] = nil
+//			} else {
+//				activeKeys[key] = count
+//			}
+//		}
+//	}
+//	
+//	func hasActiveTween(forKey key: String) -> Bool {
+//		return activeKeys[key] != nil
+//	}
 	
 	// MARK: Private Methods
 	
