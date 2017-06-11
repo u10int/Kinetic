@@ -27,8 +27,8 @@ final public class Scheduler {
 		return displayLink.timestamp
 	}
 	
-	fileprivate var tweenCache = [NSObject: [Tween]]()
-	fileprivate var tweenObjectCache = [NSObject: TweenObject]()
+	fileprivate var tweenCache = [Tweenable: [Tween]]()
+//	fileprivate var tweenObjectCache = [NSObject: Tweenable]()
 	fileprivate lazy var displayLink: CADisplayLink = {
 		let link = CADisplayLink(target: self, selector: #selector(Scheduler.update(_:)))
 		link.isPaused = true
@@ -106,7 +106,7 @@ final public class Scheduler {
 		}
 	}
 	
-	func cache(_ tween: Tween, target: NSObject) {
+	func cache(_ tween: Tween, target: Tweenable) {
 		if tweenCache[target] == nil {
 			tweenCache[target] = [Tween]()
 		}
@@ -115,7 +115,7 @@ final public class Scheduler {
 		}
 	}
 	
-	func removeFromCache(_ tween: Tween, target: NSObject) {
+	func removeFromCache(_ tween: Tween, target: Tweenable) {
 		if let tweens = tweenCache[target] {
 			if let index = tweens.index(of: tween) {
 				tweenCache[target]?.remove(at: index)
@@ -128,32 +128,32 @@ final public class Scheduler {
 		}
 	}
 	
-	func removeFromCache(_ target: NSObject) {
+	func removeFromCache(_ target: Tweenable) {
 		tweenCache[target] = nil
-		tweenObjectCache[target] = nil
+//		tweenObjectCache[target] = nil
 	}
 	
 	func removeAllFromCache() {
 		tweenCache.removeAll()
-		tweenObjectCache.removeAll()
+//		tweenObjectCache.removeAll()
 	}
 	
-	func tweens(ofTarget target: NSObject, activeOnly: Bool = false) -> [Tween]? {
+	func tweens(ofTarget target: Tweenable, activeOnly: Bool = false) -> [Tween]? {
 		return tweenCache[target]
 	}
 	
-	func cachedUpdater(ofTarget target: NSObject) -> TweenObject {
-		if let obj = tweenObjectCache[target] {
-			return obj
-		}
-		
-		let obj = TweenObject(target: target)
-		tweenObjectCache[target] = obj
-		
-		return obj
-	}
+//	func cachedUpdater(ofTarget target: NSObject) -> TweenObject {
+//		if let obj = tweenObjectCache[target] {
+//			return obj
+//		}
+//		
+//		let obj = TweenObject(target: target)
+//		tweenObjectCache[target] = obj
+//		
+//		return obj
+//	}
 	
-	func activeTweenPropsForKey(_ key: String, ofTarget target: NSObject) -> [FromToValue] {
+	func activeTweenPropsForKey(_ key: String, ofTarget target: Tweenable) -> [FromToValue] {
 		var props = [FromToValue]()
 		if let tweens = tweens(ofTarget: target) {
 //			let reducedTweens = tweens.reversed()[0..<tweens.count]

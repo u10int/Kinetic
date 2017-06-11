@@ -80,8 +80,8 @@ public protocol Tweener {
 	var antialiasing: Bool { get set }
 	weak var timeline: Timeline? { get set }
 	
-	func from(_ props: TweenProp...) -> TweenType
-	func to(_ props: TweenProp...) -> TweenType
+	func from(_ props: Property...) -> TweenType
+	func to(_ props: Property...) -> TweenType
 	
 	func ease(_ easing: Easing.EasingType) -> TweenType
 	func spring(tension: Double, friction: Double) -> TweenType
@@ -95,9 +95,9 @@ open class Tween: Animation, Tweener {
 	public typealias AnimationType = Tween
 	
 	open var state: TweenState = .pending
-	open var target: NSObject? {
+	open var target: Tweenable {
 		get {
-			return tweenObject.target
+			return tweenObject
 		}
 	}
 	open var antialiasing: Bool {
@@ -130,7 +130,7 @@ open class Tween: Animation, Tweener {
 	fileprivate var propertiesByType: Dictionary<String, FromToValue> = [String: FromToValue]()
 	private(set) var animators = [String: Animator]()
 	
-	var tweenObject: TweenObject
+	var tweenObject: Tweenable
 	fileprivate var timingFunction: TimingFunctionType = LinearTimingFunction()
 	fileprivate var timeScale: Float = 1
 	fileprivate var staggerDelay: CFTimeInterval = 0
@@ -142,9 +142,10 @@ open class Tween: Animation, Tweener {
 	
 	// MARK: Lifecycle
 	
-	required public init(target: NSObject) {
+	required public init(target: Tweenable) {
 //		self.tweenObject = TweenObject(target: target)
-		self.tweenObject = Scheduler.sharedInstance.cachedUpdater(ofTarget: target)
+//		self.tweenObject = Scheduler.sharedInstance.cachedUpdater(ofTarget: target)
+		self.tweenObject = target
 		super.init()
 		
 		Scheduler.sharedInstance.cache(self, target: target)
@@ -193,29 +194,27 @@ open class Tween: Animation, Tweener {
 		super.kill()
 		
 		Scheduler.sharedInstance.remove(self)
-		if let target = target {
-			Scheduler.sharedInstance.removeFromCache(self, target: target)
-		}
+		Scheduler.sharedInstance.removeFromCache(self, target: target)
 		
 		let keys = propertiesByType.map { return $0.key }
-		tweenObject.removeActiveKeys(keys: keys)
+		Tween.removeActiveKeys(keys: keys, ofTarget: target)
 	}
 	
 	// MARK: Tweenable
 	
 	@discardableResult
-	open func from(_ props: TweenProp...) -> Tween {
+	open func from(_ props: Property...) -> Tween {
 		return from(props)
 	}
 	
 	@discardableResult
-	open func to(_ props: TweenProp...) -> Tween {
+	open func to(_ props: Property...) -> Tween {
 		return to(props)
 	}
 	
 	// internal `from` and `to` methods that support a single array of Property types since we can't forward variadic arguments
 	@discardableResult
-	func from(_ props: [TweenProp]) -> Tween {
+	func from(_ props: [Property]) -> Tween {
 		for prop in props {
 			add(prop, mode: .from)
 		}
@@ -223,7 +222,7 @@ open class Tween: Animation, Tweener {
 	}
 	
 	@discardableResult
-	func to(_ props: [TweenProp]) -> Tween {
+	func to(_ props: [Property]) -> Tween {
 //		prepare(from: nil, to: props, mode: .To)
 		for prop in props {
 			add(prop, mode: .to)
@@ -290,9 +289,7 @@ open class Tween: Animation, Tweener {
 		print("--------- tween.id: \(id) - play ------------")
 		super.play()
 		
-		if let target = target {
-			Scheduler.sharedInstance.cache(self, target: target)
-		}
+		Scheduler.sharedInstance.cache(self, target: target)
 		
 		for (_, animator) in animators {
 			animator.reset()
@@ -347,13 +344,13 @@ open class Tween: Animation, Tweener {
 	
 	// MARK: Private Methods
 	
-	fileprivate func add(_ prop: TweenProp, mode: TweenMode) {
+	fileprivate func add(_ prop: Property, mode: TweenMode) {
 		var value = propertiesByType[prop.key] ?? FromToValue()
 		
 		if mode == .from {
 			value.from = prop
 			// immediately set initial state for this property
-			if var current = tweenObject.currentValueForTweenProp(prop) {
+			if var current = tweenObject.currentProperty(for: prop) {
 				if value.to == nil {
 					value.to = current
 				}
@@ -369,7 +366,7 @@ open class Tween: Animation, Tweener {
 	
 	override func advance(_ time: Double) -> Bool {
 //		print("Tween.advance() - id: \(id), running: \(running), paused: \(paused), startTime: \(startTime)")
-		if target == nil || !running {
+		if !running {
 			return false
 		}
 		if paused {
@@ -458,15 +455,15 @@ open class Tween: Animation, Tweener {
 		print("setupAnimatorsIfNeeded...")
 		print(animators)
 		
-		var tweenedProps = [String: TweenProp]()
+		var tweenedProps = [String: Property]()
 		for (key, prop) in propertiesByType {
 			var animator = animators[key]
 			
 			if animator == nil {
 				print("--------- tween.id: \(id) - animator key: \(key) ------------")
-				var from: TweenProp?
-				var to: TweenProp?
-				var type = prop.to ?? prop.from
+				var from: Property?
+				var to: Property?
+				let type = prop.to ?? prop.from
 //				let additive = (prop.from == nil && !prop.isAutoTo)
 				
 				var isAdditive = self.additive
@@ -474,11 +471,11 @@ open class Tween: Animation, Tweener {
 				// if we have any currently running animations for this same property, animation needs to be additive
 				// but animation should not be additive if we have a `from` value
 				if isAdditive {
-					isAdditive = (prop.from != nil) ? false : tweenObject.hasActiveTween(forKey: key)
+					isAdditive = (prop.from != nil) ? false : Tween.hasActiveTween(forKey: key, ofTarget: target)
 				}
 //				print("active tween props for key \(key): \(activeTweens.count), additive: \(additive)")
 				
-				if let type = type, let value = tweenObject.currentValueForTweenProp(type) {
+				if let type = type, let value = tweenObject.currentProperty(for: type) {
 					from = value
 					to = value
 					
@@ -489,7 +486,7 @@ open class Tween: Animation, Tweener {
 						from = previousTo
 						print("no `from` value, using prevous tweened value \(previousTo)")
 					} else if prop.to != nil {
-						let activeTweens = tweenObject.activeTweenValuesForKey(key)
+						let activeTweens = Scheduler.sharedInstance.activeTweenPropsForKey(key, ofTarget: target)
 						if activeTweens.count > 0 {
 							from = activeTweens.last?.to
 							print("no `from` value, using last active tween value \(activeTweens.last?.to)")
@@ -519,12 +516,12 @@ open class Tween: Animation, Tweener {
 				if let from = from, let to = to {
 					// update stored from/to property that other tweens may reference
 					propertiesByType[key] = FromToValue(from, to)
-					tweenObject.addActiveKeys(keys: [key])
+					Tween.addActiveKeys(keys: [key], toTarget: target)
 					
 					if let from = from as? TransformType, let to = to as? TransformType {
-						if let transform = tweenObject.transform, transformFrom == nil && transformTo == nil {
-							transformFrom = Transform(transform)
-							transformTo = Transform(transform)
+						if transformFrom == nil && transformTo == nil {
+							transformFrom = Transform(tweenObject.transform3d)
+							transformTo = Transform(tweenObject.transform3d)
 						}
 						transformFrom?.apply(from)
 						transformTo?.apply(to)
@@ -533,14 +530,14 @@ open class Tween: Animation, Tweener {
 						let tweenAnimator = Animator(from: from, to: to, duration: duration, timingFunction: timingFunction)
 						tweenAnimator.additive = isAdditive
 						tweenAnimator.spring = spring
-						tweenAnimator.setPresentation({ (prop) -> TweenProp? in
-							return self.tweenObject.currentValueForTweenProp(prop)
+						tweenAnimator.setPresentation({ (prop) -> Property? in
+							return self.tweenObject.currentProperty(for: prop)
 						})
 						tweenAnimator.onChange({ [unowned self] (animator, value) in
 //							print("update: \(value)")
 							if self.additive {
 								// update running animator's `additive` property based on existance of other running animators for the same property
-								animator.additive = self.tweenObject.hasActiveTween(forKey: animator.key)
+								animator.additive = Tween.hasActiveTween(forKey: animator.key, ofTarget: self.target)
 							}
 							self.tweenObject.update(value)
 						})
@@ -566,5 +563,72 @@ open class Tween: Animation, Tweener {
 				animators[key] = animator
 			}
 		}
+	}
+}
+
+extension Tween {
+	fileprivate static var tweenCache = [UInt32: [Tween]]()
+	fileprivate static var activeKeys = [String: Int]()
+	
+	fileprivate static func cache(_ tween: Tween, target: Tweenable) {
+		if tweenCache[target] == nil {
+			tweenCache[target] = [Tween]()
+		}
+		if let tweens = tweenCache[target], tweens.contains(tween) == false {
+			tweenCache[target]?.append(tween)
+		}
+	}
+	
+	fileprivate static func removeFromCache(_ tween: Tween, target: Tweenable) {
+		if let tweens = tweenCache[target] {
+			if let index = tweens.index(of: tween) {
+				tweenCache[target]?.remove(at: index)
+			}
+			
+			// remove object reference if all tweens have been removed from cache
+			if tweenCache[target]?.count == 0 {
+				removeFromCache(target)
+			}
+		}
+	}
+	
+	fileprivate static func removeFromCache(_ target: Tweenable) {
+		tweenCache[target] = nil
+	}
+	
+	fileprivate static func removeAllFromCache() {
+		tweenCache.removeAll()
+	}
+	
+	fileprivate static func tweens(ofTarget target: Tweenable, activeOnly: Bool = false) -> [Tween]? {
+		return tweenCache[target]
+	}
+	
+	fileprivate static func addActiveKeys(keys: [String], toTarget target: Tweenable) {
+		keys.forEach { (key) in
+			var count = 1
+			if let pcount = activeKeys[key] {
+				count = pcount + 1
+			}
+			activeKeys[key] = count
+		}
+	}
+	
+	fileprivate static func removeActiveKeys(keys: [String], ofTarget target: Tweenable) {
+		keys.forEach { (key) in
+			var count = 0
+			if let pcount = activeKeys[key] {
+				count = pcount - 1
+			}
+			if count <= 0  {
+				activeKeys[key] = nil
+			} else {
+				activeKeys[key] = count
+			}
+		}
+	}
+	
+	fileprivate static func hasActiveTween(forKey key: String, ofTarget target: Tweenable) -> Bool {
+		return activeKeys[key] != nil
 	}
 }
