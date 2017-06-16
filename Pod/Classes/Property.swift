@@ -397,18 +397,23 @@ extension Transform {
 	}
 	
 	func applyTo(_ target: Tweenable) {
-		var tweenable = target
+		guard var view = target as? ViewType else { return }
+		
 		var t = CATransform3DIdentity
 		var removeTranslationForRotate = false
+		
+		let targetScale = view.transform3d.scale()
+		let targetRotation = view.transform3d.rotation()
+		let targetTranslation = view.transform3d.translation()
 				
 		// apply any existing transforms that aren't specified in this tween
-		if let value = target.scale.value.toInterpolatable() as? Vector3, !orderedPropKeys.contains(target.scale.key) {
+		if let value = targetScale.value.toInterpolatable() as? Vector3, !orderedPropKeys.contains(targetScale.key) {
 			t = CATransform3DScale(t, CGFloat(value.x), CGFloat(value.y), CGFloat(value.z))
 		}
-		if let angle = target.rotation.value.toInterpolatable() as? CGFloat, !orderedPropKeys.contains(target.rotation.key) {
-			t = CATransform3DRotate(t, angle, (target.rotation.x ? 1 : 0), (target.rotation.y ? 1 : 0), (target.rotation.z ? 1 : 0))
+		if let angle = targetRotation.value.toInterpolatable() as? CGFloat, !orderedPropKeys.contains(targetRotation.key) {
+			t = CATransform3DRotate(t, angle, (targetRotation.x ? 1 : 0), (targetRotation.y ? 1 : 0), (targetRotation.z ? 1 : 0))
 		}
-		if let value = target.translation.value.toInterpolatable() as? CGPoint, !orderedPropKeys.contains(target.translation.key) {
+		if let value = targetTranslation.value.toInterpolatable() as? CGPoint, !orderedPropKeys.contains(targetTranslation.key) {
 			t = CATransform3DTranslate(t, value.x, value.y, 0)
 			removeTranslationForRotate = true
 		}
@@ -420,27 +425,27 @@ extension Transform {
 					t = CATransform3DScale(t, CGFloat(scale.x), CGFloat(scale.y), CGFloat(scale.z))
 				}
 			} else if prop is Rotation {
-				if let angle = rotation.value.toInterpolatable() as? CGFloat, let translation = translation.value.toInterpolatable() as? CGPoint {
+				if let angle = rotation.value.toInterpolatable() as? CGFloat, let translate = translation.value.toInterpolatable() as? CGPoint {
 					// if we have a translation, remove the translation before applying the rotation
-					if removeTranslationForRotate && target.translation != Translation.zero {
-						t = CATransform3DTranslate(t, -translation.x, -translation.y, 0)
+					if removeTranslationForRotate && targetTranslation != Translation.zero {
+						t = CATransform3DTranslate(t, -translate.x, -translate.y, 0)
 					}
 					
 					t = CATransform3DRotate(t, angle, (rotation.x ? 1 : 0), (rotation.y ? 1 : 0), (rotation.z ? 1 : 0))
 					
 					// add translation back
-					if removeTranslationForRotate && target.translation != Translation.zero {
-						t = CATransform3DTranslate(t, translation.x, translation.y, 0)
+					if removeTranslationForRotate && targetTranslation != Translation.zero {
+						t = CATransform3DTranslate(t, translate.x, translate.y, 0)
 					}
 				}
 			} else if prop is Translation {
-				if let translation = translation.value.toInterpolatable() as? CGPoint {
-					t = CATransform3DTranslate(t, translation.x, translation.y, 0)
+				if let translate = translation.value.toInterpolatable() as? CGPoint {
+					t = CATransform3DTranslate(t, translate.x, translate.y, 0)
 				}
 			}
 		}
-//		print(t)
-		tweenable.transform3d = t
+		
+		view.transform3d = t
 	}
 }
 

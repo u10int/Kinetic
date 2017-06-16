@@ -121,10 +121,6 @@ final public class Animator: Equatable {
 		changed?(self, presentationValue)
 	}
 	
-	public func applyToValue(_ interpolatable: InterpolatableValue) {
-		current.apply(interpolatable)
-	}
-	
 	public func onChange(_ block: ((Animator, Property) -> Void)?) {
 		changed = block
 	}

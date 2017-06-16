@@ -94,18 +94,19 @@ open class Tween: Animation, Tweener {
 	public typealias TweenType = Tween
 	public typealias AnimationType = Tween
 	
-	open var state: TweenState = .pending
-	open var target: Tweenable {
+	private(set) public var target: Tweenable
+	private(set) public var state: TweenState = .pending
+	public var antialiasing: Bool {
 		get {
-			return tweenObject
-		}
-	}
-	open var antialiasing: Bool {
-		get {
-			return tweenObject.antialiasing
+			if let view = target as? ViewType {
+				return view.antialiasing
+			}
+			return false
 		}
 		set(newValue) {
-			tweenObject.antialiasing = newValue
+			if var view = target as? ViewType {
+				view.antialiasing = newValue
+			}
 		}
 	}
 	override open var duration: CFTimeInterval {
@@ -130,7 +131,6 @@ open class Tween: Animation, Tweener {
 	fileprivate var propertiesByType: Dictionary<String, FromToValue> = [String: FromToValue]()
 	private(set) var animators = [String: Animator]()
 	
-	var tweenObject: Tweenable
 	fileprivate var timingFunction: TimingFunctionType = LinearTimingFunction()
 	fileprivate var timeScale: Float = 1
 	fileprivate var staggerDelay: CFTimeInterval = 0
@@ -145,10 +145,10 @@ open class Tween: Animation, Tweener {
 	required public init(target: Tweenable) {
 //		self.tweenObject = TweenObject(target: target)
 //		self.tweenObject = Scheduler.sharedInstance.cachedUpdater(ofTarget: target)
-		self.tweenObject = target
+		self.target = target
 		super.init()
 		
-		Scheduler.sharedInstance.cache(self, target: target)
+		TweenCache.session.cache(self, target: target)
 	}
 	
 	deinit {
@@ -194,10 +194,10 @@ open class Tween: Animation, Tweener {
 		super.kill()
 		
 		Scheduler.sharedInstance.remove(self)
-		Scheduler.sharedInstance.removeFromCache(self, target: target)
+		TweenCache.session.removeFromCache(self, target: target)
 		
 		let keys = propertiesByType.map { return $0.key }
-		Tween.removeActiveKeys(keys: keys, ofTarget: target)
+		TweenCache.session.removeActiveKeys(keys: keys, ofTarget: target)
 	}
 	
 	// MARK: Tweenable
@@ -250,7 +250,9 @@ open class Tween: Animation, Tweener {
 	
 	@discardableResult
 	open func perspective(_ value: CGFloat) -> Tween {
-		tweenObject.perspective = value
+		if var view = target as? ViewType {
+			view.perspective = value
+		}
 		return self
 	}
 	
@@ -261,7 +263,9 @@ open class Tween: Animation, Tweener {
 	
 	@discardableResult
 	open func anchorPoint(_ point: CGPoint) -> Tween {
-		tweenObject.anchorPoint = point
+		if var view = target as? ViewType {
+			view.anchorPoint = point
+		}
 		return self
 	}
 	
@@ -289,7 +293,7 @@ open class Tween: Animation, Tweener {
 		print("--------- tween.id: \(id) - play ------------")
 		super.play()
 		
-		Scheduler.sharedInstance.cache(self, target: target)
+		TweenCache.session.cache(self, target: target)
 		
 		for (_, animator) in animators {
 			animator.reset()
@@ -350,12 +354,12 @@ open class Tween: Animation, Tweener {
 		if mode == .from {
 			value.from = prop
 			// immediately set initial state for this property
-			if var current = tweenObject.currentProperty(for: prop) {
+			if var current = target.currentProperty(for: prop) {
 				if value.to == nil {
 					value.to = current
 				}
 				current.apply(prop)
-				tweenObject.update(current)
+				target.apply(current)
 			}
 		} else {
 			value.to = prop
@@ -471,11 +475,11 @@ open class Tween: Animation, Tweener {
 				// if we have any currently running animations for this same property, animation needs to be additive
 				// but animation should not be additive if we have a `from` value
 				if isAdditive {
-					isAdditive = (prop.from != nil) ? false : Tween.hasActiveTween(forKey: key, ofTarget: target)
+					isAdditive = (prop.from != nil) ? false : TweenCache.session.hasActiveTween(forKey: key, ofTarget: target)
 				}
 //				print("active tween props for key \(key): \(activeTweens.count), additive: \(additive)")
 				
-				if let type = type, let value = tweenObject.currentProperty(for: type) {
+				if let type = type, let value = target.currentProperty(for: type) {
 					from = value
 					to = value
 					
@@ -516,30 +520,32 @@ open class Tween: Animation, Tweener {
 				if let from = from, let to = to {
 					// update stored from/to property that other tweens may reference
 					propertiesByType[key] = FromToValue(from, to)
-					Tween.addActiveKeys(keys: [key], toTarget: target)
+					TweenCache.session.addActiveKeys(keys: [key], toTarget: target)
 					
 					if let from = from as? TransformType, let to = to as? TransformType {
-						if transformFrom == nil && transformTo == nil {
-							transformFrom = Transform(tweenObject.transform3d)
-							transformTo = Transform(tweenObject.transform3d)
+						if let view = target as? ViewType {
+							if transformFrom == nil && transformTo == nil {
+								transformFrom = Transform(view.transform3d)
+								transformTo = Transform(view.transform3d)
+							}
+							transformFrom?.apply(from)
+							transformTo?.apply(to)
+							print("updating transform properties...")
 						}
-						transformFrom?.apply(from)
-						transformTo?.apply(to)
-						print("updating transform properties...")
 					} else {
 						let tweenAnimator = Animator(from: from, to: to, duration: duration, timingFunction: timingFunction)
 						tweenAnimator.additive = isAdditive
 						tweenAnimator.spring = spring
 						tweenAnimator.setPresentation({ (prop) -> Property? in
-							return self.tweenObject.currentProperty(for: prop)
+							return self.target.currentProperty(for: prop)
 						})
 						tweenAnimator.onChange({ [unowned self] (animator, value) in
 //							print("update: \(value)")
 							if self.additive {
 								// update running animator's `additive` property based on existance of other running animators for the same property
-								animator.additive = Tween.hasActiveTween(forKey: animator.key, ofTarget: self.target)
+								animator.additive = TweenCache.session.hasActiveTween(forKey: animator.key, ofTarget: self.target)
 							}
-							self.tweenObject.update(value)
+							self.target.apply(value)
 						})
 						animator = tweenAnimator
 						animators[key] = tweenAnimator
@@ -558,7 +564,7 @@ open class Tween: Animation, Tweener {
 				let animator = Animator(from: transformFrom, to: transformTo, duration: duration, timingFunction: timingFunction)
 				animator.spring = spring
 				animator.onChange({ [weak self] (animator, value) in
-					self?.tweenObject.update(value)
+					self?.target.apply(value)
 				})
 				animators[key] = animator
 			}
@@ -566,45 +572,59 @@ open class Tween: Animation, Tweener {
 	}
 }
 
-extension Tween {
-	fileprivate static var tweenCache = [UInt32: [Tween]]()
-	fileprivate static var activeKeys = [String: Int]()
+final internal class TweenCache {
+	public static let session = TweenCache()
 	
-	fileprivate static func cache(_ tween: Tween, target: Tweenable) {
-		if tweenCache[target] == nil {
-			tweenCache[target] = [Tween]()
+	fileprivate var tweenCache = [NSObject: [Tween]]()
+	fileprivate var activeKeys = [String: Int]()
+	
+	fileprivate func cache(_ tween: Tween, target: Tweenable) {
+		guard let obj = target as? NSObject else { assert(false, "Tween target must be of type NSObject") }
+		
+		if tweenCache[obj] == nil {
+			tweenCache[obj] = [Tween]()
 		}
-		if let tweens = tweenCache[target], tweens.contains(tween) == false {
-			tweenCache[target]?.append(tween)
+		if let tweens = tweenCache[obj], tweens.contains(tween) == false {
+			tweenCache[obj]?.append(tween)
 		}
 	}
 	
-	fileprivate static func removeFromCache(_ tween: Tween, target: Tweenable) {
-		if let tweens = tweenCache[target] {
+	internal func removeFromCache(_ tween: Tween, target: Tweenable) {
+		guard let obj = target as? NSObject else { assert(false, "Tween target must be of type NSObject") }
+		
+		if let tweens = tweenCache[obj] {
 			if let index = tweens.index(of: tween) {
-				tweenCache[target]?.remove(at: index)
+				tweenCache[obj]?.remove(at: index)
 			}
 			
 			// remove object reference if all tweens have been removed from cache
-			if tweenCache[target]?.count == 0 {
+			if tweenCache[obj]?.count == 0 {
 				removeFromCache(target)
 			}
 		}
 	}
 	
-	fileprivate static func removeFromCache(_ target: Tweenable) {
-		tweenCache[target] = nil
+	internal func removeFromCache(_ target: Tweenable) {
+		guard let obj = target as? NSObject else { assert(false, "Tween target must be of type NSObject") }
+		
+		tweenCache[obj] = nil
 	}
 	
-	fileprivate static func removeAllFromCache() {
+	internal func removeAllFromCache() {
 		tweenCache.removeAll()
 	}
 	
-	fileprivate static func tweens(ofTarget target: Tweenable, activeOnly: Bool = false) -> [Tween]? {
-		return tweenCache[target]
+	internal func tweens(ofTarget target: Tweenable, activeOnly: Bool = false) -> [Tween]? {
+		guard let obj = target as? NSObject else { assert(false, "Tween target must be of type NSObject") }
+		
+		return tweenCache[obj]
 	}
 	
-	fileprivate static func addActiveKeys(keys: [String], toTarget target: Tweenable) {
+	internal func allTweens() -> [NSObject: [Tween]] {
+		return tweenCache
+	}
+	
+	fileprivate func addActiveKeys(keys: [String], toTarget target: Tweenable) {
 		keys.forEach { (key) in
 			var count = 1
 			if let pcount = activeKeys[key] {
@@ -614,7 +634,7 @@ extension Tween {
 		}
 	}
 	
-	fileprivate static func removeActiveKeys(keys: [String], ofTarget target: Tweenable) {
+	fileprivate func removeActiveKeys(keys: [String], ofTarget target: Tweenable) {
 		keys.forEach { (key) in
 			var count = 0
 			if let pcount = activeKeys[key] {
@@ -628,7 +648,7 @@ extension Tween {
 		}
 	}
 	
-	fileprivate static func hasActiveTween(forKey key: String, ofTarget target: Tweenable) -> Bool {
+	fileprivate func hasActiveTween(forKey key: String, ofTarget target: Tweenable) -> Bool {
 		return activeKeys[key] != nil
 	}
 }
