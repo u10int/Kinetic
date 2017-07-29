@@ -404,6 +404,14 @@ public class Timeline: Animation {
 		}
 	}
 	
+	override func reset() {
+		super.reset()
+		
+		for tween in tweens {
+			tween.reset()
+		}
+	}
+	
 	override public func kill() {
 		super.kill()
 		
@@ -422,17 +430,11 @@ public class Timeline: Animation {
 		}
 	}
 	
-	// MARK: Internal Methods
+	// MARK: Subscriber
 	
-	override func reset() {
-		super.reset()
+	override func advance(_ time: Double) {
+		guard shouldAdvance() else { return }
 		
-		for tween in tweens {
-			tween.reset()
-		}
-	}
-	
-	override func advance(_ time: Double) {		
 		if tweens.count == 0 {
 			kill()
 		}

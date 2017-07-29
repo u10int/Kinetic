@@ -119,11 +119,18 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 	}
 	
 	public func play() {
-		state = .pending
+		// if animation is currently paused, reset it since play() starts from the beginning
+		if state == .idle {
+			stop()
+		}
+		
+		if state != .running && state != .pending {
+			state = .pending
+		}
 	}
 	
 	public func stop() {
-		if state == .running || state == .pending {
+		if state == .running || state == .pending || state == .idle {
 			state = .cancelled
 		}
 	}
