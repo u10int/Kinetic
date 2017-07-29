@@ -8,41 +8,6 @@
 
 import Foundation
 
-/**
-* Type-erasure hack to work around lack of support for parameterized protocols in Swift
-* Re: https://forums.developer.apple.com/message/18152#18152, https://news.realm.io/news/type-erased-wrappers-in-swift/
-*/
-public protocol ValueProviderType {
-	associatedtype Value
-	var value: Value { get set }
-}
-
-struct _AnyValueProvider<T>: ValueProviderType {
-	var _value: T
-	var value: T {
-		get {
-			return _value
-		}
-		set {
-			_value = newValue
-		}
-	}
-
-	init<V: ValueProviderType>(_ delegatee: V) where V.Value == T {
-		_value = delegatee.value
-	}
-}
-
-struct ConstantValue<T>: ValueProviderType {
-	var value: T
-	
-	init(_ value: T) {
-		self.value = value
-	}
-}
-//let color = _AnyValueProvider(ConstantValue(UIColor.red))
-
-
 let NullValue: CGFloat = -CGFloat.greatestFiniteMagnitude
 
 public protocol Property {

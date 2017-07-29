@@ -8,18 +8,134 @@
 
 import Foundation
 
-//public protocol Animator: class, Equatable {
-//	var duration: Double { get }
-//	var timingFunction: TimingFunctionType { get set }
-//	var additive: Bool { get set }
-//	var finished: Bool { get }
-//	func seek(_ time: Double)
-//	func reset()
-//	func advance(_ time: Double)
-//}
-//public func ==<T: Animator>(lhs: T, rhs: T) -> Bool {
-//	return ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
-//}
+public class Interpolator : Subscriber {
+	public var id: UInt32 = 0
+	public var progress: CGFloat = 0.0 {
+		didSet {
+			progress = max(0, min(progress, 1.0))
+			
+			var adjustedProgress: Double = Double(progress)
+			
+			if let spring = spring {
+				spring.proceed(Double(progress))
+				adjustedProgress = spring.current
+			} else {
+				adjustedProgress = timingFunction.solveForTime(Double(progress))
+			}
+			
+			current = from.interpolateTo(to, progress: adjustedProgress)
+			apply?(current.toInterpolatable())
+		}
+	}
+	
+	var spring: Spring?
+	public var finished: Bool {
+		if let spring = spring {
+			return spring.ended
+		}
+		return (!reversed && elapsed >= duration) || (reversed && elapsed <= 0)
+	}
+	
+	fileprivate var current: InterpolatableValue
+	fileprivate var from: InterpolatableValue
+	fileprivate var to: InterpolatableValue
+	fileprivate var duration: TimeInterval
+	fileprivate var timingFunction: TimingFunctionType
+	fileprivate var elapsed: TimeInterval = 0.0
+	fileprivate var reversed = false
+	fileprivate var apply: ((Interpolatable) -> Void)?
+	
+	public init<T: Interpolatable>(from: T, to: T, duration: TimeInterval, function: TimingFunctionType, apply: @escaping ((T) -> Void)) {
+		self.from = InterpolatableValue(value: from.vectorize())
+		self.to = InterpolatableValue(value: to.vectorize())
+		self.current = InterpolatableValue(value: self.from)
+		self.duration = duration
+		self.timingFunction = function
+		self.apply = { let _ = ($0 as? T).flatMap(apply) }
+	}
+	
+	public func run() {
+		Scheduler.shared.add(self)
+	}
+	
+	public func seek(_ time: TimeInterval) {
+		elapsed = time
+		advance(0)
+	}
+	
+	public func reset() {
+		current = from
+		
+		if let spring = spring {
+			spring.reset()
+		}
+		
+		// only force target presentation update if we've elapsed past 0
+		if elapsed > 0 {
+			apply?(current.toInterpolatable())
+		}
+		elapsed = 0
+	}
+	
+	public func onUpdate(closure: @escaping (Interpolatable) -> Void) {
+		self.apply = { let _ = ($0 as? Interpolatable).flatMap(closure) }
+	}
+	
+	internal func advance(_ time: TimeInterval) {
+		let direction: CGFloat = reversed ? -1.0 : 1.0
+		
+		elapsed += time
+		elapsed = max(0, elapsed)
+		reversed = time < 0
+		
+		progress = CGFloat(elapsed / duration) * direction
+		print("progress: \(progress), elapsed: \(elapsed), duration: \(duration)")
+		
+		if (direction > 0 && progress >= 1.0) || (direction < 0 && progress <= -1.0) {
+			
+		}
+	}
+	
+	func kill() {
+		Scheduler.shared.remove(self)
+	}
+}
+
+final public class PropertyInterpolator {
+	fileprivate (set) public var from: Property
+	fileprivate (set) public var to: Property
+	fileprivate (set) public var current: Property
+	fileprivate var interpolator: Interpolator
+	fileprivate var apply: ((Property) -> Void)?
+	
+	public init<T: Property>(from: T, to: T, duration: TimeInterval, function: TimingFunctionType, apply: @escaping ((T) -> Void)) {
+		self.from = from
+		self.to = to
+		self.current = from
+		self.apply = { let _ = ($0 as? T).flatMap(apply) }
+		
+		let testFrom = X(100.0)
+		let testTo = X(50.0)
+		
+		let fromValue: CGPoint = testFrom.value.toInterpolatable() as! CGPoint
+		let toValue: CGPoint = testTo.value.toInterpolatable() as! CGPoint
+		
+		self.interpolator = Interpolator(from: fromValue, to: toValue, duration: duration, function: function) { (value) in
+			
+		}
+		
+		self.interpolator.onUpdate { [weak self] (value) in
+			self?.current.apply(value.vectorize())
+			if let current = self?.current {
+				self?.apply?(current)
+			}
+		}
+	}
+	
+	public func run() {
+		interpolator.run()
+	}
+}
 
 final public class Animator: Equatable {
 	fileprivate (set) public var from: Property

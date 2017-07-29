@@ -10,5 +10,5 @@ end
 
 target 'Kinetic_Tests' do
   pod 'Kinetic', :path => '../'
-  pod 'Nimble', '~> 6.0'
+  pod 'Nimble', '~> 7.0'
 end

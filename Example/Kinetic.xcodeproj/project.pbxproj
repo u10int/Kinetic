@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		2B61D6491F2CDAF4009C9F91 /* TweenableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B61D6481F2CDAF4009C9F91 /* TweenableTests.swift */; };
+		2B61D64B1F2CF823009C9F91 /* InterpolatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B61D64A1F2CF823009C9F91 /* InterpolatorTests.swift */; };
+		2B61D64D1F2D4A7F009C9F91 /* PropertyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B61D64C1F2D4A7F009C9F91 /* PropertyTests.swift */; };
 		2B92960F1E46B11900056AAC /* AdditiveViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B9296001E46B11900056AAC /* AdditiveViewController.swift */; };
 		2B9296101E46B11900056AAC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B9296011E46B11900056AAC /* AppDelegate.swift */; };
 		2B9296111E46B11900056AAC /* BasicFromToTweenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B9296021E46B11900056AAC /* BasicFromToTweenViewController.swift */; };
@@ -45,6 +47,8 @@
 		0483570A75EB862226962D21 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		21AB81254F1F387056DDCDAA /* Kinetic.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Kinetic.podspec; path = ../Kinetic.podspec; sourceTree = "<group>"; };
 		2B61D6481F2CDAF4009C9F91 /* TweenableTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TweenableTests.swift; sourceTree = "<group>"; };
+		2B61D64A1F2CF823009C9F91 /* InterpolatorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InterpolatorTests.swift; sourceTree = "<group>"; };
+		2B61D64C1F2D4A7F009C9F91 /* PropertyTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PropertyTests.swift; sourceTree = "<group>"; };
 		2B9296001E46B11900056AAC /* AdditiveViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AdditiveViewController.swift; sourceTree = "<group>"; };
 		2B9296011E46B11900056AAC /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2B9296021E46B11900056AAC /* BasicFromToTweenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BasicFromToTweenViewController.swift; sourceTree = "<group>"; };
@@ -175,6 +179,8 @@
 			isa = PBXGroup;
 			children = (
 				607FACEB1AFB9204008FA782 /* Tests.swift */,
+				2B61D64A1F2CF823009C9F91 /* InterpolatorTests.swift */,
+				2B61D64C1F2D4A7F009C9F91 /* PropertyTests.swift */,
 				2B61D6481F2CDAF4009C9F91 /* TweenableTests.swift */,
 				607FACE91AFB9204008FA782 /* Supporting Files */,
 			);
@@ -318,7 +324,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		227EFE591D4642D4C82DCA34 /* [CP] Embed Pods Frameworks */ = {
@@ -348,7 +354,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		4979EF881713690E11CD76FA /* [CP] Copy Pods Resources */ = {
@@ -425,7 +431,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2B61D64B1F2CF823009C9F91 /* InterpolatorTests.swift in Sources */,
 				607FACEC1AFB9204008FA782 /* Tests.swift in Sources */,
+				2B61D64D1F2D4A7F009C9F91 /* PropertyTests.swift in Sources */,
 				2B61D6491F2CDAF4009C9F91 /* TweenableTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

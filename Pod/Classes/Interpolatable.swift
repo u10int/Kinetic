@@ -31,13 +31,6 @@ public protocol Interpolatable {
 	func vectorize() -> InterpolatableValue
 }
 
-extension Interpolatable {
-	
-	public func animateTo(_ to: Any) {
-		
-	}
-}
-
 extension CATransform3D: Interpolatable {
 	public var interpolatableType: InterpolatableType {
 		return .caTransform3D
@@ -175,25 +168,25 @@ extension Vector3: Interpolatable {
 }
 
 public struct InterpolatableValue: Equatable {
-	let type: InterpolatableType
-	var vectors: [CGFloat]
+	public let type: InterpolatableType
+	public var vectors: [CGFloat]
 	
-	init(value: InterpolatableValue) {
+	public init(value: InterpolatableValue) {
 		self.vectors = value.vectors
 		self.type = value.type
 	}
 	
-	init(type: InterpolatableType, vectors: CGFloat...) {
+	public init(type: InterpolatableType, vectors: CGFloat...) {
 		self.vectors = vectors
 		self.type = type
 	}
 	
-	init(type: InterpolatableType, vectors: [CGFloat]) {
+	public init(type: InterpolatableType, vectors: [CGFloat]) {
 		self.vectors = vectors
 		self.type = type
 	}
 	
-	func interpolateTo(_ to: InterpolatableValue, progress: Double) -> InterpolatableValue {
+	public func interpolateTo(_ to: InterpolatableValue, progress: Double) -> InterpolatableValue {
 		var diff = [CGFloat]()
 		let vectorCount = self.vectors.count
 		
@@ -205,7 +198,7 @@ public struct InterpolatableValue: Equatable {
 		return InterpolatableValue(type: self.type, vectors: diff)
 	}
 	
-	func toInterpolatable() -> Interpolatable {
+	public func toInterpolatable() -> Interpolatable {
 		switch type {
 		case .caTransform3D:
 			return CATransform3D(m11: vectors[0], m12: vectors[1], m13: vectors[2], m14: vectors[3], m21: vectors[4], m22: vectors[5], m23: vectors[6], m24: vectors[7], m31: vectors[8], m32: vectors[9], m33: vectors[10], m34: vectors[11], m41: vectors[12], m42: vectors[13], m43: vectors[14], m44: vectors[15])
