@@ -213,7 +213,7 @@ public class Timeline: Animation {
 	public func getActive() -> [Tween] {
 		var tweens = [Tween]()
 		for tween in self.tweens {
-			if tween.animating && !tween.paused {
+			if tween.state == .running {
 				tweens.append(tween)
 			}
 		}

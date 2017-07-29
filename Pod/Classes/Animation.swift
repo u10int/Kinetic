@@ -171,29 +171,12 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 		cycle = 0
 		state = .idle
 	}
-	
-	open var active: Bool {
-		get {
-			return running
-		}
-	}
-	open var paused = false
-	open var animating: Bool {
-		get {
-			return _animating
-		}
-	}
 
-	var running = false
 	var startBlock: ((Animation) -> Void)?
 	var updateBlock: ((Animation) -> Void)?
 	var completionBlock: ((Animation) -> Void)?
 	var repeatBlock: ((Animation) -> Void)?
 	
-//	fileprivate var cycle: Int = 0
-	fileprivate var _animating = false
-	fileprivate var _reversed = false
-
 	// MARK: Repeatable
 	
 	private(set) public var cycle: Int = 0
