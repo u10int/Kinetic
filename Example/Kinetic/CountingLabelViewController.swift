@@ -9,16 +9,8 @@
 import UIKit
 import Kinetic
 
-class CustomObject: NSObject, Tweenable {
+class CustomObject: NSObject, KeyPathTweenable {
 	var value: Float = 0
-	
-	func apply(_ prop: Property) {
-		
-	}
-	
-	func currentProperty(for prop: Property) -> Property? {
-		return nil
-	}
 }
 
 class CountingLabelViewController: ExampleViewController {
@@ -51,7 +43,7 @@ class CountingLabelViewController: ExampleViewController {
 		textLabel.text = "\(testObject.value)"
 				
 		let tween = Kinetic.animate(testObject)
-			.to(KeyPath("value", NSNumber(value: 250.0)))
+			.to(KeyPath("value", 250.0))
 			.duration(2)
 			.ease(.expoOut)
 		

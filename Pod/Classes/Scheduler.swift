@@ -109,7 +109,7 @@ final public class Scheduler {
 //		displayLink.invalidate()
 	}
 	
-	func remove(_ tween: Animation) {
+	func remove(_ tween: Subscriber) {
 		subscribers[tween.id] = nil
 		
 		if subscribers.count == 0 {

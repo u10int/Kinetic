@@ -13,31 +13,29 @@ public protocol Tweenable: class {
 	func currentProperty(for prop: Property) -> Property?
 }
 
-//extension NSObject : Tweenable {}
-//extension Tweenable where Self: NSObject {
-//	
-//	public func apply(_ prop: Property) {
-//		if let keyPath = prop as? KeyPath, responds(to:Selector(keyPath.key)) {
-//			setValue(prop.value.toInterpolatable(), forKey: keyPath.key)
-//		}
-//	}
-//	
-//	public func currentProperty(for prop: Property) -> Property? {
-//		print("getting current property for object - prop: \(prop)")
-//		if prop is KeyPath {
-//			if let value = value(forKey: prop.key) as? Interpolatable {
-//				return KeyPath(prop.key, value)
-//			}
-//		}
-//		
-//		return nil
-//	}
-//}
-
-//public protocol ViewTweenable: Tweenable {}
+public protocol KeyPathTweenable : Tweenable {}
+extension Tweenable where Self: KeyPathTweenable {
+	
+	public func apply(_ prop: Property) {
+		if let keyPath = prop as? KeyPath, let target = self as? NSObject, target.responds(to:Selector(keyPath.key)) {
+			target.setValue(prop.value.toInterpolatable(), forKey: keyPath.key)
+		}
+	}
+	
+	public func currentProperty(for prop: Property) -> Property? {
+		print("getting current property for object - prop: \(prop)")
+		if prop is KeyPath {
+			if let target = self as? NSObject, let value = target.value(forKey: prop.key) as? Interpolatable {
+				return KeyPath(prop.key, value)
+			}
+		}
+		
+		return nil
+	}
+}
 
 extension UIView : Tweenable {}
-extension Tweenable where Self: UIView {
+extension Tweenable where Self == UIView {
 	
 	public func apply(_ prop: Property) {
 		if let transform = prop as? Transform {
@@ -68,7 +66,6 @@ extension Tweenable where Self: UIView {
 	}
 	
 	public func currentProperty(for prop: Property) -> Property? {
-//		print("getting current property for view - prop: \(prop)")
 		var vectorValue: Property?
 		
 		if prop is X || prop is Y {
@@ -104,7 +101,7 @@ extension Tweenable where Self: UIView {
 }
 
 extension CALayer : Tweenable {}
-extension Tweenable where Self: CALayer {
+extension Tweenable where Self == CALayer {
 	
 	public func apply(_ prop: Property) {
 		if let transform = prop as? Transform {
@@ -136,6 +133,7 @@ extension Tweenable where Self: CALayer {
 	
 	public func currentProperty(for prop: Property) -> Property? {
 		var vectorValue: Property?
+		print("getting currentProperty for CAShapeLayer: \(prop)")
 		
 		if prop is X || prop is Y {
 			if prop is X {
@@ -169,26 +167,25 @@ extension Tweenable where Self: CALayer {
 	}
 }
 
-extension CAShapeLayer {
+extension Tweenable where Self == CAShapeLayer {
 	
 	public func apply(_ prop: Property) {
 		if let value = prop.value.toInterpolatable() as? UIColor {
 			if prop is FillColor {
 				fillColor = value.cgColor
 			}
-		} else {
-			super.apply(prop)
 		}
 	}
 	
 	public func currentProperty(for prop: Property) -> Property? {
+		print("getting currentProperty for CAShapeLayer: \(prop)")
 		if prop is FillColor {
 			if let color = fillColor {
 				return FillColor(UIColor(cgColor: color))
 			}
 		}
 		
-		return super.currentProperty(for: prop)
+		return nil
 	}
 }
 
