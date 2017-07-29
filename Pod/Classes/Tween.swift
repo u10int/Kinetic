@@ -52,50 +52,8 @@ public enum TweenMode {
 	case fromTo
 }
 
-public enum TweenState: Equatable {
-	case pending
-	case running
-	case cancelled
-	case completed
-}
-
-public func ==(lhs: TweenState, rhs: TweenState) -> Bool {
-	switch (lhs, rhs) {
-	case (.pending, .pending):
-		return true
-	case (.running, .running):
-		return true
-	case (.cancelled, .cancelled):
-		return true
-	case (.completed, .completed):
-		return true
-	default:
-		return false
-	}
-}
-
-public protocol Tweener {
-	associatedtype TweenType
-	
-	var antialiasing: Bool { get set }
-	weak var timeline: Timeline? { get set }
-	
-	func from(_ props: Property...) -> TweenType
-	func to(_ props: Property...) -> TweenType
-	
-	func ease(_ easing: Easing.EasingType) -> TweenType
-	func spring(tension: Double, friction: Double) -> TweenType
-	func perspective(_ value: CGFloat) -> TweenType
-	func anchor(_ anchor: AnchorPoint) -> TweenType
-	func anchorPoint(_ point: CGPoint) -> TweenType
-}
-
-open class Tween: Animation, Tweener {
-	public typealias TweenType = Tween
-	public typealias AnimationType = Tween
-	
+public class Tween: Animation {
 	private(set) public var target: Tweenable
-	private(set) public var state: TweenState = .pending
 	public var antialiasing: Bool {
 		get {
 			if let view = target as? ViewType {
@@ -109,42 +67,25 @@ open class Tween: Animation, Tweener {
 			}
 		}
 	}
-	override open var duration: CFTimeInterval {
-		didSet {
-//			for prop in properties {
-//				prop.duration = duration
-//			}
-		}
+	override public var totalTime: TimeInterval {
+		return (elapsed - delay)
 	}
-	override open var totalTime: CFTimeInterval {
-		get {
-			return (elapsed - delay - staggerDelay)
-		}
-	}
-	open weak var timeline: Timeline?
+	public weak var timeline: Timeline?
 	
-	var properties: [FromToValue] {
-		get {
-			return [FromToValue](propertiesByType.values)
-		}
+	internal var properties: [FromToValue] {
+		return [FromToValue](propertiesByType.values)
 	}
 	fileprivate var propertiesByType: Dictionary<String, FromToValue> = [String: FromToValue]()
 	private(set) var animators = [String: Animator]()
 	
-	fileprivate var timingFunction: TimingFunctionType = LinearTimingFunction()
-	fileprivate var timeScale: Float = 1
-	fileprivate var staggerDelay: CFTimeInterval = 0
+//	fileprivate var timeScale: Float = 1
 	fileprivate var needsPropertyPrep = false
-	fileprivate var spring: Spring?
 	
-	open var additive = true;
-
+	public var additive = true;
 	
 	// MARK: Lifecycle
 	
 	required public init(target: Tweenable) {
-//		self.tweenObject = TweenObject(target: target)
-//		self.tweenObject = Scheduler.sharedInstance.cachedUpdater(ofTarget: target)
 		self.target = target
 		super.init()
 		
@@ -152,98 +93,34 @@ open class Tween: Animation, Tweener {
 	}
 	
 	deinit {
-		kill()
 		propertiesByType.removeAll()
-//		tweenObject.target = nil
 	}
 	
-	// MARK: Animation Overrides
+	// MARK: Tween
 	
 	@discardableResult
-	override open func duration(_ duration: CFTimeInterval) -> Tween {
-		super.duration(duration)
-		
-//		for prop in properties {
-//			prop.duration = duration
-//		}
-		return self
-	}
-	
-	@discardableResult
-	override open func delay(_ delay: CFTimeInterval) -> Tween {
-		super.delay(delay)
-		
-		if timeline == nil {
-			startTime = delay + staggerDelay
-		}
-		
-		return self
-	}
-	
-	override open func restart(_ includeDelay: Bool = false) {
-		super.restart(includeDelay)
-		
-//		for prop in properties {
-//			prop.reset()
-//			prop.calc()
-//		}
-		run()
-	}
-	
-	override open func kill() {
-		super.kill()
-		
-		Scheduler.sharedInstance.remove(self)
-		TweenCache.session.removeFromCache(self, target: target)
-		
-		let keys = propertiesByType.map { return $0.key }
-		TweenCache.session.removeActiveKeys(keys: keys, ofTarget: target)
-	}
-	
-	// MARK: Tweenable
-	
-	@discardableResult
-	open func from(_ props: Property...) -> Tween {
+	public func from(_ props: Property...) -> Tween {
 		return from(props)
 	}
 	
 	@discardableResult
-	open func to(_ props: Property...) -> Tween {
+	public func to(_ props: Property...) -> Tween {
 		return to(props)
 	}
 	
 	// internal `from` and `to` methods that support a single array of Property types since we can't forward variadic arguments
 	@discardableResult
-	func from(_ props: [Property]) -> Tween {
-		for prop in props {
+	internal func from(_ props: [Property]) -> Tween {
+		props.forEach { (prop) in
 			add(prop, mode: .from)
 		}
 		return self
 	}
 	
 	@discardableResult
-	func to(_ props: [Property]) -> Tween {
-//		prepare(from: nil, to: props, mode: .To)
-		for prop in props {
+	internal func to(_ props: [Property]) -> Tween {
+		props.forEach { (prop) in
 			add(prop, mode: .to)
-		}
-		return self
-	}
-	
-	@discardableResult
-	open func ease(_ easing: Easing.EasingType) -> Tween {
-		timingFunction = Easing(easing)
-//		for prop in properties {
-//			prop.easing = easing
-//		}
-		return self
-	}
-	
-	@discardableResult
-	open func spring(tension: Double, friction: Double = 3) -> Tween {
-		spring = Spring(tension: tension, friction: friction)
-		for (_, animator) in animators {
-			animator.spring = spring
 		}
 		return self
 	}
@@ -269,74 +146,46 @@ open class Tween: Animation, Tweener {
 		return self
 	}
 	
+	// MARK: Animation
+	
 	@discardableResult
-	open func stagger(_ offset: CFTimeInterval) -> Tween {
-		staggerDelay = offset
+	override public func delay(_ delay: CFTimeInterval) -> Tween {
+		super.delay(delay)
 		
 		if timeline == nil {
-			startTime = delay + staggerDelay
+			startTime = delay
 		}
 		
 		return self
 	}
 	
-	@discardableResult
-	open func timeScale(_ scale: Float) -> Tween {
-		timeScale = scale
-		return self
+	override public func kill() {
+		super.kill()
+		
+		let keys = propertiesByType.map { return $0.key }
+		TweenCache.session.removeActiveKeys(keys: keys, ofTarget: target)
+		TweenCache.session.removeFromCache(self, target: target)
 	}
 	
-	@discardableResult
-	override open func play() -> Tween {
-		guard !active else { return self }
-		
-		print("--------- tween.id: \(id) - play ------------")
-		super.play()
+	override public func play() {
+		guard state == .pending || state == .idle else { return }
 		
 		TweenCache.session.cache(self, target: target)
-		
-		for (_, animator) in animators {
+		animators.forEach { (_, animator) in
 			animator.reset()
 		}
-		run()
 		
-		return self
-	}
-	
-	override open func resume() {
-		super.resume()
-		if !running {
-			run()
-		}
-	}
-	
-	@discardableResult
-	override open func reverse() -> Tween {
-		super.reverse()
-		run()
-		
-		return self
-	}
-	
-	@discardableResult
-	override open func forward() -> Tween {
-		super.forward()
-		run()
-		
-		return self
+		super.play()
+		print("--------- tween.id: \(id) - play ------------")
 	}
 	
 	@discardableResult
 	override open func seek(_ time: CFTimeInterval) -> Tween {
 		super.seek(time)
 		
-		let elapsedTime = elapsedTimeFromSeekTime(time)
-		elapsed = delay + staggerDelay + elapsedTime
-		
 		setupAnimatorsIfNeeded()
-		
-		for (_, animator) in animators {
-			animator.seek(elapsedTime)
+		animators.forEach { (_, animator) in
+			animator.seek(elapsed)
 		}
 		
 		return self
@@ -368,53 +217,46 @@ open class Tween: Animation, Tweener {
 		propertiesByType[prop.key] = value
 	}
 	
-	override func advance(_ time: Double) -> Bool {
-//		print("Tween.advance() - id: \(id), running: \(running), paused: \(paused), startTime: \(startTime)")
-		if !running {
-			return false
-		}
-		if paused {
-			return false
-		}
+	// MARK: - Subscriber
+	
+	override func advance(_ time: Double) {
+		guard shouldAdvance() else { return }
+		
+		updatesStateOnAdvance = timeline == nil
+		
 		if propertiesByType.count == 0 {
-			return true
+			return
 		}
 		
 		// if tween belongs to a timeline, don't start animating until the timeline's playhead reaches the tween's startTime
 		if let timeline = timeline {
 //			print("Tween.advance() - id: \(id), timeline.time: \(timeline.time()), startTime: \(startTime), endTime: \(endTime), elapsed: \(elapsed), reversed: \(timeline.reversed)")
-			if timeline.time() < startTime || timeline.time() > endTime {
-				return false
+			if timeline.time < startTime || timeline.time > endTime {
+				return
 			}
 		}
 		
-		let end = delay + duration
-		let multiplier: CFTimeInterval = reversed ? -1 : 1
-		elapsed = max(0, min(elapsed + (time * multiplier), end))
-		runningTime += time
-//		print("Tween.advance() - id: \(id), time: \(runningTime), elapsed: \(elapsed), reversed: \(reversed)")
+		// parent Animation class handles updating the elapsed and runningTimes accordingly
+		super.advance(time)
+		print("Tween.advance() - id: \(id), duration: \(duration), time: \(runningTime), elapsed: \(elapsed), reversed: \(direction == .reversed), progress: \(progress)")
 		
-		let delayOffset = delay + staggerDelay + repeatDelay
+		let delayOffset = delay + repeatDelay
 		if timeline == nil {
 			if elapsed < delayOffset {
 				// if direction is reversed, then don't allow playhead to go below the tween's delay and call completed handler
-				if reversed {
-					completed()
+				if direction == .reversed {
+					state = .completed
 				} else {
-					return false
+					return
 				}
 			}
 		}
 		
 		setupAnimatorsIfNeeded()
 		
-		// now we can finally animate
-		if !animating {
-			started()
-		}
-		
 		var done = true
-		for (_, animator) in animators {
+		let multiplier: TimeInterval = direction == .reversed ? -1 : 1
+		animators.forEach { (_, animator) in
 			animator.advance(time * multiplier)
 			if !animator.finished {
 				done = false
@@ -422,44 +264,13 @@ open class Tween: Animation, Tweener {
 		}
 
 		updateBlock?(self)
-		
-		if done {
-			return completed()
-		}
-		return false
-	}
-	
-	override func started() {
-		super.started()
-		state = .running
-	}
-	
-	@discardableResult
-	override func completed() -> Bool {
-		let done = super.completed()
-		
-		if done {
-			state = .completed
-			kill()
-		}
-		
-		return done
-	}
-	
-	// MARK: Private Methods
-	
-	fileprivate func run() {
-		running = true
-		Scheduler.sharedInstance.add(self)
 	}
 	
 	fileprivate func setupAnimatorsIfNeeded() {
 		var transformFrom: Transform?
 		var transformTo: Transform?
-		print("setupAnimatorsIfNeeded...")
-		print(animators)
-		
 		var tweenedProps = [String: Property]()
+		
 		for (key, prop) in propertiesByType {
 			var animator = animators[key]
 			
@@ -490,7 +301,7 @@ open class Tween: Animation, Tweener {
 						from = previousTo
 						print("no `from` value, using prevous tweened value \(previousTo)")
 					} else if prop.to != nil {
-						let activeTweens = Scheduler.sharedInstance.activeTweenPropsForKey(key, ofTarget: target)
+						let activeTweens = Scheduler.shared.activeTweenPropsForKey(key, ofTarget: target, excludingTween: self)
 						if activeTweens.count > 0 {
 							from = activeTweens.last?.to
 							print("no `from` value, using last active tween value \(activeTweens.last?.to)")

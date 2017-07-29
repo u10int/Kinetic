@@ -8,9 +8,11 @@
 
 import UIKit
 
-protocol Subscriber {
+internal protocol Subscriber {
 	var id: UInt32 { get set }
-	func advance(_ time: Double) -> Bool
+	
+	func advance(_ time: Double)
+	func kill()
 }
 
 //final internal class Subscription {
@@ -41,7 +43,7 @@ protocol Subscriber {
 //}
 
 final public class Scheduler {
-	public static let sharedInstance = Scheduler()
+	public static let shared = Scheduler()
 	
 	var subscribers = [UInt32: Subscriber]()
 	var counter: UInt32
@@ -180,13 +182,15 @@ final public class Scheduler {
 //		return obj
 //	}
 	
-	func activeTweenPropsForKey(_ key: String, ofTarget target: Tweenable) -> [FromToValue] {
+	func activeTweenPropsForKey(_ key: String, ofTarget target: Tweenable, excludingTween targetTween: Tween? = nil) -> [FromToValue] {
 		var props = [FromToValue]()
+		
 		if let tweens = TweenCache.session.tweens(ofTarget: target) {
 //			let reducedTweens = tweens.reversed()[0..<tweens.count]
 			tweens.forEach({ (tween) in
-				if tween.state == .running {
+				if tween.state == .running && (targetTween == nil || tween != targetTween) {
 					tween.properties.forEach({ (value) in
+						print("activeTweenPropsForKey - key: \(key), value.to.key: \(value.to?.key)")
 						if value.to?.key == key {
 							props.append(value)
 						}
@@ -194,6 +198,7 @@ final public class Scheduler {
 				}
 			})
 		}
+		
 		return props
 	}
 	

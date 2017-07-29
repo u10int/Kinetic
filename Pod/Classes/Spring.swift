@@ -11,7 +11,7 @@
 
 import UIKit
 
-class Spring {
+public class Spring {
 	let tension: Double
 	let friction: Double
 	

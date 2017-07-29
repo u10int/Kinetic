@@ -68,7 +68,7 @@ extension Tweenable where Self: UIView {
 	}
 	
 	public func currentProperty(for prop: Property) -> Property? {
-		print("getting current property for view - prop: \(prop)")
+//		print("getting current property for view - prop: \(prop)")
 		var vectorValue: Property?
 		
 		if prop is X || prop is Y {
@@ -191,58 +191,6 @@ extension CAShapeLayer {
 		return super.currentProperty(for: prop)
 	}
 }
-
-//public protocol Transformable {
-//	var transform3d: CATransform3D { get set }
-//}
-//
-//extension Transformable {
-//	
-//	public var translation: Translation {
-//		get {
-//			return transform3d.translation()
-//		}
-//	}
-//	
-//	public var scale: Scale {
-//		get {
-//			return transform3d.scale()
-//		}
-//	}
-//	
-//	public var rotation: Rotation {
-//		get {
-//			return transform3d.rotation()
-//		}
-//	}
-//}
-
-//internal class TweenableWrapper: Hashable {
-//	var target: NSObject
-//	var hashValue: Int {
-//		return ObjectIdentifier(target).hashValue
-//	}
-//	
-//	init(target: NSObject) {
-//		self.target = target
-//	}
-//}
-//
-//internal func ==(lhs: TweenableWrapper, rhs: TweenableWrapper) -> Bool {
-//	return lhs.target == rhs.target
-//}
-
-//extension Tweenable where Self: UIView {
-//	
-//}
-//
-//extension Tweenable where Self: CALayer {
-//	
-//}
-//
-//extension Tweenable where Self: CAShapeLayer {
-//	
-//}
 
 public protocol ViewType {
 	var anchorPoint: CGPoint { get set }

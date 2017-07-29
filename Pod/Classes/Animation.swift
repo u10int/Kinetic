@@ -8,48 +8,169 @@
 
 import UIKit
 
-public protocol Animatable: AnyObject {
-	associatedtype AnimationType
+public class Animation: Animatable, Repeatable, Reversable, Subscriber {
+	public var hashValue: Int {
+		return Unmanaged.passUnretained(self).toOpaque().hashValue
+	}
 	
-	var active: Bool { get }
-	var paused: Bool { get }
-	var animating: Bool { get }
-	var reversed: Bool { get }
-	var delay: CFTimeInterval { get set }
-	var duration: CFTimeInterval { get set }
-	var repeatCount: Int { get set }
-	var startTime: CFTimeInterval { get set }
-	var endTime: CFTimeInterval { get }
-	var totalTime: CFTimeInterval { get }
-	var totalDuration: CFTimeInterval { get }
-	var elapsed: CFTimeInterval { get }
+	public init() {}
 	
-	func duration(_ duration: CFTimeInterval) -> AnimationType
-	func delay(_ delay: CFTimeInterval) -> AnimationType
-	func repeatCount(_ count: Int) -> AnimationType
-	func repeatDelay(_ delay: CFTimeInterval) -> AnimationType
-	func forever() -> AnimationType
-	func yoyo() -> AnimationType
+	deinit {
+		kill()
+	}
 	
-	func play() -> AnimationType
-	func stop()
-	func pause()
-	func resume()
-	func seek(_ time: CFTimeInterval) -> AnimationType
-	func forward() -> AnimationType
-	func reverse() -> AnimationType
-	func restart(_ includeDelay: Bool)
-	func progress() -> Float
-	func setProgress(_ progress: Float) -> AnimationType
-	func totalProgress() -> Float
-	func setTotalProgress(_ progress: Float) -> AnimationType
-	func time() -> CFTimeInterval
+	// MARK: Animatable
 	
-	func kill()
-}
-
-open class Animation: NSObject, Animatable, Subscriber {
-	public typealias AnimationType = Animation
+	public var state: AnimationState = .idle {
+		willSet {
+			guard newValue != state else { return }
+			if newValue == .running && (state == .completed || state == .cancelled) {
+				reset()
+			}
+		}
+		didSet {
+			guard oldValue != state else { return }
+			print("Animation.state changed: \(state), tween \(id)")
+			switch state {
+			case .pending:
+				Scheduler.shared.add(self)
+				break
+			case .running:
+				startBlock?(self)
+			case .idle:
+				break
+			case .cancelled:
+				kill()
+				break
+			case .completed:
+				kill()
+				completionBlock?(self)
+				break
+			}
+		}
+	}
+	public var duration: TimeInterval = 1.0 {
+		didSet {
+			if duration == 0 {
+				duration = 0.001
+			}
+		}
+	}
+	public var delay: TimeInterval = 0
+	public var timeScale: Double = 1.0
+	public var progress: Double {
+		get {
+			return min(Double(elapsed / (delay + duration)), 1)
+		}
+		set {
+			seek(duration * TimeInterval(newValue))
+		}
+	}
+	public var totalProgress: Double {
+		get {
+			return Double(min(Float(totalTime / totalDuration), Float(1.0)))
+		}
+		set {
+			seek(totalDuration * TimeInterval(newValue))
+		}
+	}
+	
+	public var startTime: TimeInterval = 0
+	public var endTime: TimeInterval {
+		return startTime + totalDuration
+	}
+	public var totalDuration: TimeInterval {
+		return (duration * TimeInterval(repeatCount + 1)) + (repeatDelay * TimeInterval(repeatCount))
+	}
+	public var totalTime: TimeInterval {
+		return min(runningTime, totalDuration)
+	}
+	internal(set) public var elapsed: TimeInterval = 0
+	public var time: TimeInterval {
+		return (elapsed - delay)
+	}
+	internal var runningTime: TimeInterval = 0
+	
+	internal(set) public var timingFunction: TimingFunctionType = LinearTimingFunction()
+	internal(set) public var spring: Spring?
+	
+	@discardableResult
+	public func duration(_ duration: TimeInterval) -> Self {
+		self.duration = duration
+		return self
+	}
+	
+	@discardableResult
+	public func delay(_ delay: TimeInterval) -> Self {
+		self.delay = delay
+		return self
+	}
+	
+	@discardableResult
+	public func ease(_ easing: Easing.EasingType) -> Self {
+		timingFunction = Easing(easing)
+		return self
+	}
+	
+	@discardableResult
+	public func spring(tension: Double, friction: Double = 3) -> Self {
+		spring = Spring(tension: tension, friction: friction)
+		return self
+	}
+	
+	public func play() {
+		state = .pending
+	}
+	
+	public func stop() {
+		if state == .running || state == .pending {
+			state = .cancelled
+		}
+	}
+	
+	public func pause() {
+		if state == .running || state == .pending {
+			state = .idle
+		}
+	}
+	
+	public func resume() {
+		if state == .idle {
+			state = .running
+		}
+	}
+	
+	@discardableResult
+	public func seek(_ offset: TimeInterval) -> Self {
+		elapsed = delay + elapsedTimeFromSeekTime(time)
+		runningTime = time
+		return self
+	}
+	
+	@discardableResult
+	public func forward() -> Self {
+		direction = .forward
+		return self
+	}
+	
+	@discardableResult
+	public func reverse() -> Self {
+		direction = .reversed
+		return self
+	}
+	
+	public func restart(_ includeDelay: Bool = false) {
+		reset()
+		elapsed = includeDelay ? 0 : delay
+		play()
+	}
+	
+	internal func reset() {
+		elapsed = 0
+		runningTime = 0
+		cycle = 0
+		state = .idle
+	}
 	
 	open var active: Bool {
 		get {
@@ -62,195 +183,110 @@ open class Animation: NSObject, Animatable, Subscriber {
 			return _animating
 		}
 	}
-	open var reversed: Bool {
-		get {
-			return _reversed
-		}
-	}
-	open var delay: CFTimeInterval = 0
-	open var duration: CFTimeInterval = 1.0 {
-		didSet {
-			if duration == 0 {
-				duration = 0.001
-			}
-		}
-	}
-	open var repeatCount: Int = 0
-	open var startTime: CFTimeInterval = 0
-	open var endTime: CFTimeInterval {
-		get {
-			return startTime + totalDuration
-		}
-	}
-	open var totalTime: CFTimeInterval {
-		get {
-			return min(runningTime, totalDuration)
-		}
-	}
-	open var totalDuration: CFTimeInterval {
-		get {
-			return (duration * CFTimeInterval(repeatCount + 1)) + (repeatDelay * CFTimeInterval(repeatCount))
-		}
-	}
-	open var elapsed: CFTimeInterval = 0
-	
-	open var id: UInt32 = 0
+
 	var running = false
-	var runningTime: CFTimeInterval = 0
-	var repeatForever = false
-	var repeatDelay: CFTimeInterval = 0
-	var reverseOnComplete = false
+	var startBlock: ((Animation) -> Void)?
+	var updateBlock: ((Animation) -> Void)?
+	var completionBlock: ((Animation) -> Void)?
+	var repeatBlock: ((Animation) -> Void)?
 	
-	var startBlock: ((AnimationType) -> Void)?
-	var updateBlock: ((AnimationType) -> Void)?
-	var completionBlock: ((AnimationType) -> Void)?
-	var repeatBlock: ((AnimationType) -> Void)?
-	
-	fileprivate var cycle: Int = 0
+//	fileprivate var cycle: Int = 0
 	fileprivate var _animating = false
 	fileprivate var _reversed = false
+
+	// MARK: Repeatable
 	
-	// MARK: Lifecycle
-	
-	deinit {
-		
-	}
-	
-	// MARK: Animatable
-	
-	@discardableResult
-	open func duration(_ duration: CFTimeInterval) -> AnimationType {
-		self.duration = duration
-		return self
-	}
-	
-//	public func ease(easing: Ease) -> Animation {
-//		return self
-//	}
-//	
-//	public func spring(tension tension: Double, friction: Double = 3) -> Animation {
-//		return self
-//	}
+	private(set) public var cycle: Int = 0
+	private(set) public var repeatCount: Int = 0
+	private(set) public var repeatDelay: TimeInterval = 0.0
+	private(set) public var repeatForever: Bool = false
 	
 	@discardableResult
-	open func delay(_ delay: CFTimeInterval) -> AnimationType {
-		self.delay = delay
-		return self
-	}
-	
-	@discardableResult
-	open func repeatCount(_ count: Int) -> AnimationType {
+	public func repeatCount(_ count: Int) -> Self {
 		repeatCount = count
 		return self
 	}
 	
 	@discardableResult
-	open func repeatDelay(_ delay: CFTimeInterval) -> AnimationType {
+	public func repeatDelay(_ delay: TimeInterval) -> Self {
 		repeatDelay = delay
 		return self
 	}
 	
 	@discardableResult
-	open func forever() -> AnimationType {
+	public func forever() -> Self {
 		repeatForever = true
 		return self
 	}
 	
+	// MARK: Reversable
+	
+	public var direction: Direction = .forward {
+		didSet {
+			print("Animation - updated direction: \(direction)")
+		}
+	}
+	private(set) public var reverseOnComplete: Bool = false
+	
 	@discardableResult
-	open func yoyo() -> AnimationType {
+	public func yoyo() -> Self {
 		reverseOnComplete = true
 		return self
 	}
 	
-	// MARK: Playback
+	// MARK: - Subscriber
 	
-	@discardableResult
-	open func play() -> AnimationType {
-		if running {
-			return self
-		}
-		running = true
-		paused = false
-//		elapsed = 0
-//		runningTime = 0
-//		cycle = 0
+	internal var id: UInt32 = 0
+	internal var updatesStateOnAdvance = true
+	
+	internal func kill() {
+		reset()
+		Scheduler.shared.remove(self)
+	}
+	
+	internal func advance(_ time: Double) {
+		guard shouldAdvance() else { return }
 		
-		return self
+		let end = delay + duration
+		let multiplier: TimeInterval = direction == .reversed ? -1 : 1
+		elapsed = max(0, min(elapsed + (time * multiplier), end))
+		runningTime += time
+		
+		// if animation doesn't repeat forever, cap elapsed time to endTime
+		if !repeatForever {
+			elapsed = min(elapsed, (delay + endTime))
+		}
+		
+		if state == .pending && elapsed >= delay {
+			state = .running
+		}
+		
+		let shouldRepeat = (repeatForever || (repeatCount > 0 && cycle < repeatCount))
+		if (direction == .forward && progress >= 1.0) || (direction == .reversed && progress == 0) {
+			if shouldRepeat {
+				print("\(self) completed - repeating, reverseOnComplete: \(reverseOnComplete), reversed: \(direction == .reversed), repeat count \(cycle) of \(repeatCount)")
+				cycle += 1
+				if reverseOnComplete {
+					direction = (direction == .forward) ? .reversed : .forward
+				} else {
+					restart()
+				}
+			} else {
+				if updatesStateOnAdvance {
+					state = .completed
+				}
+			}
+		}
 	}
 	
-	open func stop() {
-		reset()
-		kill()
-	}
-	
-	open func pause() {
-		paused = true
-		_animating = false
-	}
-	
-	open func resume() {
-		paused = false
-		_animating = true
-	}
-	
-	@discardableResult
-	open func seek(_ time: CFTimeInterval) -> AnimationType {
-		let adjustedTime = elapsedTimeFromSeekTime(time)
-		elapsed = delay + adjustedTime
-		runningTime = time
-		return self
-	}
-	
-	@discardableResult
-	open func forward() -> AnimationType {
-		_reversed = false
-		return self
-	}
-	
-	@discardableResult
-	open func reverse() -> AnimationType {
-		_reversed = true
-		return self
-	}
-	
-	open func restart(_ includeDelay: Bool = false) {
-		reset()
-		elapsed = includeDelay ? 0 : delay
-		play()
-	}
-	
-	open func progress() -> Float {
-		return min(Float(elapsed / (delay + duration)), 1)
-	}
-	
-	@discardableResult
-	open func setProgress(_ progress: Float) -> AnimationType {
-		seek(duration * CFTimeInterval(progress))
-		return self
-	}
-	
-	open func totalProgress() -> Float {
-		return min(Float(totalTime / totalDuration), 1)
-	}
-	
-	@discardableResult
-	open func setTotalProgress(_ progress: Float) -> AnimationType {
-		seek(totalDuration * CFTimeInterval(progress))
-		return self
-	}
-	
-	open func time() -> CFTimeInterval {
-		return (elapsed - delay)
-	}
-	
-	open func kill() {
-		reset()
+	internal func shouldAdvance() -> Bool {
+		return state == .pending || state == .running
 	}
 	
 	// MARK: Event Handlers
 	
 	@discardableResult
-	open func onStart(_ callback: ((Animation) -> Void)?) -> AnimationType {
+	open func onStart(_ callback: ((Animation) -> Void)?) -> Self {
 		startBlock = { (animation) in
 			callback?(animation)
 		}
@@ -258,7 +294,7 @@ open class Animation: NSObject, Animatable, Subscriber {
 	}
 	
 	@discardableResult
-	open func onUpdate(_ callback: ((Animation) -> Void)?) -> AnimationType {
+	open func onUpdate(_ callback: ((Animation) -> Void)?) -> Self {
 		updateBlock = { (animation) in
 			callback?(animation)
 		}
@@ -266,7 +302,7 @@ open class Animation: NSObject, Animatable, Subscriber {
 	}
 	
 	@discardableResult
-	open func onComplete(_ callback: ((Animation) -> Void)?) -> AnimationType {
+	open func onComplete(_ callback: ((Animation) -> Void)?) -> Self {
 		completionBlock = { (animation) in
 			callback?(animation)
 		}
@@ -274,7 +310,7 @@ open class Animation: NSObject, Animatable, Subscriber {
 	}
 	
 	@discardableResult
-	open func onRepeat(_ callback: ((Animation) -> Void)?) -> AnimationType {
+	open func onRepeat(_ callback: ((Animation) -> Void)?) -> Self {
 		repeatBlock = { (animation) in
 			callback?(animation)
 		}
@@ -282,45 +318,6 @@ open class Animation: NSObject, Animatable, Subscriber {
 	}
 	
 	// MARK: Internal Methods
-	
-	func reset() {
-		_animating = false
-		running = false
-		elapsed = 0
-		runningTime = 0
-		cycle = 0
-	}
-	
-	@discardableResult
-	func advance(_ time: Double) -> Bool {
-		if !running {
-			return true
-		}
-		if paused {
-			return false
-		}
-		
-		let multiplier: CFTimeInterval = reversed ? -1 : 1
-		elapsed += (time * multiplier)
-		runningTime += time
-		
-		return false
-	}
-	
-//	func proceed(dt: CFTimeInterval, force: Bool = false) -> Bool {
-//		if !running {
-//			return true
-//		}
-//		if paused {
-//			return false
-//		}
-//		
-//		let multiplier: CFTimeInterval = reversed ? -1 : 1
-//		elapsed += (dt * multiplier)
-//		runningTime += dt
-//		
-//		return false
-//	}
 	
 	func elapsedTimeFromSeekTime(_ time: CFTimeInterval) -> CFTimeInterval {
 		var adjustedTime = time
@@ -345,40 +342,8 @@ open class Animation: NSObject, Animatable, Subscriber {
 		
 		return adjustedTime
 	}
-	
-	func started() {
-		_animating = true
-		startBlock?(self)
-	}
-	
-	@discardableResult
-	func completed() -> Bool {
-		var shouldRepeat = false
-		if repeatForever || (repeatCount > 0 && cycle < repeatCount) {
-			shouldRepeat = true
-			cycle += 1
-		}
-		
-		if shouldRepeat {
-			repeatBlock?(self)
-			print("\(self) completed - repeating, reverseOnComplete: \(reverseOnComplete), reversed: \(reversed), repeat count \(cycle) of \(repeatCount)")
-			if reverseOnComplete {
-				if reversed {
-					forward()
-				} else {
-					reverse()
-				}
-			} else {
-				restart()
-			}
-		} else {
-			_animating = false
-			_reversed = false
-			running = false
-			completionBlock?(self)
-			return true
-		}
-		
-		return false
-	}
+}
+
+public func ==(lhs: Animation, rhs: Animation) -> Bool {
+	return ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
 }

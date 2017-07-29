@@ -79,7 +79,7 @@ class TimelineViewController: ExampleViewController {
 		timeline.onStart { (animation) in
 			print("timeline started")
 		}.onUpdate { (animation) in
-			let progress = Float(animation.totalProgress())
+			let progress = Float(animation.totalProgress)
 			self.updateProgress(progress)
 		}.onComplete { (animation) in
 			print("timeline done")
@@ -100,7 +100,7 @@ class TimelineViewController: ExampleViewController {
 		progressValue.text = "\(Int(round(sender.value * 100)))%"
 		
 		if let timeline = animation as? Timeline {
-			timeline.setTotalProgress(Float(sender.value))
+			timeline.totalProgress = Double(sender.value)
 		}
 	}
 	

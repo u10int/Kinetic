@@ -82,6 +82,7 @@ final public class Animator: Equatable {
 		var progress = elapsed / duration
 		progress = max(progress, 0.0)
 		progress = min(progress, 1.0)
+//		print("Animator.advance - elapsed: \(elapsed)")
 		
 		
 		var adjustedProgress = progress
