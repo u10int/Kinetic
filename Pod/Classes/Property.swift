@@ -8,57 +8,42 @@
 
 import Foundation
 
-public protocol PropertyType {
-	associatedtype T
-	var vector: T { get set }
-}
-
 /**
- * Hack to work around lack of support for parameterized protocols in Swift
- * Re: https://forums.developer.apple.com/message/18152#18152
- */
-public struct AnyPropertyProvider<T>: PropertyType {
-	var _vector: () -> T
+* Type-erasure hack to work around lack of support for parameterized protocols in Swift
+* Re: https://forums.developer.apple.com/message/18152#18152, https://news.realm.io/news/type-erased-wrappers-in-swift/
+*/
+public protocol ValueProviderType {
+	associatedtype Value
+	var value: Value { get set }
+}
 
-	init<V: PropertyType>(_ delegatee: V) where V.T == T {
-		_vector = {
-			return delegatee.vector
-		}
-	}
-
-	public var vector: T {
+struct _AnyValueProvider<T>: ValueProviderType {
+	var _value: T
+	var value: T {
 		get {
-			return _vector()
+			return _value
 		}
-		set(newValue) {
-			_vector = {
-				return newValue
-			}
+		set {
+			_value = newValue
 		}
+	}
+
+	init<V: ValueProviderType>(_ delegatee: V) where V.Value == T {
+		_value = delegatee.value
 	}
 }
 
-public struct VectorValue<T>: PropertyType {
-	public var vector: T
+struct ConstantValue<T>: ValueProviderType {
+	var value: T
 	
-	init(_ vector: T) {
-		self.vector = vector
+	init(_ value: T) {
+		self.value = value
 	}
 }
-
-
+//let color = _AnyValueProvider(ConstantValue(UIColor.red))
 
 
 let NullValue: CGFloat = -CGFloat.greatestFiniteMagnitude
-
-//public protocol Value {}
-public struct Value<T: Interpolatable> {
-	var interpolatable: T
-}
-//extension TweenValue {
-//	
-//}
-//
 
 public protocol Property {
 	var key: String { get }
@@ -91,7 +76,7 @@ public struct X: Property {
 		return "frame.x"
 	}
 	
-	public init(_ value: Interpolatable) {
+	public init(_ value: CGFloat) {
 		self.value = InterpolatableValue(type: .cgFloat, vectors: value.vectorize().vectors)
 	}
 }
@@ -102,7 +87,7 @@ public struct Y: Property {
 		return "frame.y"
 	}
 	
-	public init(_ value: Interpolatable) {
+	public init(_ value: CGFloat) {
 		self.value = InterpolatableValue(type: .cgFloat, vectors: value.vectorize().vectors)
 	}
 }
@@ -159,7 +144,7 @@ public struct Size: Property {
 		return "frame.size"
 	}
 	
-	public init(_ value: Interpolatable) {
+	public init(_ value: CGSize) {
 		self.value = InterpolatableValue(type: .cgSize, vectors: value.vectorize().vectors)
 	}
 	
@@ -182,7 +167,7 @@ public struct Frame: Property {
 		return "frame"
 	}
 	
-	public init(_ value: Interpolatable) {
+	public init(_ value: CGRect) {
 		self.value = InterpolatableValue(type: .cgFloat, vectors: [NullValue])
 	}
 }
@@ -193,7 +178,7 @@ public struct Alpha: Property {
 		return "alpha"
 	}
 	
-	public init(_ value: Interpolatable) {
+	public init(_ value: CGFloat) {
 		self.value = InterpolatableValue(type: .cgFloat, vectors: value.vectorize().vectors)
 	}
 }
@@ -204,7 +189,7 @@ public struct BackgroundColor: Property {
 		return "backgroundColor"
 	}
 	
-	public init(_ value: Interpolatable) {
+	public init(_ value: UIColor) {
 		self.value = InterpolatableValue(type: .colorRGB, vectors: value.vectorize().vectors)
 	}
 }
@@ -215,7 +200,7 @@ public struct FillColor: Property {
 		return "fillColor"
 	}
 	
-	public init(_ value: Interpolatable) {
+	public init(_ value: UIColor) {
 		self.value = InterpolatableValue(type: .colorRGB, vectors: value.vectorize().vectors)
 	}
 }
