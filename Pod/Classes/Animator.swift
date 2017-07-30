@@ -8,7 +8,7 @@
 
 import Foundation
 
-public class Interpolator : Subscriber {
+public class Interpolator<T: Interpolatable> : Subscriber {
 	public var id: UInt32 = 0
 	public var progress: CGFloat = 0.0 {
 		didSet {
@@ -24,7 +24,7 @@ public class Interpolator : Subscriber {
 			}
 			
 			current = from.interpolateTo(to, progress: adjustedProgress)
-			apply?(current.toInterpolatable())
+			apply?(current.toInterpolatable() as! T)
 		}
 	}
 	
@@ -43,9 +43,9 @@ public class Interpolator : Subscriber {
 	fileprivate var timingFunction: TimingFunctionType
 	fileprivate var elapsed: TimeInterval = 0.0
 	fileprivate var reversed = false
-	fileprivate var apply: ((Interpolatable) -> Void)?
+	fileprivate var apply: ((T) -> Void)?
 	
-	public init<T: Interpolatable>(from: T, to: T, duration: TimeInterval, function: TimingFunctionType, apply: @escaping ((T) -> Void)) {
+	public init(from: T, to: T, duration: TimeInterval, function: TimingFunctionType, apply: @escaping ((T) -> Void)) {
 		self.from = InterpolatableValue(value: from.vectorize())
 		self.to = InterpolatableValue(value: to.vectorize())
 		self.current = InterpolatableValue(value: self.from)
@@ -72,13 +72,9 @@ public class Interpolator : Subscriber {
 		
 		// only force target presentation update if we've elapsed past 0
 		if elapsed > 0 {
-			apply?(current.toInterpolatable())
+			apply?(current.toInterpolatable() as! T)
 		}
 		elapsed = 0
-	}
-	
-	public func onUpdate(closure: @escaping (Interpolatable) -> Void) {
-		self.apply = { let _ = ($0 as? Interpolatable).flatMap(closure) }
 	}
 	
 	internal func advance(_ time: TimeInterval) {
@@ -87,9 +83,7 @@ public class Interpolator : Subscriber {
 		elapsed += time
 		elapsed = max(0, elapsed)
 		reversed = time < 0
-		
 		progress = CGFloat(elapsed / duration) * direction
-		print("progress: \(progress), elapsed: \(elapsed), duration: \(duration)")
 		
 		if (direction > 0 && progress >= 1.0) || (direction < 0 && progress <= -1.0) {
 			
@@ -98,42 +92,6 @@ public class Interpolator : Subscriber {
 	
 	func kill() {
 		Scheduler.shared.remove(self)
-	}
-}
-
-final public class PropertyInterpolator {
-	fileprivate (set) public var from: Property
-	fileprivate (set) public var to: Property
-	fileprivate (set) public var current: Property
-	fileprivate var interpolator: Interpolator
-	fileprivate var apply: ((Property) -> Void)?
-	
-	public init<T: Property>(from: T, to: T, duration: TimeInterval, function: TimingFunctionType, apply: @escaping ((T) -> Void)) {
-		self.from = from
-		self.to = to
-		self.current = from
-		self.apply = { let _ = ($0 as? T).flatMap(apply) }
-		
-		let testFrom = X(100.0)
-		let testTo = X(50.0)
-		
-		let fromValue: CGPoint = testFrom.value.toInterpolatable() as! CGPoint
-		let toValue: CGPoint = testTo.value.toInterpolatable() as! CGPoint
-		
-		self.interpolator = Interpolator(from: fromValue, to: toValue, duration: duration, function: function) { (value) in
-			
-		}
-		
-		self.interpolator.onUpdate { [weak self] (value) in
-			self?.current.apply(value.vectorize())
-			if let current = self?.current {
-				self?.apply?(current)
-			}
-		}
-	}
-	
-	public func run() {
-		interpolator.run()
 	}
 }
 
@@ -198,7 +156,6 @@ final public class Animator: Equatable {
 		var progress = elapsed / duration
 		progress = max(progress, 0.0)
 		progress = min(progress, 1.0)
-//		print("Animator.advance - elapsed: \(elapsed)")
 		
 		
 		var adjustedProgress = progress
@@ -222,7 +179,7 @@ final public class Animator: Equatable {
 			self.current = value
 			
 		} else {
-			var interpolatedValue = from.value.interpolateTo(to.value, progress: adjustedProgress)
+			let interpolatedValue = from.value.interpolateTo(to.value, progress: adjustedProgress)
 			current.apply(interpolatedValue)
 			
 			if additive {

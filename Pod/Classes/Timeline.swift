@@ -247,22 +247,6 @@ public class Timeline: Animation {
 	}
 	
 	@discardableResult
-	override public func duration(_ duration: CFTimeInterval) -> Timeline {
-		for tween in tweens {
-			tween.duration(duration)
-		}
-		return self
-	}
-	
-	@discardableResult
-	override public func ease(_ easing: Easing.EasingType) -> Timeline {
-		for tween in tweens {
-			tween.ease(easing)
-		}
-		return self
-	}
-	
-	@discardableResult
 	override public func spring(tension: Double, friction: Double) -> Timeline {
 		for tween in tweens {
 			tween.spring(tension: tension, friction: friction)
@@ -299,22 +283,45 @@ public class Timeline: Animation {
 		return self
 	}
 	
+	public func goToAndPlay(_ label: String) {
+		let position = time(forLabel: label)
+		seek(position)
+		resume()
+	}
+	
+	@discardableResult
+	public func goToAndStop(_ label: String) -> Timeline {
+		seek(toLabel: label, pause: true)
+		
+		return self
+	}
+	
 	// MARK: Animation
+	
+	@discardableResult
+	override public func duration(_ duration: CFTimeInterval) -> Timeline {
+		for tween in tweens {
+			tween.duration(duration)
+		}
+		return self
+	}
+	
+	@discardableResult
+	override public func ease(_ easing: Easing.EasingType) -> Timeline {
+		for tween in tweens {
+			tween.ease(easing)
+		}
+		return self
+	}
 	
 	override public func play() {
 		guard state == .pending || state == .idle else { return }
 		
 		super.play()
-		print("--------- timeline.id: \(id) - play ------------")
+
 		tweens.forEach { (tween) in
 			tween.play()
 		}
-	}
-	
-	public func goToAndPlay(_ label: String) {
-		let position = time(forLabel: label)
-		seek(position)
-		resume()
 	}
 	
 	override public func stop() {
@@ -323,13 +330,6 @@ public class Timeline: Animation {
 		tweens.forEach { (tween) in
 			tween.stop()
 		}
-	}
-	
-	@discardableResult
-	public func goToAndStop(_ label: String) -> Timeline {
-		seek(toLabel: label, pause: true)
-		
-		return self
 	}
 	
 	override public func pause() {
@@ -441,8 +441,7 @@ public class Timeline: Animation {
 		
 		super.advance(time)
 		
-		let reversed = direction == .reversed
-		print("Timeline.advance() - time: \(time), elapsed: \(elapsed), endTime: \(endTime), delay: \(delay), duration: \(duration), repeatDelay: \(repeatDelay), reversed: \(reversed), progress: \(progress)")
+//		print("Timeline.advance() - time: \(time), elapsed: \(elapsed), endTime: \(endTime), delay: \(delay), duration: \(duration), repeatDelay: \(repeatDelay), reversed: \(direction == .reversed), progress: \(progress)")
 		
 		// check for callbacks
 		if callbacks.count > 0 {

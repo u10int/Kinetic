@@ -176,7 +176,6 @@ public class Tween: Animation {
 		}
 		
 		super.play()
-		print("--------- tween.id: \(id) - play ------------")
 	}
 	
 	@discardableResult
@@ -244,7 +243,7 @@ public class Tween: Animation {
 		}
 		
 		updateBlock?(self)
-		print("Tween.advance() - id: \(id), duration: \(duration), time: \(runningTime), elapsed: \(elapsed), reversed: \(direction == .reversed), progress: \(progress)")
+//		print("Tween.advance() - id: \(id), duration: \(duration), time: \(runningTime), elapsed: \(elapsed), reversed: \(direction == .reversed), progress: \(progress)")
 		
 		// parent Animation class handles updating the elapsed and runningTimes accordingly
 		super.advance(time)
@@ -271,7 +270,7 @@ public class Tween: Animation {
 			var animator = animators[key]
 			
 			if animator == nil {
-				print("--------- tween.id: \(id) - animator key: \(key) ------------")
+//				print("--------- tween.id: \(id) - animator key: \(key) ------------")
 				var from: Property?
 				var to: Property?
 				let type = prop.to ?? prop.from
@@ -284,28 +283,23 @@ public class Tween: Animation {
 				if isAdditive {
 					isAdditive = (prop.from != nil) ? false : TweenCache.session.hasActiveTween(forKey: key, ofTarget: target)
 				}
-//				print("active tween props for key \(key): \(activeTweens.count), additive: \(additive)")
 				
 				if let type = type, let value = target.currentProperty(for: type) {
 					from = value
 					to = value
 					
 					if let tweenFrom = prop.from {
-						print("applying tweenFrom: \(tweenFrom)")
 						from?.apply(tweenFrom)
 					} else if let previousTo = tweenedProps[key] {
 						from = previousTo
-						print("no `from` value, using prevous tweened value \(previousTo)")
 					} else if prop.to != nil {
 						let activeTweens = Scheduler.shared.activeTweenPropsForKey(key, ofTarget: target, excludingTween: self)
 						if activeTweens.count > 0 {
 							from = activeTweens.last?.to
-							print("no `from` value, using last active tween value \(activeTweens.last?.to)")
 						}
 					}
 					
 					if let tweenTo = prop.to {
-//						print("applying tweenTo: \(tweenTo)")
 						to?.apply(tweenTo)
 					}
 					
@@ -321,8 +315,6 @@ public class Tween: Animation {
 					
 					tweenedProps[key] = to
 				}
-//				print(tweenedProps)				
-				print("ANIMATE - \(key) - from: \(from?.value.vectors), to: \(to?.value.vectors), additive: \(isAdditive)")
 				
 				if let from = from, let to = to {
 					// update stored from/to property that other tweens may reference
@@ -337,7 +329,6 @@ public class Tween: Animation {
 							}
 							transformFrom?.apply(from)
 							transformTo?.apply(to)
-							print("updating transform properties...")
 						}
 					} else {
 						let tweenAnimator = Animator(from: from, to: to, duration: duration, timingFunction: timingFunction)
@@ -347,7 +338,6 @@ public class Tween: Animation {
 							return self.target.currentProperty(for: prop)
 						})
 						tweenAnimator.onChange({ [unowned self] (animator, value) in
-//							print("update: \(value)")
 							if self.additive {
 								// update running animator's `additive` property based on existance of other running animators for the same property
 								animator.additive = TweenCache.session.hasActiveTween(forKey: animator.key, ofTarget: self.target)
@@ -356,7 +346,6 @@ public class Tween: Animation {
 						})
 						animator = tweenAnimator
 						animators[key] = tweenAnimator
-						print("setting animator for key: \(key)")
 					}
 				} else {
 					print("Could not create animator for property \(prop)")
@@ -367,7 +356,6 @@ public class Tween: Animation {
 		if let transformFrom = transformFrom, let transformTo = transformTo {
 			let key = "transform"
 			if animators[key] == nil {
-//				print("ANIMATE - transform - from: \(transformFrom), to: \(transformTo)")
 				let animator = Animator(from: transformFrom, to: transformTo, duration: duration, timingFunction: timingFunction)
 				animator.spring = spring
 				animator.onChange({ [weak self] (animator, value) in

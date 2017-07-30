@@ -36,8 +36,6 @@ public typealias StartClosure = () -> Void
 public typealias CompletionClosure = (_ done: Bool) -> Void
 
 public protocol Animatable: class, Hashable {
-//	associatedtype AnimationType
-	
 	var state: AnimationState { get set }
 	var duration: TimeInterval { get set }
 	var delay: TimeInterval { get set }

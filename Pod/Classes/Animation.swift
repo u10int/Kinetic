@@ -211,11 +211,7 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 	
 	// MARK: Reversable
 	
-	public var direction: Direction = .forward {
-		didSet {
-			print("Animation - updated direction: \(direction)")
-		}
-	}
+	public var direction: Direction = .forward
 	private(set) public var reverseOnComplete: Bool = false
 	
 	@discardableResult
@@ -254,13 +250,14 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 		let shouldRepeat = (repeatForever || (repeatCount > 0 && cycle < repeatCount))
 		if (direction == .forward && progress >= 1.0) || (direction == .reversed && progress == 0) {
 			if shouldRepeat {
-				print("\(self) completed - repeating, reverseOnComplete: \(reverseOnComplete), reversed: \(direction == .reversed), repeat count \(cycle) of \(repeatCount)")
+//				print("\(self) completed - repeating, reverseOnComplete: \(reverseOnComplete), reversed: \(direction == .reversed), repeat count \(cycle) of \(repeatCount)")
 				cycle += 1
 				if reverseOnComplete {
 					direction = (direction == .forward) ? .reversed : .forward
 				} else {
 					restart()
 				}
+				repeatBlock?(self)
 			} else {
 				if updatesStateOnAdvance {
 					state = .completed

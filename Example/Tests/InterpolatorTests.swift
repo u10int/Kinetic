@@ -38,26 +38,6 @@ class InterpolatorTests: XCTestCase {
 		wait(for: [expectation], timeout: 1.5)
 	}
 	
-	func testPropertyInterpolator() {
-		let expectation = XCTestExpectation(description: "animation progress done")
-		
-		let from: Center = Center(50.0, 50.0)
-		let to: Center = Center(100.0, 100.0)
-		
-		let interpolator = PropertyInterpolator(from: from, to: to, duration: 1.0, function: Easing(.cubicInOut)) { (value) in
-			print(value)
-			
-			if let point = value.value.toInterpolatable() as? CGPoint {
-				if (point.x == 100.0 && point.y == 100.0) {
-					expectation.fulfill()
-				}
-			}
-		}
-		interpolator.run()
-		
-		wait(for: [expectation], timeout: 1.5)
-	}
-	
     func testPerformanceExample() {
         // This is an example of a performance test case.
         self.measure {
