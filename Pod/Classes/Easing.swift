@@ -69,6 +69,8 @@ public struct Easing: TimingFunctionType {
 		case backIn
 		case backOut
 		case backInOut
+		
+		case curve(Double, Double, Double, Double)
 	}
 	
 	public init(_ easing: EasingType) {
@@ -128,6 +130,9 @@ public struct Easing: TimingFunctionType {
 			bezier = UnitBezier(0.175, 0.885, 0.32, 1.275)
 		case .backInOut:
 			bezier = UnitBezier(0.68, -0.55, 0.265, 1.55)
+			
+		case .curve(let p1x, let p1y, let p2x, let p2y):
+			bezier = UnitBezier(p1x, p1y, p2x, p2y)
 		}
 	}
 	
