@@ -95,18 +95,20 @@ public class Timeline: Animation {
 			return self
 		}
 		
-		var pos: CFTimeInterval = 0
+		var pos: TimeInterval = 0
 		for (idx, tween) in tweensToAdd.enumerated() {
 			if idx == 0 {
 				if let label = position as? String {
 					pos = time(fromString:label, relativeToTime: endTime)
 				} else if let time = Double("\(position)") {
-					pos = CFTimeInterval(time * 1.0)
+					pos = TimeInterval(time * 1.0)
 				}
 			}
+			
 			if align != .start {
 				pos += tween.delay
 			}
+			
 			tween.startTime = pos
 			print("timeline - added tween at position \(position) with start time \(tween.startTime)")
 			
@@ -118,6 +120,7 @@ public class Timeline: Animation {
 			if let timeline = tween.timeline {
 				timeline.remove(tween: tween)
 			}
+			
 			tween.timeline = self
 			tweens.append(tween)
 		}
@@ -458,15 +461,16 @@ public class Timeline: Animation {
 	
 	// MARK: Private Methods
 	
-	fileprivate func time(fromString str: String, relativeToTime time: CFTimeInterval = 0) -> CFTimeInterval {
-		var position: CFTimeInterval = time
+	fileprivate func time(fromString str: String, relativeToTime time: TimeInterval = 0) -> TimeInterval {
+		var position: TimeInterval = time
 		let string = NSString(string: str)
+		print("getting time for string \(str) relative to position: \(position)...")
 		
-		let regex = try! NSRegularExpression(pattern: "(\\w+)?([\\+,\\-]=)(\\d+)", options: [])
+		let regex = try! NSRegularExpression(pattern: "(\\w+)?([\\+,\\-\\+]=)([\\d\\.]+)", options: [])
 		let match = regex.firstMatch(in: string as String, options: [], range: NSRange(location: 0, length: string.length))
 		if let match = match {
 			var idx = 1
-			var multiplier: CFTimeInterval = 1
+			var multiplier: TimeInterval = 1
 			while idx < match.numberOfRanges {
 				let range = match.rangeAt(idx)
 				if range.length <= string.length && range.location < string.length {
@@ -474,12 +478,17 @@ public class Timeline: Animation {
 					// label
 					if idx == 1 {
 						position = self.time(forLabel:val)
+						print("1 - position: \(position)")
 					} else if idx == 2 {
 						if val == "-=" {
 							multiplier = -1
 						}
+						print("2 - multiplier: \(multiplier)")
 					} else if idx == 3 {
-						position += CFTimeInterval(val)!
+						if let offset = Double("\(val)") {
+							position += TimeInterval(offset)
+						}
+						print("3 - val: \(val), position: \(position)")
 					}
 				}
 				idx += 1
