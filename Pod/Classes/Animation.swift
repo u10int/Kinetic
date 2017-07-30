@@ -149,8 +149,11 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 	
 	@discardableResult
 	public func seek(_ offset: TimeInterval) -> Self {
-		elapsed = delay + elapsedTimeFromSeekTime(time)
-		runningTime = time
+		pause()
+		
+		let time = delay + elapsedTimeFromSeekTime(offset)
+		advance(time)
+		
 		return self
 	}
 	
@@ -234,7 +237,7 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 		guard shouldAdvance() else { return }
 		
 		let end = delay + duration
-		let multiplier: TimeInterval = direction == .reversed ? -1 : 1
+		let multiplier: TimeInterval = direction == .reversed ? -timeScale : timeScale
 		elapsed = max(0, min(elapsed + (time * multiplier), end))
 		runningTime += time
 		
@@ -267,7 +270,7 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 	}
 	
 	internal func shouldAdvance() -> Bool {
-		return state == .pending || state == .running
+		return state == .pending || state == .running || state == .idle
 	}
 	
 	// MARK: Event Handlers
@@ -306,7 +309,7 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 	
 	// MARK: Internal Methods
 	
-	func elapsedTimeFromSeekTime(_ time: CFTimeInterval) -> CFTimeInterval {
+	func elapsedTimeFromSeekTime(_ time: TimeInterval) -> TimeInterval {
 		var adjustedTime = time
 		
 		// seek time must be restricted to the duration of the timeline minus repeats and repeatDelays
@@ -315,7 +318,7 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 			// update cycles count
 			cycle = Int(adjustedTime / duration)
 			
-			adjustedTime -= (duration * CFTimeInterval(cycle))
+			adjustedTime -= (duration * TimeInterval(cycle))
 			
 			// if cycles value is odd, then the current state should be reversed
 			let isReversed = fmod(Double(cycle), 2) != 0 && reverseOnComplete

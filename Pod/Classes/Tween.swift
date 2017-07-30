@@ -178,17 +178,17 @@ public class Tween: Animation {
 		super.play()
 	}
 	
-	@discardableResult
-	override open func seek(_ time: CFTimeInterval) -> Tween {
-		super.seek(time)
-		
-		setupAnimatorsIfNeeded()
-		animators.forEach { (_, animator) in
-			animator.seek(elapsed)
-		}
-		
-		return self
-	}
+//	@discardableResult
+//	override open func seek(_ time: CFTimeInterval) -> Tween {
+//		super.seek(time)
+//		
+//		setupAnimatorsIfNeeded()
+//		animators.forEach { (_, animator) in
+//			animator.seek(elapsed)
+//		}
+//		
+//		return self
+//	}
 	
 //	public func updateTo(options: [Property], restart: Bool = false) {
 //		
@@ -237,7 +237,7 @@ public class Tween: Animation {
 		
 		setupAnimatorsIfNeeded()
 		
-		let multiplier: TimeInterval = direction == .reversed ? -1 : 1
+		let multiplier: TimeInterval = direction == .reversed ? -timeScale : timeScale
 		animators.forEach { (_, animator) in
 			animator.advance(time * multiplier)
 		}
