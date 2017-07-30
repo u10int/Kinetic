@@ -159,6 +159,39 @@ public struct BackgroundColor: Property {
 	}
 }
 
+public struct BorderColor: Property {
+	public var value: InterpolatableValue
+	public var key: String {
+		return "borderColor"
+	}
+	
+	public init(_ value: UIColor) {
+		self.value = InterpolatableValue(type: .colorRGB, vectors: value.vectorize().vectors)
+	}
+}
+
+public struct BorderWidth: Property {
+	public var value: InterpolatableValue
+	public var key: String {
+		return "borderWidth"
+	}
+	
+	public init(_ value: CGFloat) {
+		self.value = InterpolatableValue(type: .cgFloat, vectors: value.vectorize().vectors)
+	}
+}
+
+public struct CornerRadius: Property {
+	public var value: InterpolatableValue
+	public var key: String {
+		return "cornerRadius"
+	}
+	
+	public init(_ value: CGFloat) {
+		self.value = InterpolatableValue(type: .cgFloat, vectors: value.vectorize().vectors)
+	}
+}
+
 public struct FillColor: Property {
 	public var value: InterpolatableValue
 	public var key: String {
@@ -167,6 +200,39 @@ public struct FillColor: Property {
 	
 	public init(_ value: UIColor) {
 		self.value = InterpolatableValue(type: .colorRGB, vectors: value.vectorize().vectors)
+	}
+}
+
+public struct StrokeColor: Property {
+	public var value: InterpolatableValue
+	public var key: String {
+		return "strokeColor"
+	}
+	
+	public init(_ value: UIColor) {
+		self.value = InterpolatableValue(type: .colorRGB, vectors: value.vectorize().vectors)
+	}
+}
+
+public struct StrokeStart: Property {
+	public var value: InterpolatableValue
+	public var key: String {
+		return "strokeStart"
+	}
+	
+	public init(_ value: CGFloat) {
+		self.value = InterpolatableValue(type: .cgFloat, vectors: value.vectorize().vectors)
+	}
+}
+
+public struct StrokeEnd: Property {
+	public var value: InterpolatableValue
+	public var key: String {
+		return "strokeEnd"
+	}
+	
+	public init(_ value: CGFloat) {
+		self.value = InterpolatableValue(type: .cgFloat, vectors: value.vectorize().vectors)
 	}
 }
 
@@ -275,11 +341,9 @@ public struct KeyPath: Property {
 
 public struct Transform: Property, Equatable {
 	public var value: InterpolatableValue
-
 	public var key: String {
 		return "transform"
 	}
-//	public var value: Tweenable
 
 	public var scale: Scale
 	public var rotation: Rotation

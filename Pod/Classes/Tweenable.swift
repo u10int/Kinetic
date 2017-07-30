@@ -23,7 +23,6 @@ extension Tweenable where Self: KeyPathTweenable {
 	}
 	
 	public func currentProperty(for prop: Property) -> Property? {
-		print("getting current property for object - prop: \(prop)")
 		if prop is KeyPath {
 			if let target = self as? NSObject, let value = target.value(forKey: prop.key) as? Interpolatable {
 				return KeyPath(prop.key, value)
@@ -113,6 +112,14 @@ extension Tweenable where Self == CALayer {
 				frame.origin.y = value
 			} else if prop is Alpha {
 				opacity = Float(value)
+			} else if prop is BorderWidth {
+				borderWidth = value
+			} else if prop is CornerRadius {
+				cornerRadius = value
+			} else if prop is StrokeStart, let shapeLayer = self as? CAShapeLayer {
+				shapeLayer.strokeStart = value
+			} else if prop is StrokeEnd, let shapeLayer = self as? CAShapeLayer {
+				shapeLayer.strokeEnd = value
 			}
 		} else if let value = prop.value.toInterpolatable() as? CGPoint {
 			if prop is Position {
@@ -127,13 +134,18 @@ extension Tweenable where Self == CALayer {
 		} else if let value = prop.value.toInterpolatable() as? UIColor {
 			if prop is BackgroundColor {
 				backgroundColor = value.cgColor
+			} else if prop is BorderColor {
+				borderColor = value.cgColor
+			} else if prop is FillColor, let shapeLayer = self as? CAShapeLayer {
+				shapeLayer.fillColor = value.cgColor
+			} else if prop is StrokeColor, let shapeLayer = self as? CAShapeLayer {
+				shapeLayer.strokeColor = value.cgColor
 			}
 		}
 	}
 	
 	public func currentProperty(for prop: Property) -> Property? {
 		var vectorValue: Property?
-		print("getting currentProperty for CAShapeLayer: \(prop)")
 		
 		if prop is X || prop is Y {
 			if prop is X {
@@ -155,6 +167,28 @@ extension Tweenable where Self == CALayer {
 			} else {
 				vectorValue = BackgroundColor(UIColor.clear)
 			}
+		} else if prop is BorderColor {
+			if let color = borderColor {
+				vectorValue = BorderColor(UIColor(cgColor: color))
+			} else {
+				vectorValue = BorderColor(UIColor.clear)
+			}
+		} else if prop is FillColor, let shapeLayer = self as? CAShapeLayer {
+			if let color = shapeLayer.fillColor {
+				vectorValue = FillColor(UIColor(cgColor: color))
+			} else {
+				vectorValue = FillColor(UIColor.clear)
+			}
+		} else if prop is StrokeColor, let shapeLayer = self as? CAShapeLayer {
+			if let color = shapeLayer.strokeColor {
+				vectorValue = StrokeColor(UIColor(cgColor: color))
+			} else {
+				vectorValue = StrokeColor(UIColor.clear)
+			}
+		} else if prop is StrokeStart, let shapeLayer = self as? CAShapeLayer {
+			vectorValue = StrokeStart(shapeLayer.strokeStart)
+		} else if prop is StrokeEnd, let shapeLayer = self as? CAShapeLayer {
+			vectorValue = StrokeEnd(shapeLayer.strokeEnd)
 		} else if prop is Scale {
 			vectorValue = transform.scale()
 		} else if prop is Rotation {
@@ -164,28 +198,6 @@ extension Tweenable where Self == CALayer {
 		}
 		
 		return vectorValue
-	}
-}
-
-extension Tweenable where Self == CAShapeLayer {
-	
-	public func apply(_ prop: Property) {
-		if let value = prop.value.toInterpolatable() as? UIColor {
-			if prop is FillColor {
-				fillColor = value.cgColor
-			}
-		}
-	}
-	
-	public func currentProperty(for prop: Property) -> Property? {
-		print("getting currentProperty for CAShapeLayer: \(prop)")
-		if prop is FillColor {
-			if let color = fillColor {
-				return FillColor(UIColor(cgColor: color))
-			}
-		}
-		
-		return nil
 	}
 }
 
