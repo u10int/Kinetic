@@ -103,6 +103,10 @@ extension CALayer : Tweenable {}
 extension Tweenable where Self == CALayer {
 	
 	public func apply(_ prop: Property) {
+		// since CALayer has implicit animations when changing its properties, wrap updates in a CATransaction where animations are disabled
+		CATransaction.begin()
+		CATransaction.setDisableActions(true)
+		
 		if let transform = prop as? Transform {
 			transform.applyTo(self)
 		} else if let value = prop.value.toInterpolatable() as? CGFloat {
@@ -142,6 +146,8 @@ extension Tweenable where Self == CALayer {
 				shapeLayer.strokeColor = value.cgColor
 			}
 		}
+		
+		CATransaction.commit()
 	}
 	
 	public func currentProperty(for prop: Property) -> Property? {
