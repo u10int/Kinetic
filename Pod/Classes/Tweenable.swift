@@ -46,6 +46,8 @@ extension Tweenable where Self == UIView {
 				frame.origin.y = value
 			} else if prop is Alpha {
 				alpha = value
+			} else if let pathProp = prop as? Path {
+				center = pathProp.path.interpolate(value)
 			}
 		} else if let value = prop.value.toInterpolatable() as? CGPoint {
 			if prop is Position {
@@ -93,6 +95,10 @@ extension Tweenable where Self == UIView {
 			vectorValue = layer.transform.rotation()
 		} else if prop is Translation {
 			vectorValue = layer.transform.translation()
+		} else if prop is Path {
+			var start = prop
+			start.value = CGFloat(0.0).vectorize()
+			vectorValue = start
 		}
 		
 		return vectorValue
@@ -124,6 +130,8 @@ extension Tweenable where Self == CALayer {
 				shapeLayer.strokeStart = value
 			} else if prop is StrokeEnd, let shapeLayer = self as? CAShapeLayer {
 				shapeLayer.strokeEnd = value
+			} else if let pathProp = prop as? Path {
+				position = pathProp.path.interpolate(value)
 			}
 		} else if let value = prop.value.toInterpolatable() as? CGPoint {
 			if prop is Position {
@@ -201,6 +209,10 @@ extension Tweenable where Self == CALayer {
 			vectorValue = transform.rotation()
 		} else if prop is Translation {
 			vectorValue = transform.translation()
+		} else if prop is Path {
+			var start = prop
+			start.value = CGFloat(0.0).vectorize()
+			vectorValue = start
 		}
 		
 		return vectorValue

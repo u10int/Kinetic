@@ -108,6 +108,12 @@ public class Tween: Animation {
 		return to(props)
 	}
 	
+	@discardableResult
+	public func along(_ path: InterpolatablePath) -> Tween {
+		add(Path(path), mode: .to)
+		return self
+	}
+	
 	// internal `from` and `to` methods that support a single array of Property types since we can't forward variadic arguments
 	@discardableResult
 	internal func from(_ props: [Property]) -> Tween {
@@ -282,6 +288,12 @@ public class Tween: Animation {
 				// but animation should not be additive if we have a `from` value
 				if isAdditive {
 					isAdditive = (prop.from != nil) ? false : TweenCache.session.hasActiveTween(forKey: key, ofTarget: target)
+				}
+				
+				// there's no real presentation value when animating along a path, so disable additive 
+				if prop.from is Path || prop.to is Path {
+					isAdditive = false
+					self.additive = false
 				}
 				
 				if let type = type, let value = target.currentProperty(for: type) {

@@ -48,6 +48,7 @@ class ViewController: UIViewController {
 		rows.append(StaggerViewController())
 		rows.append(TimelineViewController())
 		rows.append(CountingLabelViewController())
+		rows.append(PathTweenViewController())
 		rows.append(PreloaderViewController())
 	}
 	

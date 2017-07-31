@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2B5FD5DB1F2EC5C40085B250 /* PathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B5FD5DA1F2EC5C40085B250 /* PathTests.swift */; };
+		2B5FD5DD1F2ECAD10085B250 /* PathTweenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B5FD5DC1F2ECAD10085B250 /* PathTweenViewController.swift */; };
 		2B61D6491F2CDAF4009C9F91 /* TweenableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B61D6481F2CDAF4009C9F91 /* TweenableTests.swift */; };
 		2B61D64B1F2CF823009C9F91 /* InterpolatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B61D64A1F2CF823009C9F91 /* InterpolatorTests.swift */; };
 		2B61D64D1F2D4A7F009C9F91 /* PropertyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B61D64C1F2D4A7F009C9F91 /* PropertyTests.swift */; };
@@ -48,6 +50,8 @@
 /* Begin PBXFileReference section */
 		0483570A75EB862226962D21 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		21AB81254F1F387056DDCDAA /* Kinetic.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Kinetic.podspec; path = ../Kinetic.podspec; sourceTree = "<group>"; };
+		2B5FD5DA1F2EC5C40085B250 /* PathTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PathTests.swift; sourceTree = "<group>"; };
+		2B5FD5DC1F2ECAD10085B250 /* PathTweenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PathTweenViewController.swift; sourceTree = "<group>"; };
 		2B61D6481F2CDAF4009C9F91 /* TweenableTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TweenableTests.swift; sourceTree = "<group>"; };
 		2B61D64A1F2CF823009C9F91 /* InterpolatorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InterpolatorTests.swift; sourceTree = "<group>"; };
 		2B61D64C1F2D4A7F009C9F91 /* PropertyTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PropertyTests.swift; sourceTree = "<group>"; };
@@ -157,6 +161,7 @@
 				2B9296051E46B11900056AAC /* CountingLabelViewController.swift */,
 				2B9296061E46B11900056AAC /* ExampleViewController.swift */,
 				2B9296071E46B11900056AAC /* GroupTweenViewController.swift */,
+				2B5FD5DC1F2ECAD10085B250 /* PathTweenViewController.swift */,
 				2B9296081E46B11900056AAC /* PhysicsViewController.swift */,
 				2B9296091E46B11900056AAC /* PreloaderViewController.swift */,
 				2B92960A1E46B11900056AAC /* SequenceViewController.swift */,
@@ -184,6 +189,7 @@
 			children = (
 				607FACEB1AFB9204008FA782 /* Tests.swift */,
 				2B61D64A1F2CF823009C9F91 /* InterpolatorTests.swift */,
+				2B5FD5DA1F2EC5C40085B250 /* PathTests.swift */,
 				2B61D64C1F2D4A7F009C9F91 /* PropertyTests.swift */,
 				2B61D6501F2D719D009C9F91 /* TimelineTests.swift */,
 				2B61D64E1F2D6837009C9F91 /* TweenTests.swift */,
@@ -422,6 +428,7 @@
 				2B9296181E46B11900056AAC /* PreloaderViewController.swift in Sources */,
 				2B9296101E46B11900056AAC /* AppDelegate.swift in Sources */,
 				2B9296191E46B11900056AAC /* SequenceViewController.swift in Sources */,
+				2B5FD5DD1F2ECAD10085B250 /* PathTweenViewController.swift in Sources */,
 				2B92961A1E46B11900056AAC /* StaggerViewController.swift in Sources */,
 				2B92961C1E46B11900056AAC /* TransformViewController.swift in Sources */,
 				2B9296171E46B11900056AAC /* PhysicsViewController.swift in Sources */,
@@ -443,6 +450,7 @@
 				607FACEC1AFB9204008FA782 /* Tests.swift in Sources */,
 				2B61D64D1F2D4A7F009C9F91 /* PropertyTests.swift in Sources */,
 				2B61D6491F2CDAF4009C9F91 /* TweenableTests.swift in Sources */,
+				2B5FD5DB1F2EC5C40085B250 /* PathTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -236,6 +236,21 @@ public struct StrokeEnd: Property {
 	}
 }
 
+public struct Path: Property {
+	public var value: InterpolatableValue
+	public var key: String {
+		return "path"
+	}
+	
+	public var path: InterpolatablePath
+	
+	public init(_ path: InterpolatablePath) {
+		let value: CGFloat = 1.0
+		self.value = InterpolatableValue(type: .cgFloat, vectors: value.vectorize().vectors)
+		self.path = path
+	}
+}
+
 public struct Scale: Property, Equatable, TransformType {
 	public var value: InterpolatableValue
 	public var key: String {

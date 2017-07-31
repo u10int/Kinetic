@@ -113,7 +113,6 @@ final public class Animator: Equatable {
 	internal var spring: Spring?
 	
 	fileprivate (set) public var current: Property
-	fileprivate var additiveCurrent: Property
 	fileprivate var elapsed: Double = 0.0
 	fileprivate var reversed = false
 	fileprivate var presentation: ((Property) -> Property?)?
@@ -124,7 +123,6 @@ final public class Animator: Equatable {
 		self.duration = duration
 		self.timingFunction = timingFunction
 		self.current = from
-		self.additiveCurrent = from
 		self.key = from.key
 	}
 	
