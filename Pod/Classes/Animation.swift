@@ -43,7 +43,8 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 				kill()
 				break
 			case .completed:
-				kill()
+//				kill()
+				Scheduler.shared.remove(self)
 				completionBlock?(self)
 				break
 			}
@@ -122,6 +123,8 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 		// if animation is currently paused, reset it since play() starts from the beginning
 		if state == .idle {
 			stop()
+		} else if state == .completed {
+			reset()
 		}
 		
 		if state != .running && state != .pending {
@@ -130,7 +133,7 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 	}
 	
 	public func stop() {
-		if state == .running || state == .pending || state == .idle {
+		if state == .running || state == .pending || isPaused() {
 			state = .cancelled
 		}
 	}
@@ -262,7 +265,7 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 				}
 				repeatBlock?(self)
 			} else {
-				if updatesStateOnAdvance {
+				if updatesStateOnAdvance && isAnimationComplete() {
 					state = .completed
 				}
 			}
@@ -270,7 +273,11 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 	}
 	
 	internal func shouldAdvance() -> Bool {
-		return state == .pending || state == .running || (state == .idle && !Scheduler.shared.contains(self))
+		return state == .pending || state == .running || !isPaused()
+	}
+	
+	internal func isAnimationComplete() -> Bool {
+		return true
 	}
 	
 	// MARK: Event Handlers
@@ -308,6 +315,10 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 	}
 	
 	// MARK: Internal Methods
+	
+	func isPaused() -> Bool {
+		return (state == .idle && Scheduler.shared.contains(self))
+	}
 	
 	func elapsedTimeFromSeekTime(_ time: TimeInterval) -> TimeInterval {
 		var adjustedTime = time

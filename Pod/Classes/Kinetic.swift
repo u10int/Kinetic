@@ -48,8 +48,8 @@ public func tweensOf(_ target: Tweenable) -> [Tween]? {
 public func killTweensOf(_ target: Tweenable) {
 	if let tweens = TweenCache.session.tweens(ofTarget: target) {
 		for tween in tweens {
-			tween.kill()
 			tween.timeline?.remove(tween: tween)
+			tween.kill()
 		}
 	}
 	TweenCache.session.removeFromCache(target)
@@ -58,8 +58,8 @@ public func killTweensOf(_ target: Tweenable) {
 public func killAll() {
 	for (_, var tweens) in TweenCache.session.allTweens() {
 		for tween in tweens {
-			tween.kill()
 			tween.timeline?.remove(tween: tween)
+			tween.kill()
 		}
 		tweens.removeAll()
 	}

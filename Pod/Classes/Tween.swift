@@ -154,6 +154,21 @@ public class Tween: Animation {
 	
 	// MARK: Animation
 	
+	override public var timingFunction: TimingFunctionType {
+		didSet {
+			animators.forEach { (_, animator) in
+				animator.timingFunction = timingFunction
+			}
+		}
+	}
+	override public var spring: Spring? {
+		didSet {
+			animators.forEach { (_, animator) in
+				animator.spring = spring
+			}
+		}
+	}
+	
 	@discardableResult
 	override public func delay(_ delay: CFTimeInterval) -> Tween {
 		super.delay(delay)
@@ -174,7 +189,7 @@ public class Tween: Animation {
 	}
 	
 	override public func play() {
-		guard state == .pending || state == .idle else { return }
+		guard state == .pending || state == .idle || state == .completed else { return }
 		
 		TweenCache.session.cache(self, target: target)
 		animators.forEach { (_, animator) in
@@ -183,18 +198,6 @@ public class Tween: Animation {
 		
 		super.play()
 	}
-	
-//	@discardableResult
-//	override open func seek(_ time: CFTimeInterval) -> Tween {
-//		super.seek(time)
-//		
-//		setupAnimatorsIfNeeded()
-//		animators.forEach { (_, animator) in
-//			animator.seek(elapsed)
-//		}
-//		
-//		return self
-//	}
 	
 //	public func updateTo(options: [Property], restart: Bool = false) {
 //		
@@ -265,6 +268,18 @@ public class Tween: Animation {
 				}
 			}
 		}
+	}
+	
+	override internal func isAnimationComplete() -> Bool {
+		var done = true
+		
+		animators.forEach { (_, animator) in
+			if !animator.finished {
+				done = false
+			}
+		}
+		
+		return done
 	}
 	
 	fileprivate func setupAnimatorsIfNeeded() {
