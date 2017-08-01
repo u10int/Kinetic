@@ -270,7 +270,7 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 	}
 	
 	internal func shouldAdvance() -> Bool {
-		return state == .pending || state == .running || state == .idle
+		return state == .pending || state == .running || (state == .idle && !Scheduler.shared.contains(self))
 	}
 	
 	// MARK: Event Handlers

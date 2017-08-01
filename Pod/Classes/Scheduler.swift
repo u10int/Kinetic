@@ -204,7 +204,7 @@ final public class Scheduler {
 	
 	// MARK: Private Methods
 	
-	fileprivate func contains(_ target: Subscriber) -> Bool {
+	internal func contains(_ target: Subscriber) -> Bool {
 		var contains = false
 		
 		for (_, subscriber) in subscribers {
