@@ -38,6 +38,7 @@ class BasicFromTweenViewController: ExampleViewController {
 	
 	override func reset() {
 		super.reset()
-		square.frame = CGRect(x: 200, y: 200, width: 100, height: 100)
+//		square.frame = CGRect(x: 200, y: 200, width: 100, height: 100)
+		animation?.seek(0)
 	}
 }

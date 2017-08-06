@@ -39,7 +39,8 @@ class BasicFromToTweenViewController: ExampleViewController {
 	
 	override func reset() {
 		super.reset()
-		square.layer.transform = CATransform3DIdentity
-		square.frame = CGRect(x: 0, y: 200, width: 50, height: 50)
+//		square.layer.transform = CATransform3DIdentity
+//		square.frame = CGRect(x: 0, y: 200, width: 50, height: 50)
+		animation?.seek(0)
 	}
 }

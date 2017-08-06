@@ -13,6 +13,7 @@ internal protocol Subscriber {
 	
 	func advance(_ time: Double)
 	func kill()
+	func canSubscribe() -> Bool
 }
 
 //final internal class Subscription {
@@ -46,7 +47,7 @@ final public class Scheduler {
 	public static let shared = Scheduler()
 	
 	var subscribers = [UInt32: Subscriber]()
-	var counter: UInt32
+//	var counter: UInt32
 //	var cache: [NSObject: [Subscriber]] {
 //		get {
 //			return tweenCache
@@ -69,7 +70,6 @@ final public class Scheduler {
 	// MARK: Lifecycle
 	
 	init() {
-		counter = 0
 		lastLoopTime = 0
 	}
 	
@@ -83,13 +83,6 @@ final public class Scheduler {
 		}
 		
 		var subscriber = target
-		if subscriber.id == 0 {
-			counter += 1
-			if counter == 0 {
-				counter = 1
-			}
-			subscriber.id = counter
-		}
 		subscribers[subscriber.id] = target
 		
 		resume()

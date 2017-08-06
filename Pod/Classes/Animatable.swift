@@ -67,3 +67,7 @@ public protocol Animatable: class, Hashable {
 	func reverse() -> Self
 	func restart(_ includeDelay: Bool)	
 }
+
+internal protocol TimeRenderable {
+	func render(time: TimeInterval, advance: TimeInterval)
+}

@@ -189,7 +189,7 @@ public class Tween: Animation {
 	}
 	
 	override public func play() {
-		guard state == .pending || state == .idle || state == .completed else { return }
+		guard state != .running && state != .cancelled else { return }
 		
 		TweenCache.session.cache(self, target: target)
 		animators.forEach { (_, animator) in
@@ -238,21 +238,30 @@ public class Tween: Animation {
 		
 		// if tween belongs to a timeline, don't start animating until the timeline's playhead reaches the tween's startTime
 		if let timeline = timeline {
+//			if timeline.time < startTime {
+//				elapsed = 0
+//			} else if timeline.time > endTime {
+//				elapsed = duration
+//			}
+			
 //			print("Tween.advance() - id: \(id), timeline.time: \(timeline.time()), startTime: \(startTime), endTime: \(endTime), elapsed: \(elapsed), reversed: \(timeline.reversed)")
 			if timeline.time < startTime || timeline.time > endTime {
 				return
 			}
+		} else {
+			// parent Animation class handles updating the elapsed and runningTimes accordingly
+//			super.advance(time)
 		}
 		
-		setupAnimatorsIfNeeded()
-		
-		let multiplier: TimeInterval = direction == .reversed ? -timeScale : timeScale
-		animators.forEach { (_, animator) in
-			animator.advance(time * multiplier)
-		}
-		
-		updateBlock?(self)
-//		print("Tween.advance() - id: \(id), duration: \(duration), time: \(runningTime), elapsed: \(elapsed), reversed: \(direction == .reversed), progress: \(progress)")
+//		setupAnimatorsIfNeeded()
+//		
+//		let multiplier: TimeInterval = direction == .reversed ? -timeScale : timeScale
+//		animators.forEach { (_, animator) in
+//			animator.advance(time * multiplier)
+//		}
+//		
+//		updateBlock?(self)
+		print("Tween.advance() - id: \(id), duration: \(duration), time: \(runningTime), elapsed: \(elapsed), reversed: \(direction == .reversed), progress: \(progress)")
 		
 		// parent Animation class handles updating the elapsed and runningTimes accordingly
 		super.advance(time)
@@ -268,6 +277,23 @@ public class Tween: Animation {
 				}
 			}
 		}
+	}
+	
+	override internal func canSubscribe() -> Bool {
+		return timeline == nil
+	}
+	
+	override internal func render(time: TimeInterval, advance: TimeInterval = 0) {
+		super.render(time: time, advance: advance)
+		
+		setupAnimatorsIfNeeded()
+		
+//		let multiplier: TimeInterval = direction == .reversed ? -timeScale : timeScale
+		animators.forEach { (_, animator) in
+			animator.render(time, advance: advance)
+		}
+		
+		updateBlock?(self)
 	}
 	
 	override internal func isAnimationComplete() -> Bool {

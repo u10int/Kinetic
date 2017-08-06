@@ -90,13 +90,13 @@ class TimelineViewController: ExampleViewController {
 	
 	override func reset() {
 		super.reset()
-		square.frame = CGRect(x: 50, y: 50, width: 50, height: 50)
-		square.backgroundColor = UIColor.red
+		animation?.stop()
+//		square.frame = CGRect(x: 50, y: 50, width: 50, height: 50)
+//		square.backgroundColor = UIColor.red
 		updateProgress(0)
 	}
 	
 	func progressChanged(_ sender: UISlider) {
-		animation?.pause()
 		progressValue.text = "\(Int(round(sender.value * 100)))%"
 		
 		if let timeline = animation as? Timeline {

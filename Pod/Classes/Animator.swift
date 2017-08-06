@@ -93,6 +93,14 @@ public class Interpolator<T: Interpolatable> : Subscriber {
 	func kill() {
 		Scheduler.shared.remove(self)
 	}
+	
+	func time() -> TimeInterval {
+		return elapsed
+	}
+	
+	func canSubscribe() -> Bool {
+		return true
+	}
 }
 
 final public class Animator: Equatable {
@@ -130,7 +138,8 @@ final public class Animator: Equatable {
 	
 	public func seek(_ time: Double) {
 		elapsed = time
-		advance(0)
+//		advance(0)
+		render(time)
 	}
 	
 	public func reset() {
@@ -146,9 +155,10 @@ final public class Animator: Equatable {
 		elapsed = 0
 	}
 	
-	public func advance(_ time: Double) {
-		elapsed += time
-		elapsed = max(0, elapsed)
+	public func render(_ time: Double, advance: TimeInterval = 0) {
+//		elapsed += time
+//		elapsed = max(0, min(elapsed, duration))
+		elapsed = max(0, min(time, duration))
 		reversed = time < 0
 		
 		var progress = elapsed / duration
@@ -158,7 +168,7 @@ final public class Animator: Equatable {
 		
 		var adjustedProgress = progress
 		if let spring = spring {
-			spring.proceed(time / duration)
+			spring.proceed(advance / duration)
 			adjustedProgress = spring.current
 		} else {
 			adjustedProgress = timingFunction.solveForTime(progress)

@@ -9,11 +9,15 @@
 import UIKit
 
 public class Animation: Animatable, Repeatable, Reversable, Subscriber {
+	fileprivate static var counter: UInt32 = 0
 	public var hashValue: Int {
 		return Unmanaged.passUnretained(self).toOpaque().hashValue
 	}
 	
-	public init() {}
+	public init() {
+		Animation.counter += 1
+		self.id = Animation.counter
+	}
 	
 	deinit {
 		kill()
@@ -33,7 +37,9 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 			print("Animation.state changed: \(state), tween \(id)")
 			switch state {
 			case .pending:
-				Scheduler.shared.add(self)
+				if canSubscribe() {
+					Scheduler.shared.add(self)
+				}
 				break
 			case .running:
 				startBlock?(self)
@@ -61,7 +67,7 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 	public var timeScale: Double = 1.0
 	public var progress: Double {
 		get {
-			return min(Double(elapsed / (delay + duration)), 1)
+			return min(Double(elapsed / (delay + duration)), 1.0)
 		}
 		set {
 			seek(duration * TimeInterval(newValue))
@@ -135,6 +141,8 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 	public func stop() {
 		if state == .running || state == .pending || isPaused() {
 			state = .cancelled
+		} else {
+			reset()
 		}
 	}
 	
@@ -154,8 +162,29 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 	public func seek(_ offset: TimeInterval) -> Self {
 		pause()
 		
+		var advanceBy = 0.0
 		let time = delay + elapsedTimeFromSeekTime(offset)
-		advance(time)
+		
+		render(time: time)
+		
+//		if time < 0 {
+//			if elapsed != 0 {
+//				advanceBy = 0 - elapsed
+//			}
+//		} else if time <= duration {
+//			// update offset to be difference between calculated time and our current time since advance() adds to current time
+//			advanceBy = direction == .reversed ? abs(time - elapsed) : time - elapsed
+//			
+//			if direction == .reversed {
+//				if time > elapsed {
+//					advanceBy = elapsed - time
+//				}
+//			}
+//		}
+//		
+//		print("\(self).\(self.id).seek - offset: \(offset), time: \(time), elapsed: \(elapsed), duration: \(duration), advanceBy: \(advanceBy)")
+//
+//		advance(advanceBy)
 		
 		return self
 	}
@@ -179,9 +208,11 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 	}
 	
 	internal func reset() {
-		elapsed = 0
+		render(time: 0)
+		
 		runningTime = 0
 		cycle = 0
+		progress = 0
 		state = .idle
 	}
 
@@ -226,6 +257,12 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 		return self
 	}
 	
+	// MARK: TimeRenderable
+	
+	internal func render(time: TimeInterval, advance: TimeInterval = 0) {
+		elapsed = time
+	}
+	
 	// MARK: - Subscriber
 	
 	internal var id: UInt32 = 0
@@ -253,23 +290,13 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 			state = .running
 		}
 		
-		let shouldRepeat = (repeatForever || (repeatCount > 0 && cycle < repeatCount))
-		if (direction == .forward && progress >= 1.0) || (direction == .reversed && progress == 0) {
-			if shouldRepeat {
-//				print("\(self) completed - repeating, reverseOnComplete: \(reverseOnComplete), reversed: \(direction == .reversed), repeat count \(cycle) of \(repeatCount)")
-				cycle += 1
-				if reverseOnComplete {
-					direction = (direction == .forward) ? .reversed : .forward
-				} else {
-					restart()
-				}
-				repeatBlock?(self)
-			} else {
-				if updatesStateOnAdvance && isAnimationComplete() {
-					state = .completed
-				}
-			}
-		}
+//		print("\(self).advance - time: \(time), elapsed: \(elapsed), end: \(end), duration: \(duration), progress: \(progress), cycle: \(cycle)")
+		render(time: elapsed, advance: time)
+		onRender()
+	}
+	
+	internal func canSubscribe() -> Bool {
+		return true
 	}
 	
 	internal func shouldAdvance() -> Bool {
@@ -314,6 +341,29 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 		return self
 	}
 	
+	fileprivate func onRender() {
+		let end = delay + duration
+		let shouldRepeat = (repeatForever || (repeatCount > 0 && cycle < repeatCount))
+		
+		if state == .running && ((direction == .forward && elapsed >= end) || (direction == .reversed && elapsed == 0)) && updatesStateOnAdvance {
+			if shouldRepeat {
+				print("\(self) completed - repeating, reverseOnComplete: \(reverseOnComplete), reversed: \(direction == .reversed), repeat count \(cycle) of \(repeatCount)")
+				cycle += 1
+				if reverseOnComplete {
+					direction = (direction == .forward) ? .reversed : .forward
+				} else {
+//					restart()
+					elapsed = 0
+				}
+				repeatBlock?(self)
+			} else {
+				if isAnimationComplete() && state == .running {
+					state = .completed
+				}
+			}
+		}
+	}
+	
 	// MARK: Internal Methods
 	
 	func isPaused() -> Bool {
@@ -322,24 +372,38 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 	
 	func elapsedTimeFromSeekTime(_ time: TimeInterval) -> TimeInterval {
 		var adjustedTime = time
+		var adjustedCycle = cycle
 		
 		// seek time must be restricted to the duration of the timeline minus repeats and repeatDelays
 		// so if the provided time is greater than the timeline's duration, we need to adjust the seek time first
 		if adjustedTime > duration {
-			// update cycles count
-			cycle = Int(adjustedTime / duration)
-			
-			adjustedTime -= (duration * TimeInterval(cycle))
-			
-			// if cycles value is odd, then the current state should be reversed
-			let isReversed = fmod(Double(cycle), 2) != 0 && reverseOnComplete
-			if isReversed {
-				adjustedTime = duration - adjustedTime
+			if repeatCount > 0 && fmod(adjustedTime, duration) != 0.0 {
+				// determine which repeat cycle the seek time will be in for the specified time
+				adjustedCycle = Int(adjustedTime / duration)
+				adjustedTime -= (duration * TimeInterval(adjustedCycle))
+			} else {
+				adjustedTime = duration
+			}
+		} else {
+			adjustedCycle = 0
+		}
+		
+		// determine if we should reverse the direction of the timeline based on calculated adjustedCycle
+		let shouldReverse = adjustedCycle != cycle && reverseOnComplete
+		if shouldReverse {
+			if direction == .forward {
 				reverse()
 			} else {
 				forward()
 			}
 		}
+		
+		// if direction is reversed, then adjusted time needs to start from end of animation duration instead of 0
+		if direction == .reversed {
+			adjustedTime = duration - adjustedTime
+		}
+		
+		cycle = adjustedCycle
 		
 		return adjustedTime
 	}

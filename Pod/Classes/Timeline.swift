@@ -301,6 +301,16 @@ public class Timeline: Animation {
 	
 	// MARK: Animation
 	
+	override public var state: AnimationState {
+		didSet {
+			if state == .completed {
+				tweens.forEach({ (tween) in
+					tween.state = .completed
+				})
+			}
+		}
+	}
+	
 	@discardableResult
 	override public func duration(_ duration: CFTimeInterval) -> Timeline {
 		for tween in tweens {
@@ -318,7 +328,7 @@ public class Timeline: Animation {
 	}
 	
 	override public func play() {
-		guard state == .pending || state == .idle else { return }
+		guard state != .running && state != .cancelled else { return }
 		
 		super.play()
 
@@ -355,20 +365,32 @@ public class Timeline: Animation {
 	override public func seek(_ time: CFTimeInterval) -> Timeline {
 		super.seek(time)
 		
-		let elapsedTime = elapsedTimeFromSeekTime(time)
+//		let elapsedTime = elapsedTimeFromSeekTime(time)
+		let elapsedTime = elapsed
+//		print("timeline.seek - elapsedTime: \(elapsedTime), totalDuration: \(totalDuration), endTime: \(endTime), cycle: \(cycle)")
 		for tween in tweens {
-			var tweenSeek = elapsedTime - tween.startTime
+//			print("-----")
+			var tweenSeek = max(0, min(elapsedTime - tween.startTime, tween.totalDuration))
+			tweenSeek = elapsedTime - tween.startTime
+			
+			// if timeline is reversed, then the tween's seek time should be relative to its end time
+			if direction == .reversed {
+				tweenSeek = tween.endTime - elapsedTime
+			}
+//			print("tween.\(tween.id) seek - tweenSeek: \(tweenSeek), tween.start: \(tween.startTime), tween.end: \(tween.startTime + tween.totalDuration), tween.totalDuration: \(tween.totalDuration), tween.elapsed: \(tween.elapsed),")
 			
 			// make sure tween snaps to 0 or totalDuration value if tweenSeek is beyond bounds
-			if tweenSeek < 0 && tween.elapsed > 0 {
-				tweenSeek = 0
-			} else if tweenSeek > tween.totalDuration && tween.elapsed < tween.totalDuration {
-				tweenSeek = tween.totalDuration
-			}
+//			if tweenSeek < 0 && tween.elapsed > 0 {
+//				tweenSeek = 0
+//			} else if tweenSeek > tween.totalDuration && tween.elapsed < tween.totalDuration {
+//				tweenSeek = tween.totalDuration
+//			}
+//			
+//			if tweenSeek >= 0 && tweenSeek <= tween.totalDuration {
+//				tween.seek(tweenSeek)
+//			}
 			
-			if tweenSeek >= 0 && tweenSeek <= tween.totalDuration {
-				tween.seek(tweenSeek)
-			}
+			tween.seek(tweenSeek)
 		}
 		return self
 	}
@@ -430,6 +452,25 @@ public class Timeline: Animation {
 			tweens.forEach { (tween) in
 				tween.direction = direction
 			}
+		}
+	}
+	
+	// MARK: TimeRenderable
+	
+	override internal func render(time: TimeInterval, advance: TimeInterval = 0) {
+		super.render(time: time, advance: advance)
+		
+		for tween in tweens {
+			var tweenAdvance = advance
+			var tweenTime = max(0, min(elapsed - tween.startTime, tween.totalDuration))
+			
+			tweenTime = elapsed - tween.startTime
+			
+			if tweenTime < 0 || tweenTime > tween.totalDuration {
+				tweenAdvance = 0
+			}
+			
+			tween.render(time: tweenTime, advance: tweenAdvance)
 		}
 	}
 	
