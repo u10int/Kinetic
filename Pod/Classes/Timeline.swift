@@ -505,7 +505,6 @@ public class Timeline: Animation {
 	fileprivate func time(fromString str: String, relativeToTime time: TimeInterval = 0) -> TimeInterval {
 		var position: TimeInterval = time
 		let string = NSString(string: str)
-		print("getting time for string \(str) relative to position: \(position)...")
 		
 		let regex = try! NSRegularExpression(pattern: "(\\w+)?([\\+,\\-\\+]=)([\\d\\.]+)", options: [])
 		let match = regex.firstMatch(in: string as String, options: [], range: NSRange(location: 0, length: string.length))
@@ -519,17 +518,14 @@ public class Timeline: Animation {
 					// label
 					if idx == 1 {
 						position = self.time(forLabel:val)
-						print("1 - position: \(position)")
 					} else if idx == 2 {
 						if val == "-=" {
 							multiplier = -1
 						}
-						print("2 - multiplier: \(multiplier)")
 					} else if idx == 3 {
 						if let offset = Double("\(val)") {
 							position += TimeInterval(offset)
 						}
-						print("3 - val: \(val), position: \(position)")
 					}
 				}
 				idx += 1

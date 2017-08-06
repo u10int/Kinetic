@@ -261,7 +261,7 @@ public class Tween: Animation {
 //		}
 //		
 //		updateBlock?(self)
-		print("Tween.advance() - id: \(id), duration: \(duration), time: \(runningTime), elapsed: \(elapsed), reversed: \(direction == .reversed), progress: \(progress)")
+//		print("Tween.advance() - id: \(id), duration: \(duration), time: \(runningTime), elapsed: \(elapsed), reversed: \(direction == .reversed), progress: \(progress)")
 		
 		// parent Animation class handles updating the elapsed and runningTimes accordingly
 		super.advance(time)
@@ -299,6 +299,7 @@ public class Tween: Animation {
 	override internal func isAnimationComplete() -> Bool {
 		var done = true
 		
+		// spring-based animators must determine if their animation has completed, not the animation duration
 		animators.forEach { (_, animator) in
 			if !animator.finished {
 				done = false

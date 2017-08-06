@@ -9,15 +9,24 @@
 import UIKit
 import Kinetic
 
+enum PathType {
+	case cubic
+	case quadratic
+}
+
 class PathTweenViewController: ExampleViewController {
+	var control: UISegmentedControl!
 	var square: UIView!
 	
 	var start: UIView!
 	var end: UIView!
-	var control: UIView!
+	var controlPoint1: UIView!
+	var controlPoint2: UIView!
 	var pathLayer: CAShapeLayer!
 	var startLineLayer: CAShapeLayer!
 	var endLineLayer: CAShapeLayer!
+	
+	var pathType: PathType = .quadratic
 	
 	fileprivate var draggingView: UIView?
 	
@@ -36,8 +45,14 @@ class PathTweenViewController: ExampleViewController {
 		
 		view.backgroundColor = UIColor.white
 		
+		control = UISegmentedControl(items: ["Quadratic", "Cubic"])
+		control.translatesAutoresizingMaskIntoConstraints = false
+		control.selectedSegmentIndex = 0
+		control.addTarget(self, action: #selector(PathTweenViewController.pathTypeChanged(control:)), for: .valueChanged)
+		view.addSubview(control)
+		
 		square = UIView()
-		square.frame = CGRect(x: 50, y: 50, width: 50, height: 50)
+		square.frame = CGRect(x: 50, y: 100, width: 50, height: 50)
 		square.backgroundColor = UIColor.red
 		view.addSubview(square)
 		
@@ -49,35 +64,31 @@ class PathTweenViewController: ExampleViewController {
 		end.backgroundColor = UIColor.green
 		view.addSubview(end)
 		
-		control = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
-		control.backgroundColor = UIColor.blue
-		view.addSubview(control)
+		controlPoint1 = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+		controlPoint1.backgroundColor = UIColor.blue
+		view.addSubview(controlPoint1)
 		
-		let p1 = square.center
-		let p2 = CGPoint(x: p1.x + 200, y: p1.y + 300)
-		let cp1 = CGPoint(x: p2.x + 100, y: 100)
-		let path = QuadBezier(start: p1, cp1: cp1, end: p2)
+		controlPoint2 = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+		controlPoint2.backgroundColor = UIColor.blue
+		view.addSubview(controlPoint2)
 		
-		let tween = Kinetic.animate(square).along(path).duration(1).ease(.quartInOut)
-		animation = tween
+		// layout
+		NSLayoutConstraint.activate([
+			control.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+			control.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+			control.topAnchor.constraint(equalTo: view.topAnchor, constant: 10)
+		])
 		
-		// add UIBezierPath for debugging animated path
-		let bezierPath = UIBezierPath()
-		bezierPath.move(to: p1)
-		bezierPath.addQuadCurve(to: p2, controlPoint: cp1)
+		start.center = square.center
+		end.center = CGPoint(x: start.center.x + 200, y: start.center.y + 300)
+		controlPoint1.center = CGPoint(x: end.center.x + 30, y: 100)
+		controlPoint2.center = CGPoint(x: 200, y: 200)
 		
 		pathLayer = shapeLayer(color: UIColor(red: 1.0, green: 0, blue: 0, alpha: 0.5))
-		pathLayer.path = bezierPath.cgPath
-		
-		start.center = p1
-		end.center = p2
-		control.center = cp1
-		
 		startLineLayer = shapeLayer(color: UIColor(red: 0, green: 0, blue: 1.0, alpha: 0.2))
 		endLineLayer = shapeLayer(color: UIColor(red: 0, green: 0, blue: 1.0, alpha: 0.2))
 		
-		update(line: startLineLayer, from: p1, to: cp1)
-		update(line: endLineLayer, from: p2, to: cp1)
+		setPathType(type: .quadratic)
 	}
 	
 	override func viewDidLayoutSubviews() {
@@ -91,9 +102,16 @@ class PathTweenViewController: ExampleViewController {
 		square.center = start.center
 	}
 	
+	func pathTypeChanged(control: UIControl) {
+		if let control = control as? UISegmentedControl {
+			let type: PathType = control.selectedSegmentIndex == 1 ? .cubic : .quadratic
+			setPathType(type: type)
+		}
+	}
+	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 		if let touchPoint = touches.first?.location(in: view) {
-			[start, end, control].forEach { (target) in
+			[start, end, controlPoint1, controlPoint2].forEach { (target) in
 				if let target = target, target.frame.contains(touchPoint) {
 					draggingView = target
 				}
@@ -109,6 +127,20 @@ class PathTweenViewController: ExampleViewController {
 	}
 	
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+		setTween()
+		draggingView = nil
+	}
+	
+	private func setPathType(type: PathType) {
+		pathType = type
+		
+		if type == .quadratic {
+			controlPoint2.isHidden = true
+		} else {
+			controlPoint2.isHidden = false
+		}
+		
+		updatePaths()
 		setTween()
 	}
 	
@@ -134,21 +166,40 @@ class PathTweenViewController: ExampleViewController {
 	private func updatePaths() {
 		let p1 = start.center
 		let p2 = end.center
-		let cp1 = control.center
+		let cp1 = controlPoint1.center
+		let cp2 = controlPoint2.center
 		
 		let bezierPath = UIBezierPath()
 		bezierPath.move(to: p1)
-		bezierPath.addQuadCurve(to: p2, controlPoint: cp1)
+		
+		if pathType == .quadratic {
+			bezierPath.addQuadCurve(to: p2, controlPoint: cp1)
+		} else {
+			bezierPath.addCurve(to: p2, controlPoint1: cp1, controlPoint2: cp2)
+		}
+		
 		pathLayer.path = bezierPath.cgPath
 		
-		update(line: startLineLayer, from: p1, to: cp1)
-		update(line: endLineLayer, from: p2, to: cp1)
+		if pathType == .quadratic {
+			update(line: startLineLayer, from: p1, to: cp1)
+			update(line: endLineLayer, from: p2, to: cp1)
+		} else {
+			update(line: startLineLayer, from: p1, to: cp1)
+			update(line: endLineLayer, from: p2, to: cp2)
+		}
 		
 		square.center = p1
 	}
 	
 	private func setTween() {
-		let path = QuadBezier(start: start.center, cp1: control.center, end: end.center)
+		var path: InterpolatablePath
+		
+		if pathType == .cubic {
+			path = CubicBezier(start: start.center, cp1: controlPoint1.center, end: end.center, cp2: controlPoint2.center)
+		} else {
+			path = QuadBezier(start: start.center, cp1: controlPoint1.center, end: end.center)
+		}
+		
 		let tween = Kinetic.animate(square).along(path).duration(1).ease(.quartInOut)
 		animation = tween
 	}
