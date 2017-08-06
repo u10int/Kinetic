@@ -301,15 +301,15 @@ public class Timeline: Animation {
 	
 	// MARK: Animation
 	
-	override public var state: AnimationState {
-		didSet {
-			if state == .completed {
-				tweens.forEach({ (tween) in
-					tween.state = .completed
-				})
-			}
-		}
-	}
+//	override public var state: AnimationState {
+//		didSet {
+//			if state == .completed {
+//				tweens.forEach({ (tween) in
+//					tween.state = .completed
+//				})
+//			}
+//		}
+//	}
 	
 	@discardableResult
 	override public func duration(_ duration: CFTimeInterval) -> Timeline {
@@ -466,8 +466,14 @@ public class Timeline: Animation {
 			
 			tweenTime = elapsed - tween.startTime
 			
-			if tweenTime < 0 || tweenTime > tween.totalDuration {
+			if tweenTime < 0 {
 				tweenAdvance = 0
+				tween.state = .pending
+			} else if tweenTime > tween.totalDuration {
+				tweenAdvance = 0
+				tween.state = .completed
+			} else {
+				tween.state = .running
 			}
 			
 			tween.render(time: tweenTime, advance: tweenAdvance)

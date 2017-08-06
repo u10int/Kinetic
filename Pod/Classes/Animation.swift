@@ -208,7 +208,7 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 	}
 	
 	internal func reset() {
-		render(time: 0)
+		seek(0)
 		
 		runningTime = 0
 		cycle = 0

@@ -168,7 +168,11 @@ final public class Animator: Equatable {
 		
 		var adjustedProgress = progress
 		if let spring = spring {
-			spring.proceed(advance / duration)
+			if time == 0 {
+				spring.reset()
+			} else {
+				spring.proceed(advance / duration)
+			}
 			adjustedProgress = spring.current
 		} else {
 			adjustedProgress = timingFunction.solveForTime(progress)
