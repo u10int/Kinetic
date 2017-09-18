@@ -17,6 +17,7 @@ class AdditiveViewController: ExampleViewController {
 		super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
 		
 		title = "Additive"
+		showsControls = false
 	}
 	
 	required init?(coder aDecoder: NSCoder) {
@@ -27,7 +28,7 @@ class AdditiveViewController: ExampleViewController {
 		super.viewDidLoad()
 		
 		view.backgroundColor = UIColor.white
-		hideButtons()
+		hideControls()
 		
 		square = UIView()
 		square.frame = CGRect(x: 50, y: 50, width: 50, height: 50)

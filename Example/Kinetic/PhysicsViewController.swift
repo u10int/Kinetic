@@ -20,6 +20,7 @@ class PhysicsViewController: ExampleViewController {
 		super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
 		
 		title = "Physics Tween"
+		showsControls = false
 	}
 	
 	required init?(coder aDecoder: NSCoder) {
@@ -30,6 +31,7 @@ class PhysicsViewController: ExampleViewController {
 		super.viewDidLoad()
 		
 		view.backgroundColor = UIColor.white
+		hideSliderControls()
 		
 		square = UIView()
 		square.frame = CGRect(x: 50, y: 50, width: 50, height: 50)

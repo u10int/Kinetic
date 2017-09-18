@@ -434,6 +434,8 @@ extension Transform {
 		let targetScale = view.transform3d.scale()
 		let targetRotation = view.transform3d.rotation()
 		let targetTranslation = view.transform3d.translation()
+		
+		print("Transform.applyTo: ")
 				
 		// apply any existing transforms that aren't specified in this tween
 		if let value = targetScale.value.toInterpolatable() as? Vector3, !orderedPropKeys.contains(targetScale.key) {

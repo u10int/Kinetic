@@ -34,7 +34,7 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 		}
 		didSet {
 			guard oldValue != state else { return }
-			print("Animation.state changed: \(state), tween \(id)")
+			//print("Animation.state changed: \(state), tween \(id)")
 			switch state {
 			case .pending:
 				if canSubscribe() {
@@ -214,6 +214,8 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 		cycle = 0
 		progress = 0
 		state = .idle
+		
+		updateBlock?(self)
 	}
 
 	var startBlock: ((Animation) -> Void)?

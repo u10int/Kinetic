@@ -459,7 +459,7 @@ public class Timeline: Animation {
 	
 	override internal func render(time: TimeInterval, advance: TimeInterval = 0) {
 		super.render(time: time, advance: advance)
-		
+
 		for tween in tweens {
 			var tweenAdvance = advance
 			var tweenTime = max(0, min(elapsed - tween.startTime, tween.totalDuration))

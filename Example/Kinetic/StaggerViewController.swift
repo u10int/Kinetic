@@ -16,6 +16,7 @@ class StaggerViewController: ExampleViewController {
 		super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
 		
 		title = "Stagger Tween"
+		showsControls = false
 	}
 	
 	required init?(coder aDecoder: NSCoder) {
@@ -26,6 +27,7 @@ class StaggerViewController: ExampleViewController {
 		super.viewDidLoad()
 		
 		view.backgroundColor = UIColor.white
+		hideSliderControls()
 		
 		let total = 7
 		var y: CGFloat = 50
