@@ -120,7 +120,12 @@ class ExampleViewController: UIViewController {
 	func play() {
 		if let animation = animation {
 			animation.onUpdate({ [weak self] (animation) in
-				let progress = Float(animation.progress)
+				var progress: Float = 0
+				if animation.repeatForever {
+					progress = Float(animation.progress)
+				} else {
+					progress = Float(animation.totalProgress)
+				}
 				self?.updateProgress(progress)
 			})
 			animation.play()

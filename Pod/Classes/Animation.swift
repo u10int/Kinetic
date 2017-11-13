@@ -214,6 +214,7 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 		cycle = 0
 		progress = 0
 		state = .idle
+		direction = .forward
 		
 		updateBlock?(self)
 	}
