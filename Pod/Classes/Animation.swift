@@ -162,7 +162,7 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 	public func seek(_ offset: TimeInterval) -> Self {
 		pause()
 		
-		var advanceBy = 0.0
+//		var advanceBy = 0.0
 		let time = delay + elapsedTimeFromSeekTime(offset)
 		
 		render(time: time)

@@ -119,9 +119,9 @@ class ExampleViewController: UIViewController {
 	
 	func play() {
 		if let animation = animation {
-			animation.onUpdate({ (animation) in
+			animation.onUpdate({ [weak self] (animation) in
 				let progress = Float(animation.progress)
-				self.updateProgress(progress)
+				self?.updateProgress(progress)
 			})
 			animation.play()
 		}

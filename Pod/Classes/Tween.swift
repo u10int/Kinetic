@@ -350,6 +350,7 @@ public class Tween: Animation {
 						let activeTweens = Scheduler.shared.activeTweenPropsForKey(key, ofTarget: target, excludingTween: self)
 						if activeTweens.count > 0 {
 							from = activeTweens.last?.to
+							to = activeTweens.last?.to
 						}
 					}
 					
@@ -371,6 +372,7 @@ public class Tween: Animation {
 				}
 				
 				if let from = from, let to = to {
+//					print("ANIMATION from: \(from), to: \(to)")
 					// update stored from/to property that other tweens may reference
 					propertiesByType[key] = FromToValue(from, to)
 					TweenCache.session.addActiveKeys(keys: [key], toTarget: target)
@@ -412,6 +414,7 @@ public class Tween: Animation {
 			if animators[key] == nil {
 				let animator = Animator(from: transformFrom, to: transformTo, duration: duration, timingFunction: timingFunction)
 				animator.spring = spring
+				animator.additive = false
 				animator.onChange({ [weak self] (animator, value) in
 					self?.target.apply(value)
 				})

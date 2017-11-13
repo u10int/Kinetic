@@ -435,8 +435,6 @@ extension Transform {
 		let targetRotation = view.transform3d.rotation()
 		let targetTranslation = view.transform3d.translation()
 		
-		print("Transform.applyTo: ")
-				
 		// apply any existing transforms that aren't specified in this tween
 		if let value = targetScale.value.toInterpolatable() as? Vector3, !orderedPropKeys.contains(targetScale.key) {
 			t = CATransform3DScale(t, CGFloat(value.x), CGFloat(value.y), CGFloat(value.z))

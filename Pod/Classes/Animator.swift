@@ -177,7 +177,7 @@ final public class Animator: Equatable {
 		} else {
 			adjustedProgress = timingFunction.solveForTime(progress)
 		}
-		
+				
 		var presentationValue: Property = current
 		
 		if let from = from as? Transform, let to = to as? Transform, var value = current as? Transform {
@@ -189,6 +189,8 @@ final public class Animator: Equatable {
 			value.rotation.apply(rotation)
 			value.translation.apply(translation)
 			self.current = value
+			
+			presentationValue = value
 			
 		} else {
 			let interpolatedValue = from.value.interpolateTo(to.value, progress: adjustedProgress)
