@@ -161,10 +161,12 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 	@discardableResult
 	public func seek(_ offset: TimeInterval) -> Self {
 		pause()
-		
+		state = .idle
+				
 //		var advanceBy = 0.0
 		let time = delay + elapsedTimeFromSeekTime(offset)
 		
+//		print("\(self).\(self.id).seek - offset: \(offset), time: \(time), elapsed: \(elapsed), duration: \(duration)")
 		render(time: time)
 		
 //		if time < 0 {

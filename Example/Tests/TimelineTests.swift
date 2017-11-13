@@ -28,8 +28,8 @@ class TimelineTests: XCTestCase {
         let timeline = Timeline()
 		expect(timeline.totalDuration).to(equal(0))
 		
-		let moveX = Tween(target: view).to(Position(x: 110)).duration(0.5)
-		let moveY = Tween(target: view).to(Position(y: 250)).duration(0.5)
+		let moveX = Tween(target: view).to(X(110)).duration(0.5)
+		let moveY = Tween(target: view).to(Y(250)).duration(0.5)
 		let resize = Tween(target: view).to(Size(width: 200)).duration(0.5)
 		
 		timeline.add(moveX)

@@ -199,6 +199,16 @@ public class Tween: Animation {
 		super.play()
 	}
 	
+	override public func seek(_ offset: TimeInterval) -> Self {
+		if let timeline = timeline, timeline.time < startTime || timeline.time > endTime {
+			return self
+		}
+		
+		super.seek(offset)
+		
+		return self
+	}
+	
 //	public func updateTo(options: [Property], restart: Bool = false) {
 //		
 //	}
@@ -244,7 +254,7 @@ public class Tween: Animation {
 //				elapsed = duration
 //			}
 			
-//			print("Tween.advance() - id: \(id), timeline.time: \(timeline.time()), startTime: \(startTime), endTime: \(endTime), elapsed: \(elapsed), reversed: \(timeline.reversed)")
+//			print("Tween.advance() - id: \(id), timeline.time: \(timeline.time), startTime: \(startTime), endTime: \(endTime), elapsed: \(elapsed), reversed: \(timeline.direction == .reversed)")
 			if timeline.time < startTime || timeline.time > endTime {
 				return
 			}

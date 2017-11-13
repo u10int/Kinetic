@@ -33,9 +33,9 @@ class SequenceViewController: ExampleViewController {
 		square.backgroundColor = UIColor.red
 		view.addSubview(square)
 		
-		let moveX = Tween(target: square).to(Position(x: 110)).duration(0.5).ease(.cubicInOut)
+		let moveX = Tween(target: square).to(X(110)).duration(0.5).ease(.cubicInOut)
 		
-		let moveY = Tween(target: square).to(Position(y: 250), BackgroundColor(UIColor.orange)).duration(0.5).ease(.cubicInOut)
+		let moveY = Tween(target: square).to(Y(250), BackgroundColor(UIColor.orange)).duration(0.5).ease(.cubicInOut)
 		moveY.onStart { (animation) -> Void in
 			print("starting moveY")
 		}

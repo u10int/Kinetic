@@ -99,7 +99,7 @@ class PhysicsViewController: ExampleViewController {
 		frictionValue.text = "\(Int(round(frictionSlider.value)))"
 		
 		let tween = Kinetic.animate(square)
-			.to(Position(x: 250), Size(height: 100))
+			.to(X(250), Size(height: 100))
 			.duration(0.5)
 		
 		animation = tween

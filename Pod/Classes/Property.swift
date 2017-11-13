@@ -70,14 +70,6 @@ public struct Position: Property {
 	public init(_ x: CGFloat, _ y: CGFloat) {
 		self.init(CGPoint(x: x, y: y))
 	}
-	
-	public init(x: CGFloat) {
-		self.init(CGPoint(x: x, y: NullValue))
-	}
-	
-	public init(y: CGFloat) {
-		self.init(CGPoint(x: NullValue, y: y))
-	}
 }
 
 public struct Center: Property {

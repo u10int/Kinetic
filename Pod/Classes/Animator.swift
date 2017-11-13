@@ -163,8 +163,7 @@ final public class Animator: Equatable {
 		
 		var progress = elapsed / duration
 		progress = max(progress, 0.0)
-		progress = min(progress, 1.0)
-		
+		progress = min(progress, 1.0)		
 		
 		var adjustedProgress = progress
 		if let spring = spring {
