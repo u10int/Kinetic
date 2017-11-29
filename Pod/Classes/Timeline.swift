@@ -9,6 +9,7 @@
 import UIKit
 
 internal class TimelineCallback {
+	var time: TimeInterval = 0
 	var block: () -> Void
 	var called = false
 	
@@ -69,6 +70,16 @@ public class Timeline: Animation {
 	public convenience init(tweens: [Tween], align: TweenAlign = .normal) {
 		self.init()
 		add(tweens, position: 0, align: align)
+	}
+	
+	public override init() {
+		super.init()
+		
+		repeated.observe { [weak self] (timeline) in
+			self?.callbacks.forEach({ (time, fn) in
+				fn.called = false
+			})
+		}
 	}
 	
 	deinit {
@@ -167,6 +178,7 @@ public class Timeline: Animation {
 		}
 		
 		callbacks[pos] = TimelineCallback(block: block)
+		callbacks[pos]?.time = pos
 		
 		return self
 	}
@@ -494,16 +506,15 @@ public class Timeline: Animation {
 //		print("Timeline.advance() - time: \(time), elapsed: \(elapsed), endTime: \(endTime), delay: \(delay), duration: \(duration), repeatDelay: \(repeatDelay), reversed: \(direction == .reversed), progress: \(progress)")
 		
 		// check for callbacks
-		if callbacks.count > 0 {
-			for (t, callback) in callbacks {
-				if elapsed >= t && !callback.called {
-					callback.block()
-					callback.called = true
-				}
+		callbacks.forEach({ (time, fn) in
+			if elapsed >= time && !fn.called {
+				fn.block()
+				fn.called = true
 			}
-		}
+		})
 		
-		updateBlock?(self)
+//		updateBlock?(self)
+		updated.trigger(self)
 	}
 	
 	// MARK: Private Methods

@@ -8,6 +8,14 @@
 
 import UIKit
 
+public enum AnimationEvent {
+	case started
+	case updated
+	case cancelled
+	case completed
+	case repeated
+}
+
 public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 	fileprivate static var counter: UInt32 = 0
 	public var hashValue: Int {
@@ -42,7 +50,9 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 				}
 				break
 			case .running:
-				startBlock?(self)
+//				startBlock?(self)
+				started.trigger(self)
+//				started.close(self)
 			case .idle:
 				break
 			case .cancelled:
@@ -51,7 +61,9 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 			case .completed:
 //				kill()
 				Scheduler.shared.remove(self)
-				completionBlock?(self)
+//				completionBlock?(self)
+				completed.trigger(self)
+//				completed.close(self)
 				break
 			}
 		}
@@ -218,13 +230,19 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 		state = .idle
 		direction = .forward
 		
-		updateBlock?(self)
+//		updateBlock?(self)
+		updated.trigger(self)
 	}
 
-	var startBlock: ((Animation) -> Void)?
-	var updateBlock: ((Animation) -> Void)?
-	var completionBlock: ((Animation) -> Void)?
-	var repeatBlock: ((Animation) -> Void)?
+//	var startBlock: ((Animation) -> Void)?
+//	var updateBlock: ((Animation) -> Void)?
+//	var completionBlock: ((Animation) -> Void)?
+//	var repeatBlock: ((Animation) -> Void)?
+	
+	var started = Event<Animation>()
+	var updated = Event<Animation>()
+	var completed = Event<Animation>()
+	var repeated = Event<Animation>()
 	
 	// MARK: Repeatable
 	
@@ -266,6 +284,8 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 	
 	internal func render(time: TimeInterval, advance: TimeInterval = 0) {
 		elapsed = time
+//		updateBlock?(self)
+		updated.trigger(self)
 	}
 	
 	// MARK: - Subscriber
@@ -316,33 +336,55 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 	
 	@discardableResult
 	open func onStart(_ callback: ((Animation) -> Void)?) -> Self {
-		startBlock = { (animation) in
-			callback?(animation)
+//		startBlock = callback
+		if let callback = callback {
+			started.observe(callback)
 		}
 		return self
 	}
 	
 	@discardableResult
 	open func onUpdate(_ callback: ((Animation) -> Void)?) -> Self {
-		updateBlock = { (animation) in
-			callback?(animation)
+//		updateBlock = callback
+		if let callback = callback {
+			updated.observe(callback)
 		}
 		return self
 	}
 	
 	@discardableResult
 	open func onComplete(_ callback: ((Animation) -> Void)?) -> Self {
-		completionBlock = { (animation) in
-			callback?(animation)
+//		completionBlock = callback
+		if let callback = callback {
+			completed.observe(callback)
 		}
 		return self
 	}
 	
 	@discardableResult
 	open func onRepeat(_ callback: ((Animation) -> Void)?) -> Self {
-		repeatBlock = { (animation) in
-			callback?(animation)
+//		repeatBlock = callback
+		if let callback = callback {
+			repeated.observe(callback)
 		}
+		return self
+	}
+	
+	@discardableResult
+	public func on(_ event: AnimationEvent, observer: @escaping Event<Animation>.Observer) -> Self {
+		switch event {
+		case .started:
+			started.observe(observer)
+		case .updated:
+			updated.observe(observer)
+		case .completed:
+			completed.observe(observer)
+		case .repeated:
+			repeated.observe(observer)
+		case .cancelled:
+			let _ = ""
+		}
+		
 		return self
 	}
 	
@@ -360,7 +402,8 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 //					restart()
 					elapsed = 0
 				}
-				repeatBlock?(self)
+//				repeatBlock?(self)
+				repeated.trigger(self)
 			} else {
 				if isAnimationComplete() && state == .running {
 					state = .completed

@@ -294,8 +294,7 @@ public class Tween: Animation {
 	}
 	
 	override internal func render(time: TimeInterval, advance: TimeInterval = 0) {
-		super.render(time: time, advance: advance)
-		
+		elapsed = time
 		setupAnimatorsIfNeeded()
 		
 //		let multiplier: TimeInterval = direction == .reversed ? -timeScale : timeScale
@@ -303,7 +302,8 @@ public class Tween: Animation {
 			animator.render(time, advance: advance)
 		}
 		
-		updateBlock?(self)
+//		updateBlock?(self)
+		updated.trigger(self)
 	}
 	
 	override internal func isAnimationComplete() -> Bool {
