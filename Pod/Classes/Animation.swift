@@ -57,6 +57,7 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 				break
 			case .cancelled:
 				kill()
+				cancelled.trigger(self)
 				break
 			case .completed:
 //				kill()
@@ -242,6 +243,7 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 	var started = Event<Animation>()
 	var updated = Event<Animation>()
 	var completed = Event<Animation>()
+	var cancelled = Event<Animation>()
 	var repeated = Event<Animation>()
 	
 	// MARK: Repeatable
@@ -382,7 +384,7 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 		case .repeated:
 			repeated.observe(observer)
 		case .cancelled:
-			let _ = ""
+			cancelled.observe(observer)
 		}
 		
 		return self
