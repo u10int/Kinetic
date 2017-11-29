@@ -144,14 +144,16 @@ final public class Animator: Equatable {
 	
 	public func reset() {
 		current = from
+		
 		if let spring = spring {
 			spring.reset()
 		}
 		
-		// only force target presentation update if we've elapsed past 0
-		if elapsed > 0 {
-			changed?(self, current)
-		}
+//		// only force target presentation update if we've elapsed past 0
+//		if elapsed > 0 {
+//			changed?(self, current)
+//		}
+		changed?(self, current)
 		elapsed = 0
 	}
 	
