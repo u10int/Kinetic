@@ -41,8 +41,10 @@ class SequenceViewController: ExampleViewController {
 		}
 		
 		let resize = Tween(target: square).to(Size(width: 200), BackgroundColor(UIColor.blue)).duration(0.5).ease(.circInOut)
-		resize.on(.started) { (animation) -> Void in
+		resize.on(.started) { [weak self] (animation) -> Void in
 			print("starting resize")
+			self?.perform(#selector(SequenceViewController.slower), with: nil, afterDelay: 2.0)
+			self?.perform(#selector(SequenceViewController.faster), with: nil, afterDelay: 4.0)
 		}
 		
 		let timeline = Timeline(tweens: [moveX, moveY, resize], align: .sequence)
@@ -57,4 +59,12 @@ class SequenceViewController: ExampleViewController {
 		square.backgroundColor = UIColor.red
 	}
 
+	func slower() {
+//		animation?.slower()
+		animation?.slomo(to: 0.3, duration: 0.5)
+	}
+	
+	func faster() {
+		animation?.normal()
+	}
 }

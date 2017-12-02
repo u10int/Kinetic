@@ -24,7 +24,7 @@ public class Interpolator<T: Interpolatable> : Subscriber {
 			}
 			
 			current = from.interpolateTo(to, progress: adjustedProgress)
-			apply?(current.toInterpolatable() as! T)
+			apply?(current.toInterpolatable())
 		}
 	}
 	
@@ -43,7 +43,7 @@ public class Interpolator<T: Interpolatable> : Subscriber {
 	fileprivate var timingFunction: TimingFunctionType
 	fileprivate var elapsed: TimeInterval = 0.0
 	fileprivate var reversed = false
-	fileprivate var apply: ((T) -> Void)?
+	fileprivate var apply: ((Interpolatable) -> Void)?
 	
 	public init(from: T, to: T, duration: TimeInterval, function: TimingFunctionType, apply: @escaping ((T) -> Void)) {
 		self.from = InterpolatableValue(value: from.vectorize())
@@ -51,7 +51,9 @@ public class Interpolator<T: Interpolatable> : Subscriber {
 		self.current = InterpolatableValue(value: self.from)
 		self.duration = duration
 		self.timingFunction = function
-		self.apply = { let _ = ($0 as? T).flatMap(apply) }
+		self.apply = {
+			let _ = ($0 as? T).flatMap(apply)
+		}
 	}
 	
 	public func run() {
@@ -86,7 +88,7 @@ public class Interpolator<T: Interpolatable> : Subscriber {
 		progress = CGFloat(elapsed / duration) * direction
 		
 		if (direction > 0 && progress >= 1.0) || (direction < 0 && progress <= -1.0) {
-			
+			kill()
 		}
 	}
 	

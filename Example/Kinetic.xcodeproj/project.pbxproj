@@ -32,6 +32,7 @@
 		2B92961F1E46B27800056AAC /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2B92961E1E46B27800056AAC /* Images.xcassets */; };
 		2B9296221E46B28700056AAC /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2B9296201E46B28700056AAC /* LaunchScreen.xib */; };
 		2B9296241E46B2A500056AAC /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2B9296231E46B2A500056AAC /* Info.plist */; };
+		2BD3FDCF1FD33B63003E4582 /* TimeScalableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BD3FDCE1FD33B63003E4582 /* TimeScalableTests.swift */; };
 		607FACEC1AFB9204008FA782 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACEB1AFB9204008FA782 /* Tests.swift */; };
 		6CB2B7667B02848DB5A43040 /* Pods_Kinetic_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3549E316BF7EB544C1FCFFB /* Pods_Kinetic_Example.framework */; };
 		C7440A8A1A25DB42C6FE5C29 /* Pods_Kinetic_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75EB2A4BB3FFC5C6D66FC536 /* Pods_Kinetic_Tests.framework */; };
@@ -75,6 +76,7 @@
 		2B92961E1E46B27800056AAC /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		2B9296211E46B28700056AAC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		2B9296231E46B2A500056AAC /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2BD3FDCE1FD33B63003E4582 /* TimeScalableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeScalableTests.swift; sourceTree = "<group>"; };
 		57B50F6D9694A85628EBBDB6 /* Pods-Kinetic_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Kinetic_Example.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Kinetic_Example/Pods-Kinetic_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		607FACD01AFB9204008FA782 /* Kinetic_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kinetic_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACE51AFB9204008FA782 /* Kinetic_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Kinetic_Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -192,6 +194,7 @@
 				2B5FD5DA1F2EC5C40085B250 /* PathTests.swift */,
 				2B61D64C1F2D4A7F009C9F91 /* PropertyTests.swift */,
 				2B61D6501F2D719D009C9F91 /* TimelineTests.swift */,
+				2BD3FDCE1FD33B63003E4582 /* TimeScalableTests.swift */,
 				2B61D64E1F2D6837009C9F91 /* TweenTests.swift */,
 				2B61D6481F2CDAF4009C9F91 /* TweenableTests.swift */,
 				607FACE91AFB9204008FA782 /* Supporting Files */,
@@ -447,6 +450,7 @@
 				2B61D64F1F2D6837009C9F91 /* TweenTests.swift in Sources */,
 				2B61D64B1F2CF823009C9F91 /* InterpolatorTests.swift in Sources */,
 				2B61D6511F2D719D009C9F91 /* TimelineTests.swift in Sources */,
+				2BD3FDCF1FD33B63003E4582 /* TimeScalableTests.swift in Sources */,
 				607FACEC1AFB9204008FA782 /* Tests.swift in Sources */,
 				2B61D64D1F2D4A7F009C9F91 /* PropertyTests.swift in Sources */,
 				2B61D6491F2CDAF4009C9F91 /* TweenableTests.swift in Sources */,

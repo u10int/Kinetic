@@ -8,7 +8,7 @@
 
 import UIKit
 
-public class Animation: Animatable, Repeatable, Reversable, Subscriber {
+public class Animation: Animatable, TimeScalable, Repeatable, Reversable, Subscriber {
 	fileprivate static var counter: UInt32 = 0
 	public var hashValue: Int {
 		return Unmanaged.passUnretained(self).toOpaque().hashValue
@@ -67,7 +67,6 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 		}
 	}
 	public var delay: TimeInterval = 0
-	public var timeScale: Double = 1.0
 	public var progress: Double {
 		get {
 			return min(Double(elapsed / (delay + duration)), 1.0)
@@ -229,6 +228,10 @@ public class Animation: Animatable, Repeatable, Reversable, Subscriber {
 	var completed = Event<Animation>()
 	var cancelled = Event<Animation>()
 	var repeated = Event<Animation>()
+	
+	// MARK: TimeScalable
+	
+	public var timeScale: Double = 1.0
 	
 	// MARK: Repeatable
 	

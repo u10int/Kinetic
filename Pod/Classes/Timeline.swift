@@ -457,6 +457,16 @@ public class Timeline: Animation {
 		}
 	}
 	
+	// MARK: TimeScalable
+	
+	override public var timeScale: Double {
+		didSet {
+			tweens.forEach { (tween) in
+				tween.timeScale = timeScale
+			}
+		}
+	}
+	
 	// MARK: Reversable
 	
 	override public var direction: Direction {
