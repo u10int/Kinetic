@@ -119,7 +119,7 @@ class ExampleViewController: UIViewController {
 	
 	func play() {
 		if let animation = animation {
-			animation.onUpdate({ [weak self] (animation) in
+			animation.on(.updated) { [weak self] (animation) in
 				var progress: Float = 0
 				if animation.repeatForever {
 					progress = Float(animation.progress)
@@ -127,7 +127,7 @@ class ExampleViewController: UIViewController {
 					progress = Float(animation.totalProgress)
 				}
 				self?.updateProgress(progress)
-			})
+			}
 			animation.play()
 		}
 	}

@@ -199,6 +199,7 @@ public class Tween: Animation {
 		super.play()
 	}
 	
+	@discardableResult
 	override public func seek(_ offset: TimeInterval) -> Self {
 		if let timeline = timeline, timeline.time < startTime || timeline.time > endTime {
 			return self

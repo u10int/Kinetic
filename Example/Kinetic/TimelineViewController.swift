@@ -76,9 +76,9 @@ class TimelineViewController: ExampleViewController {
 		
 		timeline.repeatCount(4).yoyo()
 		
-		timeline.onStart { (animation) in
+		timeline.on(.started) { (animation) in
 			print("timeline started")
-		}.onComplete { (animation) in
+		}.on(.completed) { (animation) in
 			print("timeline done")
 		}
 		
@@ -89,12 +89,12 @@ class TimelineViewController: ExampleViewController {
 		super.play()
 		
 		if let animation = animation {
-			animation.onUpdate({ (animation) in
+			animation.on(.updated) { (animation) in
 				let progress = Float(animation.progress)
 				let totalProgress = Float(animation.totalProgress)
 				self.updateProgress(progress)
 				self.updateTimelineProgress(totalProgress)
-			})
+			}
 			animation.play()
 		}
 	}

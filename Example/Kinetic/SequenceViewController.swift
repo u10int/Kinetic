@@ -36,12 +36,12 @@ class SequenceViewController: ExampleViewController {
 		let moveX = Tween(target: square).to(X(110)).duration(0.5).ease(.cubicInOut)
 		
 		let moveY = Tween(target: square).to(Y(250), BackgroundColor(UIColor.orange)).duration(0.5).ease(.cubicInOut)
-		moveY.onStart { (animation) -> Void in
+		moveY.on(.started) { (animation) -> Void in
 			print("starting moveY")
 		}
 		
 		let resize = Tween(target: square).to(Size(width: 200), BackgroundColor(UIColor.blue)).duration(0.5).ease(.circInOut)
-		resize.onStart { (animation) -> Void in
+		resize.on(.started) { (animation) -> Void in
 			print("starting resize")
 		}
 		

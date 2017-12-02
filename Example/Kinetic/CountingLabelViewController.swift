@@ -47,11 +47,11 @@ class CountingLabelViewController: ExampleViewController {
 			.duration(2)
 			.ease(.expoOut)
 		
-		tween.onUpdate { (animation) -> Void in
+		tween.on(.updated) { (animation) -> Void in
 //			self.textLabel.text = "\(String(format:"%.1f", self.testObject.value))"
-		}.onComplete({ (animation) -> Void in
+		}.on(.completed) { (animation) -> Void in
 			self.textLabel.text = "\(String(format:"%.1f", self.testObject.value))"
-		})
+		}
 		
 		tween.on(.updated) { (animation) in
 			self.textLabel.text = "\(String(format:"%.1f", self.testObject.value))"

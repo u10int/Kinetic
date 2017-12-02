@@ -29,9 +29,9 @@ class TweenTests: XCTestCase {
 		var completeTriggered = false
 		
         let tween = Tween(target: view).to(Size(100.0, 100.0)).duration(2.0)
-		tween.onUpdate { (tween) in
+		tween.on(.updated) { (tween) in
 			updateTriggered = true
-		}.onComplete { (tween) in
+		}.on(.completed) { (tween) in
 			completeTriggered = true
 		}
 		
@@ -54,10 +54,10 @@ class TweenTests: XCTestCase {
 		
 		let tween = Tween(target: view).to(Size(100.0, 100.0)).duration(2.0)
 		tween.ease(.curve(0.24, 1.24, 0.43, 1.01))
-		tween.onUpdate { (tween) in
+		tween.on(.updated) { (tween) in
 			print(view.frame.size)
 		}
-		tween.onComplete { (tween) in
+		tween.on(.completed) { (tween) in
 			completeTriggered = true
 		}
 		tween.play()

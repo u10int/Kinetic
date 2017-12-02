@@ -69,7 +69,7 @@ class PreloaderViewController: ExampleViewController {
 		}
 		
 		timeline.forever().repeatDelay(5)
-		timeline.onRepeat { [unowned self] (timeline) in
+		timeline.on(.repeated) { [unowned self] (timeline) in
 			self.colorIndex += 1
 			if self.colorIndex >= self.colors.count {
 				self.colorIndex = 0

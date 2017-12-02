@@ -32,9 +32,9 @@ class TweenableTests: XCTestCase {
 		let expectation = XCTestExpectation(description: "animation progress done")
 		
 		let tween = Tween(target: layer).to(FillColor(UIColor.green)).duration(0.5)
-		tween.onUpdate { (tween) in
+		tween.on(.updated) { (tween) in
 			print(layer.fillColor)
-		}.onComplete { (tween) in
+		}.on(.completed) { (tween) in
 			expectation.fulfill()
 		}
 		

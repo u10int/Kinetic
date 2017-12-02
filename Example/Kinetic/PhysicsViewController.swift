@@ -103,9 +103,9 @@ class PhysicsViewController: ExampleViewController {
 			.duration(0.5)
 		
 		animation = tween
-		animation?.onComplete({ (animation) in
+		animation?.on(.completed) { (animation) in
 			print("tween complete")
-		})
+		}
 	}
 	
 	override func play() {

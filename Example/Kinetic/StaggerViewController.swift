@@ -42,7 +42,7 @@ class StaggerViewController: ExampleViewController {
 		}
 				
 		let timeline = Kinetic.animateAll(squares).to(Size(width: 200)).duration(1).stagger(0.08).spring(tension: 100, friction: 12)
-		timeline.onComplete { (animation) in
+		timeline.on(.completed) { (animation) in
 			print("timeline done")
 		}
 		animation = timeline

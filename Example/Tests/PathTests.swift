@@ -30,9 +30,9 @@ class PathTests: XCTestCase {
 		var completeTriggered = false
 		
 		let tween = Tween(target: view).along(path).duration(2.0).ease(.cubicInOut)
-		tween.onUpdate { (tween) in
+		tween.on(.updated) { (tween) in
 			print(view.center)
-		}.onComplete { (tween) in
+		}.on(.completed) { (tween) in
 			print(view.center)
 			completeTriggered = true
 		}
