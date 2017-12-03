@@ -17,6 +17,9 @@ public class Animation: Animatable, TimeScalable, Repeatable, Reversable, Subscr
 	public init() {
 		Animation.counter += 1
 		self.id = Animation.counter
+		self.updated.observe { [weak self] (animation) in
+			self?.onUpdate()
+		}
 	}
 	
 	deinit {
@@ -55,6 +58,7 @@ public class Animation: Animatable, TimeScalable, Repeatable, Reversable, Subscr
 				Scheduler.shared.remove(self)
 				completed.trigger(self)
 //				completed.close(self)
+				print("animation \(id) done")
 				break
 			}
 		}
@@ -83,6 +87,7 @@ public class Animation: Animatable, TimeScalable, Repeatable, Reversable, Subscr
 			seek(totalDuration * TimeInterval(newValue))
 		}
 	}
+	private var hasPlayed = false
 	
 	public var startTime: TimeInterval = 0
 	public var endTime: TimeInterval {
@@ -129,7 +134,7 @@ public class Animation: Animatable, TimeScalable, Repeatable, Reversable, Subscr
 	
 	public func play() {
 		// if animation is currently paused, reset it since play() starts from the beginning
-		if state == .idle {
+		if hasPlayed && state == .idle {
 			stop()
 		} else if state == .completed {
 			reset()
@@ -137,6 +142,7 @@ public class Animation: Animatable, TimeScalable, Repeatable, Reversable, Subscr
 		
 		if state != .running && state != .pending {
 			state = .pending
+			hasPlayed = true
 		}
 	}
 	
@@ -162,33 +168,18 @@ public class Animation: Animatable, TimeScalable, Repeatable, Reversable, Subscr
 	
 	@discardableResult
 	public func seek(_ offset: TimeInterval) -> Self {
+		guard offset != elapsed else { return self }
+		
 		pause()
 		state = .idle
-				
-//		var advanceBy = 0.0
-		let time = delay + elapsedTimeFromSeekTime(offset)
 		
+		if (offset > 0 && offset < totalDuration) {
+			
+		}
+				
+		let time = delay + elapsedTimeFromSeekTime(offset)
 //		print("\(self).\(self.id).seek - offset: \(offset), time: \(time), elapsed: \(elapsed), duration: \(duration)")
 		render(time: time)
-		
-//		if time < 0 {
-//			if elapsed != 0 {
-//				advanceBy = 0 - elapsed
-//			}
-//		} else if time <= duration {
-//			// update offset to be difference between calculated time and our current time since advance() adds to current time
-//			advanceBy = direction == .reversed ? abs(time - elapsed) : time - elapsed
-//			
-//			if direction == .reversed {
-//				if time > elapsed {
-//					advanceBy = elapsed - time
-//				}
-//			}
-//		}
-//		
-//		print("\(self).\(self.id).seek - offset: \(offset), time: \(time), elapsed: \(elapsed), duration: \(duration), advanceBy: \(advanceBy)")
-//
-//		advance(advanceBy)
 		
 		return self
 	}
@@ -303,9 +294,8 @@ public class Animation: Animatable, TimeScalable, Repeatable, Reversable, Subscr
 			state = .running
 		}
 		
-//		print("\(self).advance - time: \(time), elapsed: \(elapsed), end: \(end), duration: \(duration), progress: \(progress), cycle: \(cycle)")
+//		print("\(self).advance - id: \(id), state: \(state), time: \(time), elapsed: \(elapsed), end: \(end), duration: \(duration), progress: \(progress), cycle: \(cycle)")
 		render(time: elapsed, advance: time)
-		onRender()
 	}
 	
 	internal func canSubscribe() -> Bool {
@@ -340,7 +330,7 @@ public class Animation: Animatable, TimeScalable, Repeatable, Reversable, Subscr
 		return self
 	}
 	
-	fileprivate func onRender() {
+	private func onUpdate() {
 		let end = delay + duration
 		let shouldRepeat = (repeatForever || (repeatCount > 0 && cycle < repeatCount))
 		

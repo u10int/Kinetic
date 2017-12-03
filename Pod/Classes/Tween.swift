@@ -78,7 +78,6 @@ public class Tween: Animation {
 	fileprivate var propertiesByType: Dictionary<String, FromToValue> = [String: FromToValue]()
 	private(set) var animators = [String: Animator]()
 	
-//	fileprivate var timeScale: Float = 1
 	fileprivate var needsPropertyPrep = false
 	
 	public var additive = true;
@@ -199,17 +198,6 @@ public class Tween: Animation {
 		super.play()
 	}
 	
-	@discardableResult
-	override public func seek(_ offset: TimeInterval) -> Self {
-		if let timeline = timeline, timeline.time < startTime || timeline.time > endTime {
-			return self
-		}
-		
-		super.seek(offset)
-		
-		return self
-	}
-	
 //	public func updateTo(options: [Property], restart: Bool = false) {
 //		
 //	}
@@ -241,53 +229,14 @@ public class Tween: Animation {
 	override func advance(_ time: Double) {
 		guard shouldAdvance() else { return }
 		
-		updatesStateOnAdvance = timeline == nil
-		
 		if propertiesByType.count == 0 {
 			return
 		}
-		
-		// if tween belongs to a timeline, don't start animating until the timeline's playhead reaches the tween's startTime
-		if let timeline = timeline {
-//			if timeline.time < startTime {
-//				elapsed = 0
-//			} else if timeline.time > endTime {
-//				elapsed = duration
-//			}
-			
-//			print("Tween.advance() - id: \(id), timeline.time: \(timeline.time), startTime: \(startTime), endTime: \(endTime), elapsed: \(elapsed), reversed: \(timeline.direction == .reversed)")
-			if timeline.time < startTime || timeline.time > endTime {
-				return
-			}
-		} else {
-			// parent Animation class handles updating the elapsed and runningTimes accordingly
-//			super.advance(time)
-		}
-		
-//		setupAnimatorsIfNeeded()
-//		
-//		let multiplier: TimeInterval = direction == .reversed ? -timeScale : timeScale
-//		animators.forEach { (_, animator) in
-//			animator.advance(time * multiplier)
-//		}
-//		
-//		updateBlock?(self)
+
 //		print("Tween.advance() - id: \(id), duration: \(duration), time: \(runningTime), elapsed: \(elapsed), reversed: \(direction == .reversed), progress: \(progress)")
 		
 		// parent Animation class handles updating the elapsed and runningTimes accordingly
 		super.advance(time)
-		
-		let delayOffset = delay + repeatDelay
-		if timeline == nil {
-			if elapsed < delayOffset {
-				// if direction is reversed, then don't allow playhead to go below the tween's delay and call completed handler
-				if direction == .reversed {
-					state = .completed
-				} else {
-					return
-				}
-			}
-		}
 	}
 	
 	override internal func canSubscribe() -> Bool {
@@ -298,12 +247,10 @@ public class Tween: Animation {
 		elapsed = time
 		setupAnimatorsIfNeeded()
 		
-//		let multiplier: TimeInterval = direction == .reversed ? -timeScale : timeScale
 		animators.forEach { (_, animator) in
 			animator.render(time, advance: advance)
 		}
 		
-//		updateBlock?(self)
 		updated.trigger(self)
 	}
 	

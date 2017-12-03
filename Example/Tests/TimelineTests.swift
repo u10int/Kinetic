@@ -41,7 +41,7 @@ class TimelineTests: XCTestCase {
 		timeline.add(resize, position: "+=1.5")
 		expect(timeline.totalDuration).to(equal(2.75))
 		
-		expect(timeline.tweens).to(haveCount(3))
+		expect(timeline.children).to(haveCount(3))
     }
     
     func testPerformanceExample() {
