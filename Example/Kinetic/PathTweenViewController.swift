@@ -56,20 +56,24 @@ class PathTweenViewController: ExampleViewController {
 		square.backgroundColor = UIColor.red
 		view.addSubview(square)
 		
-		start = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+		start = UIView(frame: CGRect(x: 0, y: 0, width: 20, height: 20))
 		start.backgroundColor = UIColor.green
+		start.layer.cornerRadius = 10
 		view.addSubview(start)
 		
-		end = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+		end = UIView(frame: CGRect(x: 0, y: 0, width: 20, height: 20))
 		end.backgroundColor = UIColor.green
+		end.layer.cornerRadius = 10
 		view.addSubview(end)
 		
-		controlPoint1 = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+		controlPoint1 = UIView(frame: CGRect(x: 0, y: 0, width: 20, height: 20))
 		controlPoint1.backgroundColor = UIColor.blue
+		controlPoint1.layer.cornerRadius = 10
 		view.addSubview(controlPoint1)
 		
-		controlPoint2 = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+		controlPoint2 = UIView(frame: CGRect(x: 0, y: 0, width: 20, height: 20))
 		controlPoint2.backgroundColor = UIColor.blue
+		controlPoint2.layer.cornerRadius = 10
 		view.addSubview(controlPoint2)
 		
 		// layout
@@ -89,12 +93,6 @@ class PathTweenViewController: ExampleViewController {
 		endLineLayer = shapeLayer(color: UIColor(red: 0, green: 0, blue: 1.0, alpha: 0.2))
 		
 		setPathType(type: .quadratic)
-	}
-	
-	override func viewDidLayoutSubviews() {
-		super.viewDidLayoutSubviews()
-		
-		start.center = square.center
 	}
 	
 	override func reset() {
