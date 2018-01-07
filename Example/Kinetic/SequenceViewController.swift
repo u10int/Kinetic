@@ -61,7 +61,7 @@ class SequenceViewController: ExampleViewController {
 
 	func slower() {
 //		animation?.slower()
-		animation?.slomo(to: 0.3, duration: 0.5)
+		animation?.slowMo(to: 0.3, duration: 0.5)
 	}
 	
 	func faster() {

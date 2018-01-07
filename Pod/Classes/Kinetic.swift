@@ -73,7 +73,7 @@ final internal class TweenCache {
 	fileprivate var tweenCache = [NSObject: [Tween]]()
 	fileprivate var activeKeys = [String: Int]()
 	
-	fileprivate func cache(_ tween: Tween, target: Tweenable) {
+	internal func cache(_ tween: Tween, target: Tweenable) {
 		guard let obj = target as? NSObject else { assert(false, "Tween target must be of type NSObject") }
 		
 		if tweenCache[obj] == nil {
@@ -119,7 +119,7 @@ final internal class TweenCache {
 		return tweenCache
 	}
 	
-	fileprivate func addActiveKeys(keys: [String], toTarget target: Tweenable) {
+	internal func addActiveKeys(keys: [String], toTarget target: Tweenable) {
 		keys.forEach { (key) in
 			var count = 1
 			if let pcount = activeKeys[key] {
@@ -129,7 +129,7 @@ final internal class TweenCache {
 		}
 	}
 	
-	fileprivate func removeActiveKeys(keys: [String], ofTarget target: Tweenable) {
+	internal func removeActiveKeys(keys: [String], ofTarget target: Tweenable) {
 		keys.forEach { (key) in
 			var count = 0
 			if let pcount = activeKeys[key] {
@@ -143,7 +143,7 @@ final internal class TweenCache {
 		}
 	}
 	
-	fileprivate func hasActiveTween(forKey key: String, ofTarget target: Tweenable) -> Bool {
+	internal func hasActiveTween(forKey key: String, ofTarget target: Tweenable) -> Bool {
 		return activeKeys[key] != nil
 	}
 }

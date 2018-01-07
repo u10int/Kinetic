@@ -30,8 +30,8 @@ extension TimeScalable {
 		timeScale = value
 	}
 	
-	public func slomo(to value: Double, duration: TimeInterval = 0.2) {
-		let interpolator = Interpolator(from: timeScale, to: value, duration: duration, function: LinearTimingFunction()) { [weak self] (value) in
+	public func slowMo(to value: Double, duration: TimeInterval = 0.2) {
+		let interpolator = timeScale.interpolatorTo(to: value, duration: duration, function: LinearTimingFunction()) { [weak self] (value) in
 			self?.timeScale = value
 		}
 		interpolator.run()
