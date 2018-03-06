@@ -7,6 +7,12 @@ Kinetic
 ======
 A flexible tweening library for iOS in Swift2 similar to [GSAP](http://greensock.com/gsap) and inspired by [Cheetah](https://github.com/suguru/Cheetah).
 
+---
+
+**Note** Ongoing development towards a more final v1.0 has been happening in the [props-refactor](https://github.com/u10int/Kinetic/tree/props-refactor) branch. While the latest code on master works, the development branch is closer to what the final library API will be.
+
+---
+
 Requirements
 ----
 - iOS 8.0+
