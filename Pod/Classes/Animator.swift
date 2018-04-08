@@ -10,7 +10,7 @@ import Foundation
 
 extension Interpolatable {
 	
-	public func interpolatorTo(to: Self, duration: TimeInterval, function: TimingFunctionType, apply: @escaping ((Self) -> Void)) -> Interpolator {
+	public func interpolator(to: Self, duration: TimeInterval, function: TimingFunctionType, apply: @escaping ((Self) -> Void)) -> Interpolator {
 		return Interpolator(from: self, to: to, duration: duration, function: function, apply: { (value) in
 			apply(value)
 		})
@@ -32,7 +32,7 @@ public class Interpolator : Subscriber {
 				adjustedProgress = timingFunction.solveForTime(Double(progress))
 			}
 			
-			current = from.interpolateTo(to, progress: adjustedProgress)
+			current = from.interpolate(to: to, progress: adjustedProgress)
 			apply?(current.toInterpolatable())
 		}
 	}
@@ -191,9 +191,9 @@ final public class Animator: Equatable {
 		var presentationValue: Property = current
 		
 		if let from = from as? Transform, let to = to as? Transform, var value = current as? Transform {
-			let scale = from.scale.value.interpolateTo(to.scale.value, progress: adjustedProgress)
-			let rotation = from.rotation.value.interpolateTo(to.rotation.value, progress: adjustedProgress)
-			let translation = from.translation.value.interpolateTo(to.translation.value, progress: adjustedProgress)
+			let scale = from.scale.value.interpolate(to: to.scale.value, progress: adjustedProgress)
+			let rotation = from.rotation.value.interpolate(to: to.rotation.value, progress: adjustedProgress)
+			let translation = from.translation.value.interpolate(to: to.translation.value, progress: adjustedProgress)
 			
 			value.scale.apply(scale)
 			value.rotation.apply(rotation)
@@ -203,7 +203,7 @@ final public class Animator: Equatable {
 			presentationValue = value
 			
 		} else {
-			let interpolatedValue = from.value.interpolateTo(to.value, progress: adjustedProgress)
+			let interpolatedValue = from.value.interpolate(to: to.value, progress: adjustedProgress)
 			current.apply(interpolatedValue)
 			
 			if additive {

@@ -31,8 +31,8 @@ public protocol Interpolatable {
 	func vectorize() -> InterpolatableValue
 }
 extension Interpolatable {
-	public func interpolateTo(_ to: Interpolatable, progress: Double) -> Interpolatable {
-		let value = self.vectorize().interpolateTo(to.vectorize(), progress: progress)
+	public func interpolate(to: Interpolatable, progress: Double) -> Interpolatable {
+		let value = self.vectorize().interpolate(to: to.vectorize(), progress: progress)
 		return value.toInterpolatable()
 	}
 }
@@ -192,7 +192,7 @@ public struct InterpolatableValue: Equatable {
 		self.type = type
 	}
 	
-	public func interpolateTo(_ to: InterpolatableValue, progress: Double) -> InterpolatableValue {
+	public func interpolate(to: InterpolatableValue, progress: Double) -> InterpolatableValue {
 		var diff = [CGFloat]()
 		let vectorCount = self.vectors.count
 		
