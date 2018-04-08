@@ -232,8 +232,6 @@ public class Tween: Animation {
 		if propertiesByType.count == 0 {
 			return
 		}
-
-//		print("Tween.advance() - id: \(id), duration: \(duration), time: \(runningTime), elapsed: \(elapsed), reversed: \(direction == .reversed), progress: \(progress)")
 		
 		// parent Animation class handles updating the elapsed and runningTimes accordingly
 		super.advance(time)

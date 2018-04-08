@@ -37,7 +37,6 @@ public class Animation: Animatable, TimeScalable, Repeatable, Reversable, Subscr
 		}
 		didSet {
 			guard oldValue != state else { return }
-			//print("Animation.state changed: \(state), tween \(id)")
 			switch state {
 			case .pending:
 				if canSubscribe() {

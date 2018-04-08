@@ -16,49 +16,14 @@ internal protocol Subscriber {
 	func canSubscribe() -> Bool
 }
 
-//final internal class Subscription {
-//	
-//	fileprivate final class Token: Hashable {
-//		weak var subscription: Subscription?
-//		var hashValue: Int {
-//			return Unmanaged.passUnretained(self).toOpaque().hashValue
-//		}
-//		
-//		init(subscription: Subscription) {
-//			self.subscription = subscription
-//		}
-//	}
-//	
-//	fileprivate lazy var token: Token = {
-//		return Token(subscription: self)
-//	}()
-//	
-//	internal let target: Tweenable
-//	
-//	internal init(target: Tweenable) {
-//		self.target = target
-//	}
-//}
-//private func ==(lhs: Subscription.Token, rhs: Subscription.Token) -> Bool {
-//	return lhs == rhs
-//}
-
 final public class Scheduler {
 	public static let shared = Scheduler()
 	
 	var subscribers = [UInt32: Subscriber]()
-//	var counter: UInt32
-//	var cache: [NSObject: [Subscriber]] {
-//		get {
-//			return tweenCache
-//		}
-//	}
 	var timestamp: TimeInterval {
 		return displayLink.timestamp
 	}
 	
-//	fileprivate var tweenCache = [Tweenable: [Tween]]()
-//	fileprivate var tweenObjectCache = [NSObject: Tweenable]()
 	fileprivate lazy var displayLink: CADisplayLink = {
 		let link = CADisplayLink(target: self, selector: #selector(Scheduler.update(_:)))
 		link.isPaused = true
@@ -128,53 +93,6 @@ final public class Scheduler {
 		}
 	}
 	
-//	func cache(_ tween: Tween, target: Tweenable) {
-//		if tweenCache[target] == nil {
-//			tweenCache[target] = [Tween]()
-//		}
-//		if let tweens = tweenCache[target], tweens.contains(tween) == false {
-//			tweenCache[target]?.append(tween)
-//		}
-//	}
-//	
-//	func removeFromCache(_ tween: Tween, target: Tweenable) {
-//		if let tweens = tweenCache[target] {
-//			if let index = tweens.index(of: tween) {
-//				tweenCache[target]?.remove(at: index)
-//			}
-//			
-//			// remove object reference if all tweens have been removed from cache
-//			if tweenCache[target]?.count == 0 {
-//				removeFromCache(target)
-//			}
-//		}
-//	}
-//	
-//	func removeFromCache(_ target: Tweenable) {
-//		tweenCache[target] = nil
-////		tweenObjectCache[target] = nil
-//	}
-//	
-//	func removeAllFromCache() {
-//		tweenCache.removeAll()
-////		tweenObjectCache.removeAll()
-//	}
-//	
-//	func tweens(ofTarget target: Tweenable, activeOnly: Bool = false) -> [Tween]? {
-//		return tweenCache[target]
-//	}
-	
-//	func cachedUpdater(ofTarget target: NSObject) -> TweenObject {
-//		if let obj = tweenObjectCache[target] {
-//			return obj
-//		}
-//		
-//		let obj = TweenObject(target: target)
-//		tweenObjectCache[target] = obj
-//		
-//		return obj
-//	}
-	
 	func activeTweenPropsForKey(_ key: String, ofTarget target: Tweenable, excludingTween targetTween: Tween? = nil) -> [FromToValue] {
 		var props = [FromToValue]()
 		
@@ -183,7 +101,6 @@ final public class Scheduler {
 			tweens.forEach({ (tween) in
 				if tween.state == .running && (targetTween == nil || tween != targetTween) {
 					tween.properties.forEach({ (value) in
-						print("activeTweenPropsForKey - key: \(key), value.to.key: \(value.to?.key)")
 						if value.to?.key == key {
 							props.append(value)
 						}

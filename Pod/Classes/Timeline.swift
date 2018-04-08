@@ -136,7 +136,7 @@ public class Timeline: Animation {
 			}
 			
 			let range = TweenRange(tween: tween, position: pos)
-			print("timeline - added tween at position \(position) with start time \(range.start), end time \(range.end)")
+//			print("timeline - added tween at position \(position) with start time \(range.start), end time \(range.end)")
 			
 			// remove tween from existing timeline (if `timeline` is not nil)... assign timeline to this
 			if let timeline = tween.timeline {
@@ -388,10 +388,13 @@ public class Timeline: Animation {
 		children.forEach { (range) in
 			if (elapsed >= range.start && (elapsed <= range.end || range.tween.spring != nil)) {
 				if range.tween.state != .running {
-					print("...starting tween \(range.tween.id)")
 					range.tween.play()
 					range.tween.state = .running
 				}
+				range.tween.render(time: elapsed - range.start, advance: advance)
+			} else if (elapsed < range.start) {
+				range.tween.render(time: 0, advance: advance)
+			} else if (elapsed > range.end) {
 				range.tween.render(time: elapsed - range.start, advance: advance)
 			}
 		}
