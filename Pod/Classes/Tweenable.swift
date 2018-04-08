@@ -65,6 +65,9 @@ extension Tweenable where Self == UIView {
 				frame.origin = value
 			} else if prop is Center {
 				center = value
+			} else if prop is Shift {
+				frame.origin.x += value.x
+				frame.origin.y += value.y
 			}
 		} else if let value = prop.value.toInterpolatable() as? CGSize {
 			if prop is Size {
@@ -90,6 +93,8 @@ extension Tweenable where Self == UIView {
 			vectorValue = Position(frame.origin)
 		} else if prop is Center {
 			vectorValue = Center(center)
+		} else if prop is Shift {
+			vectorValue = Shift(CGPoint.zero)
 		} else if prop is Size {
 			vectorValue = Size(frame.size)
 		} else if prop is Alpha {
@@ -149,6 +154,9 @@ extension Tweenable where Self == CALayer {
 				frame.origin = value
 			} else if prop is Center {
 				position = value
+			} else if prop is Shift {
+				frame.origin.x += value.x
+				frame.origin.y += value.y
 			}
 		} else if let value = prop.value.toInterpolatable() as? CGSize {
 			if prop is Size {
@@ -182,6 +190,8 @@ extension Tweenable where Self == CALayer {
 			vectorValue = Position(frame.origin)
 		} else if prop is Center {
 			vectorValue = Center(position)
+		} else if prop is Shift {
+			vectorValue = Shift(CGPoint.zero)
 		} else if prop is Size {
 			vectorValue = Size(frame.size)
 		} else if prop is Alpha {

@@ -95,6 +95,29 @@ public struct Center: Property {
 	}
 }
 
+public struct Shift: Property {
+	public var value: InterpolatableValue
+	public var key: String {
+		return "shift"
+	}
+	
+	public init(_ value: Interpolatable) {
+		self.value = InterpolatableValue(type: .cgPoint, vectors: value.vectorize().vectors)
+	}
+	
+	public init(_ x: CGFloat, _ y: CGFloat) {
+		self.init(CGPoint(x: x, y: y))
+	}
+	
+	public init(x: CGFloat) {
+		self.init(CGPoint(x: x, y: NullValue))
+	}
+	
+	public init(y: CGFloat) {
+		self.init(CGPoint(x: NullValue, y: y))
+	}
+}
+
 public struct Size: Property {
 	public var value: InterpolatableValue
 	public var key: String {
