@@ -12,6 +12,17 @@ public protocol Tweenable: class {
 	func apply(_ prop: Property)
 	func currentProperty(for prop: Property) -> Property?
 }
+extension Tweenable {
+	public func tween() -> Tween {
+		return Tween(target: self)
+	}
+}
+
+extension Array where Element: Tweenable {
+	public func tween() -> Timeline {
+		return Kinetic.animateAll(self)
+	}
+}
 
 public protocol KeyPathTweenable : Tweenable {}
 extension Tweenable where Self: KeyPathTweenable {
