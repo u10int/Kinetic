@@ -44,6 +44,7 @@ class TweenTests: XCTestCase {
 		expect(view.frame.size).to(equal(CGSize(width: 75.0, height: 75.0)))
 		
 		tween.progress = 1.0
+		expect(view.frame.size).to(equal(CGSize(width: 100.0, height: 100.0)))
 		expect(completeTriggered).to(beTrue())
     }
 	

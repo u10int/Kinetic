@@ -349,6 +349,8 @@ public class Animation: Animatable, TimeScalable, Repeatable, Reversable, Subscr
 					state = .completed
 				}
 			}
+		} else if state == .idle && elapsed >= end {
+			state = .completed
 		}
 	}
 	
