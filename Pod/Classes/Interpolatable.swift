@@ -30,6 +30,12 @@ public protocol Interpolatable {
 	var interpolatableType: InterpolatableType { get }
 	func vectorize() -> InterpolatableValue
 }
+extension Interpolatable {
+	public func interpolateTo(_ to: Interpolatable, progress: Double) -> Interpolatable {
+		let value = self.vectorize().interpolateTo(to.vectorize(), progress: progress)
+		return value.toInterpolatable()
+	}
+}
 
 extension CATransform3D: Interpolatable {
 	public var interpolatableType: InterpolatableType {

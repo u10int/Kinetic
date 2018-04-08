@@ -8,7 +8,16 @@
 
 import Foundation
 
-public class Interpolator<T: Interpolatable> : Subscriber {
+extension Interpolatable {
+	
+	public func interpolatorTo(to: Self, duration: TimeInterval, function: TimingFunctionType, apply: @escaping ((Self) -> Void)) -> Interpolator {
+		return Interpolator(from: self, to: to, duration: duration, function: function, apply: { (value) in
+			apply(value)
+		})
+	}
+}
+
+public class Interpolator : Subscriber {
 	public var id: UInt32 = 0
 	public var progress: CGFloat = 0.0 {
 		didSet {
@@ -45,15 +54,13 @@ public class Interpolator<T: Interpolatable> : Subscriber {
 	fileprivate var reversed = false
 	fileprivate var apply: ((Interpolatable) -> Void)?
 	
-	public init(from: T, to: T, duration: TimeInterval, function: TimingFunctionType, apply: @escaping ((T) -> Void)) {
+	public init<T: Interpolatable>(from: T, to: T, duration: TimeInterval, function: TimingFunctionType, apply: @escaping ((T) -> Void)) {
 		self.from = InterpolatableValue(value: from.vectorize())
 		self.to = InterpolatableValue(value: to.vectorize())
 		self.current = InterpolatableValue(value: self.from)
 		self.duration = duration
 		self.timingFunction = function
-		self.apply = {
-			let _ = ($0 as? T).flatMap(apply)
-		}
+		self.apply = { let _ = ($0 as? T).flatMap(apply) }
 	}
 	
 	public func run() {
@@ -74,7 +81,7 @@ public class Interpolator<T: Interpolatable> : Subscriber {
 		
 		// only force target presentation update if we've elapsed past 0
 		if elapsed > 0 {
-			apply?(current.toInterpolatable() as! T)
+			apply?(current.toInterpolatable())
 		}
 		elapsed = 0
 	}
