@@ -140,9 +140,12 @@ public struct Easing: TimingFunctionType {
 		return bezier.solve(x)
 	}
 	
-	
 	public static let linear:Ease = { (t: CGFloat, b: CGFloat, c: CGFloat) -> CGFloat in
 		return c * t + b
+	}
+	
+	public static func type(_ easing: EasingType) -> TimingFunctionType {
+		return Easing(easing)
 	}
 	
 	// return easing with cubic bezier curve
