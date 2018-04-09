@@ -74,7 +74,10 @@ final internal class TweenCache {
 	fileprivate var activeKeys = [String: Int]()
 	
 	internal func cache(_ tween: Tween, target: Tweenable) {
-		guard let obj = target as? NSObject else { assert(false, "Tween target must be of type NSObject") }
+		guard let obj = target as? NSObject else {
+			assert(false, "Tween target must be of type NSObject")
+			return
+		}
 		
 		if tweenCache[obj] == nil {
 			tweenCache[obj] = [Tween]()
@@ -85,7 +88,10 @@ final internal class TweenCache {
 	}
 	
 	internal func removeFromCache(_ tween: Tween, target: Tweenable) {
-		guard let obj = target as? NSObject else { assert(false, "Tween target must be of type NSObject") }
+		guard let obj = target as? NSObject else {
+			assert(false, "Tween target must be of type NSObject")
+			return
+		}
 		
 		if let tweens = tweenCache[obj] {
 			if let index = tweens.index(of: tween) {
@@ -100,7 +106,10 @@ final internal class TweenCache {
 	}
 	
 	internal func removeFromCache(_ target: Tweenable) {
-		guard let obj = target as? NSObject else { assert(false, "Tween target must be of type NSObject") }
+		guard let obj = target as? NSObject else {
+			assert(false, "Tween target must be of type NSObject")
+			return
+		}
 		
 		tweenCache[obj] = nil
 	}
@@ -110,7 +119,10 @@ final internal class TweenCache {
 	}
 	
 	internal func tweens(ofTarget target: Tweenable, activeOnly: Bool = false) -> [Tween]? {
-		guard let obj = target as? NSObject else { assert(false, "Tween target must be of type NSObject") }
+		guard let obj = target as? NSObject else {
+			assert(false, "Tween target must be of type NSObject")
+			return nil
+		}
 		
 		return tweenCache[obj]
 	}
