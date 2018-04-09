@@ -273,16 +273,16 @@ public struct Scale: Property, Equatable, TransformType {
 	}
 	
 	static var zero: Scale {
-		let value = Double(NullValue)
-		return Scale(Vector3(value, value, value))
+		return Scale(NullValue)
 	}
 	
-	public init(_ value: Interpolatable) {
-		self.value = InterpolatableValue(type: .vector3, vectors: value.vectorize().vectors)
+	public init(_ value: CGFloat) {
+		self.init(x: value, y: value, z: value)
 	}
 	
-	public init(_ x: CGFloat, _ y: CGFloat, _ z: CGFloat) {
-		self.init(Vector3(Double(x), Double(y), Double(z)))
+	public init(x: CGFloat, y: CGFloat, z: CGFloat) {
+		let vector = Vector3(Double(x), Double(y), Double(z))
+		self.value = InterpolatableValue(type: .vector3, vectors: vector.vectorize().vectors)
 	}
 }
 public func ==(lhs: Scale, rhs: Scale) -> Bool {
@@ -499,7 +499,7 @@ extension CATransform3D {
 		let x = sqrt((m11 * m11) + (m12 * m12) + (m13 * m13))
 		let y = sqrt((m21 * m21) + (m22 * m22) + (m23 * m23))
 		
-		return Scale(x, y, 1)
+		return Scale(x: x, y: y, z: 1)
 	}
 	
 	func rotation() -> Rotation {

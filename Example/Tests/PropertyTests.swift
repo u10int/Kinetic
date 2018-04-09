@@ -61,6 +61,10 @@ class PropertyTests: XCTestCase {
 		expect(bgColor.value.vectors).to(haveCount(4))
 		expect(bgColor.value.toInterpolatable()).to(beAKindOf(UIColor.self))
 		
+		let scale = Scale(2.0)
+		expect(scale).to(beAKindOf(Scale.self))
+		expect(scale.value.vectors).to(haveCount(3))
+		expect(scale.value.toInterpolatable()).to(beAKindOf(Vector3.self))
     }
     
     func testPerformanceExample() {
