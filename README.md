@@ -2,7 +2,7 @@
 [![License](https://img.shields.io/cocoapods/l/Kinetic.svg?style=flat)](http://cocoapods.org/pods/Kinetic)
 [![Platform](https://img.shields.io/cocoapods/p/Kinetic.svg?style=flat)](http://cocoapods.org/pods/Kinetic)
 [![Total Downloads](https://img.shields.io/cocoapods/dt/Kinetic.svg)](http://cocoapods.org/pods/Kinetic)
-[![CI Status](https://img.shields.io/travis/u10int/Kinetic/master.svg?style=flat)](https://travis-ci.org/Nicholas Shipes/Kinetic)
+![CI Status](https://img.shields.io/travis/u10int/Kinetic/master.svg?style=flat)
 
 Kinetic
 ======
