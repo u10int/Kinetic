@@ -9,6 +9,7 @@
 import UIKit
 
 internal class TimelineCallback {
+	var time: TimeInterval = 0
 	var block: () -> Void
 	var called = false
 	
@@ -23,52 +24,75 @@ public enum TweenAlign {
 	case start
 }
 
-open class Timeline: Animation, Tweenable {
-	public typealias TweenType = Timeline
-	public typealias AnimationType = Timeline
+public class TweenRange {
+	var tween: Tween
+	var start: TimeInterval
+	var end: TimeInterval {
+		return start + tween.delay + tween.duration
+	}
 	
-	open var tweens = [Tween]()
-	weak open var timeline: Timeline?
-	override open var endTime: CFTimeInterval {
+	init(tween: Tween, position: TimeInterval) {
+		self.tween = tween
+		self.start = position
+	}
+}
+
+public class Timeline: Animation {
+	private(set) public var children = [TweenRange]()
+	weak public var timeline: Timeline?
+	override public var endTime: TimeInterval {
 		get {
-			var time: CFTimeInterval = startTime
-			for tween in tweens {
-				time = max(time, tween.startTime + tween.duration)
+			var time: TimeInterval = 0
+			children.forEach { (range) in
+				time = max(time, range.end)
 			}
 			return time
 		}
 	}
-	override open var duration: CFTimeInterval {
+	override public var duration: TimeInterval {
 		get {
 			return endTime
 		}
+		set(newValue) {
+			
+		}
 	}
-	override open var totalTime: CFTimeInterval {
+	override public var totalTime: TimeInterval {
 		get {
 			return runningTime
 		}
 	}
-	override open var totalDuration: CFTimeInterval {
+	override public var totalDuration: TimeInterval {
 		get {
-			return (endTime * CFTimeInterval(repeatCount + 1)) + (repeatDelay * CFTimeInterval(repeatCount))
+			return (endTime * TimeInterval(repeatCount + 1)) + (repeatDelay * TimeInterval(repeatCount))
 		}
 	}
-	open var antialiasing: Bool = true {
+	public var antialiasing: Bool = true {
 		didSet {
-			for tween in tweens {
-				tween.antialiasing = antialiasing
+			children.forEach { (range) in
+				range.tween.antialiasing = antialiasing
 			}
 		}
 	}
 	
-	fileprivate var labels = [String: CFTimeInterval]()
-	fileprivate var callbacks = [CFTimeInterval: TimelineCallback]()
+	fileprivate var labels = [String: TimeInterval]()
+	fileprivate var callbacks = [TimeInterval: TimelineCallback]()
 	
 	// MARK: Lifecycle
 	
 	public convenience init(tweens: [Tween], align: TweenAlign = .normal) {
 		self.init()
 		add(tweens, position: 0, align: align)
+	}
+	
+	public override init() {
+		super.init()
+		
+		repeated.observe { [weak self] (timeline) in
+			self?.callbacks.forEach({ (time, fn) in
+				fn.called = false
+			})
+		}
 	}
 	
 	deinit {
@@ -78,13 +102,13 @@ open class Timeline: Animation, Tweenable {
 	// MARK: Public Methods
 	
 	@discardableResult
-	open func add(_ tween: Tween) -> Timeline {
+	public func add(_ tween: Tween) -> Timeline {
 		add(tween, position: endTime)
 		return self
 	}
 	
 	@discardableResult
-	open func add(_ value: Any, position: Any, align: TweenAlign = .normal) -> Timeline {
+	public func add(_ value: Any, position: Any, align: TweenAlign = .normal) -> Timeline {
 		var tweensToAdd = [Tween]()
 		if let tween = value as? Tween {
 			tweensToAdd.append(tween)
@@ -95,39 +119,45 @@ open class Timeline: Animation, Tweenable {
 			return self
 		}
 		
-		var pos: CFTimeInterval = 0
+		// by default, new tweens are added to the end of the timeline
+		var pos: TimeInterval = totalDuration
+		
 		for (idx, tween) in tweensToAdd.enumerated() {
 			if idx == 0 {
-				if let time = position as? CFTimeInterval {
-					pos = time
-				} else if let label = position as? NSString {
-					pos = timeFromString(label, relativeToTime: endTime)
+				if let label = position as? String {
+					pos = time(fromString:label, relativeToTime: endTime)
+				} else if let time = Double("\(position)") {
+					pos = TimeInterval(time * 1.0)
 				}
 			}
+			
 			if align != .start {
 				pos += tween.delay
 			}
-			tween.startTime = pos
 			
-			if align == .sequence {
-				pos += tween.totalDuration
-			}
+			let range = TweenRange(tween: tween, position: pos)
+//			print("timeline - added tween at position \(position) with start time \(range.start), end time \(range.end)")
 			
 			// remove tween from existing timeline (if `timeline` is not nil)... assign timeline to this
 			if let timeline = tween.timeline {
-				timeline.remove(tween)
+				timeline.remove(tween: tween)
 			}
 			tween.timeline = self
-			tweens.append(tween)
+			children.append(range)
+			
+			// increment position if items are being added sequentially
+			if align == .sequence {
+				pos += tween.totalDuration
+			}
 		}
 		
 		return self
 	}
 	
 	@discardableResult
-	open func add(_ tween: Tween, relativeToLabel label: String, offset: CFTimeInterval) -> Timeline {
+	public func add(_ tween: Tween, relativeToLabel label: String, offset: TimeInterval) -> Timeline {
 		if labels[label] == nil {
-			addLabel(label)
+			add(label: label)
 		}
 		
 		if let position = labels[label] {
@@ -138,13 +168,13 @@ open class Timeline: Animation, Tweenable {
 	}
 	
 	@discardableResult
-	open func addLabel(_ label: String, position: Any = 0) -> Timeline {
-		var pos: CFTimeInterval = 0
+	public func add(label: String, position: Any = 0) -> Timeline {
+		var pos: TimeInterval = 0
 		
-		if let time = position as? CFTimeInterval {
-			pos = time
-		} else if let label = position as? NSString {
-			pos = timeFromString(label, relativeToTime: endTime)
+		if let label = position as? String {
+			pos = time(fromString:label, relativeToTime: endTime)
+		} else if let time = Double("\(position)") {
+			pos = TimeInterval(time)
 		}
 		
 		labels[label] = pos
@@ -153,32 +183,33 @@ open class Timeline: Animation, Tweenable {
 	}
 	
 	@discardableResult
-	open func addCallback(_ position: Any, block: @escaping () -> Void) -> Timeline {
-		var pos: CFTimeInterval = 0
+	public func addCallback(_ position: Any, block: @escaping () -> Void) -> Timeline {
+		var pos: TimeInterval = 0
 		
-		if let time = position as? CFTimeInterval {
-			pos = time
-		} else if let label = position as? NSString {
-			pos = timeFromString(label, relativeToTime: endTime)
+		if let label = position as? String {
+			pos = time(fromString:label, relativeToTime: endTime)
+		} else if let time = Double("\(position)") {
+			pos = TimeInterval(time)
 		}
 		
 		callbacks[pos] = TimelineCallback(block: block)
+		callbacks[pos]?.time = pos
 		
 		return self
 	}
 	
-	open func removeLabel(_ label: String) {
+	public func remove(_ label: String) {
 		labels[label] = nil
 	}
 	
-	open func timeForLabel(_ label: String) -> CFTimeInterval {
+	public func time(forLabel label: String) -> TimeInterval {
 		if let time = labels[label] {
 			return time
 		}
 		return 0
 	}
 	
-	open func seekToLabel(_ label: String, pause: Bool = false) {
+	public func seek(toLabel label: String, pause: Bool = false) {
 		if let position = labels[label] {
 			seek(position)
 			if pause {
@@ -188,15 +219,17 @@ open class Timeline: Animation, Tweenable {
 	}
 	
 	@discardableResult
-	open func shift(_ amount: CFTimeInterval, afterTime time: CFTimeInterval = 0) -> Timeline {
-		for tween in tweens {
-			if tween.startTime >= time {
-				tween.startTime += amount
-				if tween.startTime <= 0 {
-					tween.startTime = 0
+	public func shift(_ amount: TimeInterval, afterTime time: TimeInterval = 0) -> Timeline {
+		children.forEach { (range) in
+			if range.start >= time {
+				range.start += amount
+				
+				if range.start < 0 {
+					range.start = 0
 				}
 			}
 		}
+
 		for (label, var labelTime) in labels {
 			if labelTime >= time {
 				labelTime += amount
@@ -206,315 +239,215 @@ open class Timeline: Animation, Tweenable {
 				labels[label] = labelTime
 			}
 		}
+		
 		return self
 	}
 	
-	open func getActive() -> [Tween] {
+	public func getActive() -> [Tween] {
 		var tweens = [Tween]()
-		for tween in self.tweens {
-			if tween.animating && !tween.paused {
-				tweens.append(tween)
+		
+		children.forEach { (range) in
+			if range.tween.state == .running {
+				tweens.append(range.tween)
 			}
 		}
 		
 		return tweens
 	}
 	
-	open func remove(_ tween: Tween) {
-		if let timeline = tween.timeline, let index = tweens.index(of: tween) {
+	public func remove(tween: Tween) {
+		if let timeline = tween.timeline {
 			if timeline == self {
 				tween.timeline = nil
-				tweens.remove(at: index)
+				children.enumerated().forEach({ (index, range) in
+					if range.tween == tween {
+						children.remove(at: index)
+					}
+				})
 			}
 		}
 	}
 	
-	// MARK: Tweenable
-	
 	@discardableResult
-	open func from(_ props: Property...) -> Timeline {
-		for tween in tweens {
-			tween.from(props)
+	public func from(_ props: Property...) -> Timeline {
+		children.forEach { (range) in
+			range.tween.from(props)
 		}
 		return self
 	}
 	
 	@discardableResult
-	open func to(_ props: Property...) -> Timeline {
-		for tween in tweens {
-			tween.to(props)
+	public func to(_ props: Property...) -> Timeline {
+		children.forEach { (range) in
+			range.tween.to(props)
 		}
 		return self
 	}
 	
 	@discardableResult
-	override open func duration(_ duration: CFTimeInterval) -> Timeline {
-		for tween in tweens {
-			tween.duration(duration)
+	override public func spring(tension: Double, friction: Double) -> Timeline {
+		children.forEach { (range) in
+			range.tween.spring(tension: tension, friction: friction)
 		}
 		return self
 	}
 	
 	@discardableResult
-	open func ease(_ easing: @escaping Ease) -> Timeline {
-		for tween in tweens {
-			tween.ease(easing)
+	public func perspective(_ value: CGFloat) -> Timeline {
+		children.forEach { (range) in
+			range.tween.perspective(value)
 		}
 		return self
 	}
 	
 	@discardableResult
-	open func spring(tension: Double, friction: Double) -> Timeline {
-		for tween in tweens {
-			tween.spring(tension: tension, friction: friction)
-		}
-		return self
-	}
-	
-	@discardableResult
-	open func perspective(_ value: CGFloat) -> Timeline {
-		for tween in tweens {
-			tween.perspective(value)
-		}
-		return self
-	}
-	
-	@discardableResult
-	open func anchor(_ anchor: Anchor) -> Timeline {
+	public func anchor(_ anchor: AnchorPoint) -> Timeline {
 		return anchorPoint(anchor.point())
 	}
 	
 	@discardableResult
-	open func anchorPoint(_ point: CGPoint) -> Timeline {
-		for tween in tweens {
-			tween.anchorPoint(point)
+	public func anchorPoint(_ point: CGPoint) -> Timeline {
+		children.forEach { (range) in
+			range.tween.anchorPoint(point)
 		}
 		return self
 	}
 	
 	@discardableResult
-	open func stagger(_ offset: CFTimeInterval) -> Timeline {
-		for (idx, tween) in tweens.enumerated() {
-			tween.startTime = tween.delay + offset * CFTimeInterval(idx)
+	public func stagger(_ offset: TimeInterval) -> Timeline {
+		children.enumerated().forEach { (index, range) in
+			range.start = offset * TimeInterval(index)
 		}
+		return self
+	}
+	
+	public func goToAndPlay(_ label: String) {
+		let position = time(forLabel: label)
+		seek(position)
+		resume()
+	}
+	
+	@discardableResult
+	public func goToAndStop(_ label: String) -> Timeline {
+		seek(toLabel: label, pause: true)
+		
 		return self
 	}
 	
 	// MARK: Animation
 	
 	@discardableResult
-	override open func play() -> Timeline {
-		guard !active else { return self }
-		
-		super.play()
-		run()
-		
-		for tween in tweens {
-			tween.play()
+	override public func duration(_ duration: TimeInterval) -> Timeline {
+		children.forEach { (range) in
+			range.tween.duration(duration)
 		}
-		
 		return self
 	}
 	
 	@discardableResult
-	open func goToAndPlay(_ label: String) -> Timeline {
-		let position = timeForLabel(label)
-		seek(position)
-		resume()
-		
+	override public func ease(_ easing: Easing.EasingType) -> Timeline {
+		children.forEach { (range) in
+			range.tween.ease(easing)
+		}
 		return self
 	}
 	
-	override open func stop() {
-		super.stop()
-		for tween in tweens {
-			tween.stop()
-		}
-	}
-	
 	@discardableResult
-	open func goToAndStop(_ label: String) -> Timeline {
-		seekToLabel(label, pause: true)
-		
-		return self
-	}
-	
-	override open func pause() {
-		super.pause()
-		for tween in tweens {
-			tween.pause()
-		}
-	}
-	
-	override open func resume() {
-		super.resume()
-		if !running {
-			run()
-		}
-		
-		for tween in tweens {
-			tween.resume()
-		}
-	}
-	
-	@discardableResult
-	override open func seek(_ time: CFTimeInterval) -> Timeline {
+	override public func seek(_ time: TimeInterval) -> Timeline {
 		super.seek(time)
 		
-		let elapsedTime = elapsedTimeFromSeekTime(time)
-		for tween in tweens {
-			var tweenSeek = elapsedTime - tween.startTime
+		children.forEach { (range) in
+			let tween = range.tween
+			var tweenSeek = max(0, min(elapsed - range.start, tween.totalDuration))
+			tweenSeek = elapsed - range.start
 			
-			// make sure tween snaps to 0 or totalDuration value if tweenSeek is beyond bounds
-			if tweenSeek < 0 && tween.elapsed > 0 {
-				tweenSeek = 0
-			} else if tweenSeek > tween.totalDuration && tween.elapsed < tween.totalDuration {
-				tweenSeek = tween.totalDuration
+			// if timeline is reversed, then the tween's seek time should be relative to its end time
+			if direction == .reversed {
+				tweenSeek = range.end - elapsed
 			}
 			
-			if tweenSeek >= 0 && tweenSeek <= tween.totalDuration {
-				tween.seek(tweenSeek)
-			}
-		}
-		return self
-	}
-	
-	@discardableResult
-	override open func reverse() -> Timeline {
-		super.reverse()
-		for tween in tweens {
-			tween.reverse()
+			tween.seek(tweenSeek)
 		}
 		
 		return self
 	}
 	
-	@discardableResult
-	override open func forward() -> Timeline {
-		super.forward()
-		for tween in tweens {
-			tween.forward()
-		}
-		
-		return self
-	}
-	
-	override open func restart(_ includeDelay: Bool) {
+	override public func restart(_ includeDelay: Bool) {
 		super.restart(includeDelay)
-		for tween in tweens {
-			tween.restart(includeDelay)
-		}
+		
 		for (_, callback) in callbacks {
 			callback.called = false
 		}
 	}
 	
-	override open func kill() {
-		super.kill()
-		
-		TweenManager.sharedInstance.remove(self)
-		for tween in tweens {
-			tween.kill()
-		}
-	}
+	// MARK: TimeRenderable
 	
-	// MARK: Internal Methods
-	
-	override func reset() {
-		super.reset()
-		for tween in tweens {
-			tween.reset()
-		}
-	}
-	
-	override func proceed(_ dt: CFTimeInterval, force: Bool = false) -> Bool {
-		if !running {
-			return true
-		}
-		if paused {
-			return false
-		}
+	override internal func render(time: TimeInterval, advance: TimeInterval = 0) {
+		super.render(time: time, advance: advance)
 		
-		if tweens.count == 0 {
-			kill()
-		}
-		
-		let multiplier: CFTimeInterval = reversed ? -1 : 1
-		elapsed = elapsed + (dt * multiplier)
-		runningTime += dt
-		
-		// if animation doesn't repeat forever, cap elapsed time to endTime
-		if !repeatForever {
-			elapsed = min(elapsed, (delay + endTime))
+		children.forEach { (range) in
+			if (elapsed >= range.start && (elapsed <= range.end || range.tween.spring != nil)) {
+				if range.tween.state != .running {
+					range.tween.play()
+					range.tween.state = .running
+				}
+				range.tween.render(time: elapsed - range.start, advance: advance)
+			} else if (elapsed < range.start) {
+				range.tween.render(time: 0, advance: advance)
+			} else if (elapsed > range.end) {
+				range.tween.render(time: elapsed - range.start, advance: advance)
+			}
 		}
 		
 		// check for callbacks
-		if callbacks.count > 0 {
-			for (t, callback) in callbacks {
-				if elapsed >= t && !callback.called {
-					callback.block()
-					callback.called = true
-				}
+		callbacks.forEach({ (time, fn) in
+			if elapsed >= time && !fn.called {
+				fn.block()
+				fn.called = true
 			}
-		}
-				
-		if elapsed < (delay + repeatDelay) {
-			if reversed {
-				return completed()
-			} else {
-				return false
-			}
+		})
+		
+		updated.trigger(self)
+	}
+	
+	// MARK: Subscriber
+	
+	override func advance(_ time: Double) {
+		guard shouldAdvance() else { return }
+		
+		if children.count == 0 {
+			kill()
 		}
 		
-		var done = true
-		if !animating {
-			started()
-		}
-		
-		for tween in tweens {
-			if tween.active {
-				done = false
-			}
-		}
-		
-		updateBlock?(self)
-		
-		// make sure we don't consider timeline done if we currently don't have any tweens playing
-		done = (elapsed <= delay || elapsed >= (delay + endTime))
-		if done {
-			return completed()
-		}
-		return false
+		super.advance(time)
 	}
 	
 	// MARK: Private Methods
 	
-	fileprivate func run() {
-		running = true
-		TweenManager.sharedInstance.add(self)
-	}
-	
-	fileprivate func timeFromString(_ string: NSString, relativeToTime time: CFTimeInterval = 0) -> CFTimeInterval {
-		var position: CFTimeInterval = time
+	fileprivate func time(fromString str: String, relativeToTime time: TimeInterval = 0) -> TimeInterval {
+		var position: TimeInterval = time
+		let string = NSString(string: str)
 		
-		let regex = try! NSRegularExpression(pattern: "(\\w+)?([\\+,\\-]=)(\\d+)", options: [])
+		let regex = try! NSRegularExpression(pattern: "(\\w+)?([\\+,\\-\\+]=)([\\d\\.]+)", options: [])
 		let match = regex.firstMatch(in: string as String, options: [], range: NSRange(location: 0, length: string.length))
 		if let match = match {
 			var idx = 1
-			var multiplier: CFTimeInterval = 1
+			var multiplier: TimeInterval = 1
 			while idx < match.numberOfRanges {
 				let range = match.rangeAt(idx)
 				if range.length <= string.length && range.location < string.length {
 					let val = string.substring(with: range)
 					// label
 					if idx == 1 {
-						position = timeForLabel(val)
+						position = self.time(forLabel:val)
 					} else if idx == 2 {
 						if val == "-=" {
 							multiplier = -1
 						}
 					} else if idx == 3 {
-						position += CFTimeInterval(val)!
+						if let offset = Double("\(val)") {
+							position += TimeInterval(offset)
+						}
 					}
 				}
 				idx += 1

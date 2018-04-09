@@ -1,3 +1,4 @@
+
 //
 //  SequenceViewController.swift
 //  Motion
@@ -32,16 +33,18 @@ class SequenceViewController: ExampleViewController {
 		square.backgroundColor = UIColor.red
 		view.addSubview(square)
 		
-		let moveX = Tween(target: square).to(.x(110)).duration(0.5).ease(Easing.inOutCubic)
+		let moveX = Tween(target: square).to(X(110)).duration(0.5).ease(.cubicInOut)
 		
-		let moveY = Tween(target: square).to(.y(250), .backgroundColor(.orange)).duration(0.5).ease(Easing.inOutCubic)
-		moveY.onStart { (animation) -> Void in
+		let moveY = Tween(target: square).to(Y(250), BackgroundColor(UIColor.orange)).duration(0.5).ease(.cubicInOut)
+		moveY.on(.started) { (animation) -> Void in
 			print("starting moveY")
 		}
 		
-		let resize = Tween(target: square).to(.width(200), .backgroundColor(.blue)).duration(0.5).ease(Easing.inOutCirc)
-		resize.onStart { (animation) -> Void in
+		let resize = Tween(target: square).to(Size(width: 200), BackgroundColor(UIColor.blue)).duration(0.5).ease(.circInOut)
+		resize.on(.started) { [weak self] (animation) -> Void in
 			print("starting resize")
+			self?.perform(#selector(SequenceViewController.slower), with: nil, afterDelay: 2.0)
+			self?.perform(#selector(SequenceViewController.faster), with: nil, afterDelay: 4.0)
 		}
 		
 		let timeline = Timeline(tweens: [moveX, moveY, resize], align: .sequence)
@@ -56,4 +59,12 @@ class SequenceViewController: ExampleViewController {
 		square.backgroundColor = UIColor.red
 	}
 
+	func slower() {
+//		animation?.slower()
+		animation?.slowMo(to: 0.3, duration: 0.5)
+	}
+	
+	func faster() {
+		animation?.normal()
+	}
 }

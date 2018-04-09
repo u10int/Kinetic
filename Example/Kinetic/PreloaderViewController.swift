@@ -55,21 +55,21 @@ class PreloaderViewController: ExampleViewController {
 			}
 			
 			let offsetX = (container.bounds.width - dot.bounds.width) / 2
-			Kinetic.set(dot, props: .rotate(deg2rad(rotation)), .translate(-offsetX, 0))
+			Kinetic.set(dot, props: Rotation(deg2rad(rotation)), Translation(-offsetX, 0))
 			
 			if idx < dotCount {
 //				timeline.add(Kinetic.from(dot, duration: 0.5, options: [ .Alpha(0), .Scale(0.01) ]).ease(Easing.outQuart), position: Float(idx) * 0.1)
 				
-				let t = Tween(target: dot).to(.rotate(deg2rad(rotation - 360))).duration(2).ease(Easing.inOutQuart)
+				let t = Tween(target: dot).to(Rotation(deg2rad(rotation - 360))).duration(2).ease(.quartInOut)
 				timeline.add(t, position: Float(idx) * 0.15)
 				timeline.addCallback(Float(idx) * 0.15 + 1.5, block: { [unowned self] in
-					Kinetic.animate(dot).to(.fillColor(self.colors[self.colorIndex])).duration(0.5).play()
+					Kinetic.animate(dot).to(FillColor(self.colors[self.colorIndex])).duration(0.5).play()
 				})
 			}
 		}
 		
 		timeline.forever().repeatDelay(5)
-		timeline.onRepeat { [unowned self] (timeline) in
+		timeline.on(.repeated) { [unowned self] (timeline) in
 			self.colorIndex += 1
 			if self.colorIndex >= self.colors.count {
 				self.colorIndex = 0
@@ -93,14 +93,14 @@ class PreloaderViewController: ExampleViewController {
 			let rotation = CGFloat(360 / dotCount) * CGFloat(idx)
 			let offsetX = (preloaderView.bounds.width - dot.bounds.width) / 2
 			dot.transform = CATransform3DIdentity
-			Kinetic.set(dot, props: .rotate(deg2rad(rotation)), .translate(-offsetX, 0))
+			Kinetic.set(dot, props: Rotation(deg2rad(rotation)), Translation(-offsetX, 0))
 		}
 	}
 	
 	// MARK: Private Methods
 	
 	fileprivate func deg2rad(_ degrees: CGFloat) -> CGFloat {
-		return CGFloat(M_PI) * (degrees) / 180.0
+		return CGFloat(Double.pi) * (degrees) / 180.0
 	}
 	
 	fileprivate func createDot(_ rotation: CGFloat) -> CAShapeLayer {

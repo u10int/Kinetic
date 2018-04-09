@@ -48,12 +48,21 @@ class ViewController: UIViewController {
 		rows.append(StaggerViewController())
 		rows.append(TimelineViewController())
 		rows.append(CountingLabelViewController())
+		rows.append(PathTweenViewController())
 		rows.append(PreloaderViewController())
 	}
 	
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 		tableView.reloadData()
+	}
+	
+	override func viewDidAppear(_ animated: Bool) {
+		super.viewDidAppear(animated)
+		
+//		let t = Tween(target: square).toTest(PositionProp(50, 60), SizeProp(width: 200), AlphaProp(0.2)).to(.X(100)).duration(0.5).delay(0.5)
+//		let t = Tween(target: square).to(Position(50, 60), Size(width: 200), BackgroundColor(.greenColor())).duration(0.5).delay(0.5)
+//		t.play()
 	}
 }
 

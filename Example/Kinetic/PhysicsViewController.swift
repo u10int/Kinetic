@@ -20,6 +20,7 @@ class PhysicsViewController: ExampleViewController {
 		super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
 		
 		title = "Physics Tween"
+		showsControls = false
 	}
 	
 	required init?(coder aDecoder: NSCoder) {
@@ -30,6 +31,7 @@ class PhysicsViewController: ExampleViewController {
 		super.viewDidLoad()
 		
 		view.backgroundColor = UIColor.white
+		hideSliderControls()
 		
 		square = UIView()
 		square.frame = CGRect(x: 50, y: 50, width: 50, height: 50)
@@ -95,15 +97,21 @@ class PhysicsViewController: ExampleViewController {
 		
 		frictionSlider.setValue(10, animated: false)
 		frictionValue.text = "\(Int(round(frictionSlider.value)))"
+		
+		let tween = Kinetic.animate(square)
+			.to(X(250), Size(height: 100))
+			.duration(0.5)
+		
+		animation = tween
+		animation?.on(.completed) { (animation) in
+			print("tween complete")
+		}
 	}
 	
 	override func play() {
-		let tween = Kinetic.animate(square)
-			.to(.x(250), .height(100))
-			.duration(0.5)
-			.spring(tension: Double(tensionSlider.value), friction: Double(frictionSlider.value))
-		
-		animation = tween
+		if let tween = animation as? Tween {
+			tween.spring(tension: Double(tensionSlider.value), friction: Double(frictionSlider.value))
+		}
 		animation?.play()
 	}
 	

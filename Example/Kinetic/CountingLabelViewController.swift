@@ -9,7 +9,7 @@
 import UIKit
 import Kinetic
 
-class CustomObject: NSObject {
+class CustomObject: NSObject, KeyPathTweenable {
 	var value: Float = 0
 }
 
@@ -42,12 +42,22 @@ class CountingLabelViewController: ExampleViewController {
 		testObject.value = 50
 		textLabel.text = "\(testObject.value)"
 				
-		let tween = Kinetic.animate(testObject).to(.keyPath("value", 250)).duration(1)
-		tween.ease(Easing.outExpo).onUpdate { (animation) -> Void in
-			self.textLabel.text = "\(round(self.testObject.value))"
-		}.onComplete({ (animation) -> Void in
-			self.textLabel.text = "\(round(self.testObject.value))"
-		})
+		let tween = Kinetic.animate(testObject)
+			.to(KeyPath("value", 250.0))
+			.duration(2)
+			.ease(.expoOut)
+		
+		tween.on(.updated) { (animation) -> Void in
+//			self.textLabel.text = "\(String(format:"%.1f", self.testObject.value))"
+		}.on(.completed) { (animation) -> Void in
+			self.textLabel.text = "\(String(format:"%.1f", self.testObject.value))"
+		}
+		
+		tween.on(.updated) { (animation) in
+			self.textLabel.text = "\(String(format:"%.1f", self.testObject.value))"
+		}.on(.completed) { (animation) in
+			print("DONE")
+		}
 		
 		animation = tween
 	}

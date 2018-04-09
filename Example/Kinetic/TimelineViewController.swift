@@ -11,8 +11,8 @@ import Kinetic
 
 class TimelineViewController: ExampleViewController {
 	var square: UIView!
-	var progressValue: UILabel!
-	var progressSlider: UISlider!
+	var timelineProgressValue: UILabel!
+	var timelineProgressSlider: UISlider!
 	
 	override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
 		super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
@@ -38,74 +38,84 @@ class TimelineViewController: ExampleViewController {
 		progressLabel.translatesAutoresizingMaskIntoConstraints = false
 		progressLabel.font = UIFont.systemFont(ofSize: 16)
 		progressLabel.textColor = UIColor(white: 0.1, alpha: 1)
-		progressLabel.text = "Position"
+		progressLabel.text = "Timeline"
 		view.addSubview(progressLabel)
 		
-		progressValue = UILabel()
-		progressValue.translatesAutoresizingMaskIntoConstraints = false
-		progressValue.font = UIFont.boldSystemFont(ofSize: 16)
-		progressValue.textColor = UIColor(white: 0.1, alpha: 1)
-		progressValue.text = "0%"
-		view.addSubview(progressValue)
-		
-		progressSlider = UISlider()
-		progressSlider.translatesAutoresizingMaskIntoConstraints = false
-		progressSlider.minimumValue = 0.0
-		progressSlider.maximumValue = 1.0
-		progressSlider.addTarget(self, action: #selector(TimelineViewController.progressChanged(_:)), for: .valueChanged)
-		view.addSubview(progressSlider)
+		timelineProgressValue = UILabel()
+		timelineProgressValue.translatesAutoresizingMaskIntoConstraints = false
+		timelineProgressValue.font = UIFont.boldSystemFont(ofSize: 16)
+		timelineProgressValue.textColor = UIColor(white: 0.1, alpha: 1)
+		timelineProgressValue.text = "0%"
+		view.addSubview(timelineProgressValue)
+
+		timelineProgressSlider = UISlider()
+		timelineProgressSlider.translatesAutoresizingMaskIntoConstraints = false
+		timelineProgressSlider.minimumValue = 0.0
+		timelineProgressSlider.maximumValue = 1.0
+		timelineProgressSlider.addTarget(self, action: #selector(TimelineViewController.timelineProgressChanged(_:)), for: .valueChanged)
+		view.addSubview(timelineProgressSlider)
 		
 		// layout
-		let views = ["progress": progressSlider, "progressLabel": progressLabel, "progressValue": progressValue] as [String : Any]
-		let horizontalConstraints = NSLayoutConstraint.constraints(withVisualFormat: "H:|-20-[progressLabel(60)]-10-[progress]-10-[progressValue(50)]-20-|", options: .alignAllCenterY, metrics: nil, views: views)
-		let verticalConstraint = NSLayoutConstraint(item: progressLabel, attribute: .bottom, relatedBy: .equal, toItem: playButton, attribute: .top, multiplier: 1, constant: -50)
+		let views = ["timelineProgress": timelineProgressSlider, "progressLabel": progressLabel, "timelineProgressValue": timelineProgressValue] as [String : Any]
+		let horizontalConstraints = NSLayoutConstraint.constraints(withVisualFormat: "H:|-20-[progressLabel(60)]-10-[timelineProgress]-10-[timelineProgressValue(50)]-20-|", options: .alignAllCenterY, metrics: nil, views: views)
+		let verticalConstraint = NSLayoutConstraint(item: progressLabel, attribute: .bottom, relatedBy: .equal, toItem: progressSlider, attribute: .top, multiplier: 1, constant: -35)
 		
 		view.addConstraints(horizontalConstraints)
 		view.addConstraint(verticalConstraint)
 		
 		// animation
-		let move = Tween(target: square).to(.position(200, 200)).duration(1).ease(Easing.inOutCubic)
-		let resize = Tween(target: square).to(.size(150, 150)).duration(1).ease(Easing.inOutCubic)
-		let color = Tween(target: square).to(.backgroundColor(.blue)).duration(0.75)
+		let move = Tween(target: square).to(Position(200, 200)).duration(1).ease(.cubicInOut)
+		let resize = Tween(target: square).to(Size(150, 150)).duration(1).ease(.cubicInOut)
+		let color = Tween(target: square).to(BackgroundColor(UIColor.blue)).duration(0.75)
 		
 		let timeline = Timeline()
 		timeline.add(move, position: 0.5)
 		timeline.add(resize, position: 1)
-		timeline.addLabel("colorChange", position: 1.3)
+		timeline.add(label: "colorChange", position: 1.3)
 		timeline.add(color, relativeToLabel: "colorChange", offset: 0)
 		
 		timeline.repeatCount(4).yoyo()
 		
-		timeline.onStart { (animation) in
+		timeline.on(.started) { (animation) in
 			print("timeline started")
-		}.onUpdate { (animation) in
-			let progress = Float(animation.totalProgress())
-			self.updateProgress(progress)
-		}.onComplete { (animation) in
+		}.on(.completed) { (animation) in
 			print("timeline done")
 		}
 		
 		animation = timeline
 	}
 	
-	override func reset() {
-		super.reset()
-		square.frame = CGRect(x: 50, y: 50, width: 50, height: 50)
-		square.backgroundColor = UIColor.red
-		updateProgress(0)
-	}
-	
-	func progressChanged(_ sender: UISlider) {
-		animation?.pause()
-		progressValue.text = "\(Int(round(sender.value * 100)))%"
+	override func play() {
+		super.play()
 		
-		if let timeline = animation as? Timeline {
-			timeline.setTotalProgress(Float(sender.value))
+		if let animation = animation {
+			animation.on(.updated) { (animation) in
+				let progress = Float(animation.progress)
+				let totalProgress = Float(animation.totalProgress)
+				self.updateProgress(progress)
+				self.updateTimelineProgress(totalProgress)
+			}
+			animation.play()
 		}
 	}
 	
-	func updateProgress(_ value: Float) {
-		self.progressSlider.value = value
-		self.progressValue.text = "\(Int(round(value * 100)))%"
+	override func reset() {
+		super.reset()
+		
+		animation?.stop()
+		updateProgress(0)
+	}
+	
+	func timelineProgressChanged(_ sender: UISlider) {
+		timelineProgressValue.text = "\(Int(round(sender.value * 100)))%"
+		
+		if let timeline = animation as? Timeline {
+			timeline.totalProgress = Double(sender.value)
+		}
+	}
+	
+	func updateTimelineProgress(_ value: Float) {		
+		timelineProgressSlider.value = value
+		timelineProgressValue.text = "\(Int(round(value * 100)))%"
 	}
 }

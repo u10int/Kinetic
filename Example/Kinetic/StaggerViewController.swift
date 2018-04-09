@@ -16,6 +16,7 @@ class StaggerViewController: ExampleViewController {
 		super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
 		
 		title = "Stagger Tween"
+		showsControls = false
 	}
 	
 	required init?(coder aDecoder: NSCoder) {
@@ -26,6 +27,7 @@ class StaggerViewController: ExampleViewController {
 		super.viewDidLoad()
 		
 		view.backgroundColor = UIColor.white
+		hideSliderControls()
 		
 		let total = 7
 		var y: CGFloat = 50
@@ -39,13 +41,11 @@ class StaggerViewController: ExampleViewController {
 			y = square.frame.maxY + 5
 		}
 				
-		let tween = Kinetic.animateAll(squares)
-			.to(.width(200))
-			.duration(1)
-			.stagger(0.08)
-			.spring(tension: 100, friction: 12)
-		
-		animation = tween
+		let timeline = Kinetic.animateAll(squares).to(Size(width: 200)).duration(1).stagger(0.08).spring(tension: 100, friction: 12)
+		timeline.on(.completed) { (animation) in
+			print("timeline done")
+		}
+		animation = timeline
 	}
 	
 	override func reset() {
