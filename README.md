@@ -1,11 +1,12 @@
-[![CI Status](http://img.shields.io/travis/Nicholas Shipes/Kinetic.svg?style=flat)](https://travis-ci.org/Nicholas Shipes/Kinetic)
 [![Version](https://img.shields.io/cocoapods/v/Kinetic.svg?style=flat)](http://cocoapods.org/pods/Kinetic)
 [![License](https://img.shields.io/cocoapods/l/Kinetic.svg?style=flat)](http://cocoapods.org/pods/Kinetic)
 [![Platform](https://img.shields.io/cocoapods/p/Kinetic.svg?style=flat)](http://cocoapods.org/pods/Kinetic)
+[![Total Downloads](https://img.shields.io/cocoapods/dt/Kinetic.svg)](http://cocoapods.org/pods/Kinetic)
+[![CI Status](https://img.shields.io/travis/u10int/Kinetic/master.svg?style=flat)](https://travis-ci.org/Nicholas Shipes/Kinetic)
 
 Kinetic
 ======
-A flexible tweening library for iOS in Swift2 similar to [GSAP](http://greensock.com/gsap) and inspired by [Cheetah](https://github.com/suguru/Cheetah).
+A super-flexible tweening library for iOS in Swift inspired by [GSAP](http://greensock.com/gsap).
 
 Requirements
 ----
