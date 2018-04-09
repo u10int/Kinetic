@@ -14,24 +14,21 @@ Requirements
 - Xcode 8+
 
 ## Usage
-
-To run the example project, clone the repo, open the `Kinetic.xcworkspace` and run the *Kinetic-Example* project.
+The following docs are meant to give a general overview of interacting with the library and the various functionality currently supported. For a better, more in-depth demonstration on working with this library, make sure to review the code provided in the example project. To run the example project, clone the repo, open the `Kinetic.xcworkspace` and run the **Kinetic-Example** project.
 
 ## Installation
-
 - **CocoaPods**: add `pod "Kinetic"` to your `Podfile`
-
 - **Carthage**: add `github "u10int/Kinetic" "master"` to your `Cartfile`
 
 ### Features
-- Quickly setup animations in a syntax similar to TweenMax, TimelineMax and the awesome [GSAP](http://greensock.com/gsap)
+- Quickly setup animations in a syntax inspired by TweenMax, TimelineMax and the awesome [GSAP](http://greensock.com/gsap)
 - Start, stop, pause and resume any animation during runtime
 - Easings and springs for more realistic and interesting animations
 - Chaining methods for concise code
 - Support for animating from, animating to, or animating from and to specific values (`to:`, `from:`)
 - Animate multiple objects sequentially, in parallel or staggered in a single animation group
 - Advanced animations using timelines to insert gaps, callbacks and more during an animation
-- Support for animating any NSObject property on your custom objects
+- Support for animating any NSObject property on your custom objects or any tweenable value
 
 ### Roadmap
 - <del>Improve and cleanup API</del>
@@ -345,9 +342,9 @@ testObject.value = 50
 textLabel.text = "\(testObject.value)"
 		
 let tween = testObject.tween()
-	.to(KeyPath("value", 250.0))
-	.duration(2)
-	.ease(.expoOut)
+    .to(KeyPath("value", 250.0))
+    .duration(2)
+    .ease(.expoOut)
 	
 tween.on(.updated) { (animation) in
 	self.textLabel.text = "\(String(format:"%.1f", self.testObject.value))"
@@ -371,24 +368,24 @@ In many cases, you'll want to perform a serial, or sequential, animation on a si
 
 ```swift
 square.tween()
-	.to(X(110))
-	.duration(1)
-	.ease(.inOutCubic)
-	.play()
+    .to(X(110))
+    .duration(1)
+    .ease(.inOutCubic)
+    .play()
 	
 square.tween()
-	.to(Y(250))
-	.duration(1)
-	.ease(.inOutCubic)
-	.delay(1)
-	.play()
+    .to(Y(250))
+    .duration(1)
+    .ease(.inOutCubic)
+    .delay(1)
+    .play()
 	
 square.tween()
-	.to(Scale(2))
-	.duration(1)
-	.ease(.inOutCubic)
-	.delay(2)
-	.play()
+    .to(Scale(2))
+    .duration(1)
+    .ease(.inOutCubic)
+    .delay(2)
+    .play()
 ```
 
 Note that if you change the duration of any of the individual tweens, you also have to be sure to adjust the delay values for the sequence. And trying to pause, restart or reverse the sequence is even more of a challenge. However, by using a Timeline instance you can perform all of these functions easily:
@@ -426,9 +423,9 @@ Using `Kinetic.animateAll` you can animate the same properties on multiple objec
 ```swift
 let squares = [greenSquare, blueSquare, redSquare]
 let timeline = squares.tween()
-						.to(Scale(2), Rotation(CGFloat(Math.pi / 2.0)))
-						.duration(1)
-						.ease(.inOutSine)
+                    .to(Scale(2), Rotation(CGFloat(Math.pi / 2.0)))
+                    .duration(1)
+                    .ease(.inOutSine)
 timeline.play()
 ```
 
@@ -439,10 +436,10 @@ Using a Timeline also provides you with the ability to stagger multiple animatio
 ```swift
 let squares = [greenSquare, blueSquare, redSquare]
 let timeline = squares.tween()
-						.to(Size(width: 250))
-						.duration(1)
-						.stagger(0.08)
-						.spring(tension: 100, friction: 12)
+                    .to(Size(width: 250))
+                    .duration(1)
+                    .stagger(0.08)
+                    .spring(tension: 100, friction: 12)
 timeline.play()
 ```
 
@@ -456,13 +453,13 @@ You can also add labels to your timeline to be used for referencing when adding 
 
 ```swift
 let resize = square.tween()
-					.to(Size(150,100))
-					.duration(1)
-					.ease(Easing.inOutCubic)
+                .to(Size(150,100))
+                .duration(1)
+                .ease(Easing.inOutCubic)
 					
 let color = square.tween()
-					.to(BackgroundColor(UIColor.blue))
-					.duration(0.75)
+                .to(BackgroundColor(UIColor.blue))
+                .duration(0.75)
 
 timeline.addLabel("colorChange", position: 1.3)
 timeline.add(color, relativeToLabel: "colorChange", offset: 0)
