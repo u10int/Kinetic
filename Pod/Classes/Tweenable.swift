@@ -44,8 +44,7 @@ extension Tweenable where Self: KeyPathTweenable {
 	}
 }
 
-extension UIView : Tweenable {}
-extension Tweenable where Self == UIView {
+extension UIView : Tweenable  {
 	
 	public func apply(_ prop: Property) {
 		if let transform = prop as? Transform {
@@ -121,8 +120,7 @@ extension Tweenable where Self == UIView {
 	}
 }
 
-extension CALayer : Tweenable {}
-extension Tweenable where Self == CALayer {
+extension CALayer : Tweenable {
 	
 	public func apply(_ prop: Property) {
 		// since CALayer has implicit animations when changing its properties, wrap updates in a CATransaction where animations are disabled
