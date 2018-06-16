@@ -19,6 +19,7 @@ public enum InterpolatableType {
 	case colorHSB
 	case colorMonochrome
 	case colorRGB
+	case float
 	case double
 	case int
 	case nsNumber
@@ -94,6 +95,16 @@ extension CGSize: Interpolatable {
 	
 	public func vectorize() -> InterpolatableValue {
 		return InterpolatableValue(type: self.interpolatableType, vectors: width, height)
+	}
+}
+
+extension Float: Interpolatable {
+	public var interpolatableType: InterpolatableType {
+		return .float
+	}
+	
+	public func vectorize() -> InterpolatableValue {
+		return InterpolatableValue(type: self.interpolatableType, vectors: CGFloat(self))
 	}
 }
 
@@ -224,6 +235,8 @@ public struct InterpolatableValue: Equatable {
 			return UIColor(white: vectors[0], alpha: vectors[1])
 		case .colorHSB:
 			return UIColor(hue: vectors[0], saturation: vectors[1], brightness: vectors[2], alpha: vectors[3])
+		case .float:
+			return Float(vectors[0])
 		case .double:
 			return Double(vectors[0])
 		case .int:
