@@ -91,7 +91,7 @@ timeline.play()
 And similar to individual tween targets above, you can use the `tween()` method on an array of `Tweenable` objects which will setup a tween but instead return an instance of `Timeline`:
 
 ```swift
-let timeline = [greenSquare, blueSquare, orangeSquare].to(Rotation(y: CGFloat(Double.pi / 2))).duration(1)
+let timeline = [greenSquare, blueSquare, orangeSquare].tween().to(Rotation(y: CGFloat(Double.pi / 2))).duration(1)
 ```
 
 ![Grouped Tween](Example/screenshots/kinetic-tween-basic-group.gif)
