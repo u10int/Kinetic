@@ -53,13 +53,13 @@ square.backgroundColor = UIColor.redColor()
 view.addSubview(square)
 
 // move 250pt to the right and set the height to 100pt for 0.5 seconds
-Kinetic.animate(square).to(X(250), Size(height: 100)).duration(0.5).ease(.inOutQuart).play()
+Kinetic.animate(square).to(X(250), Size(height: 100)).duration(0.5).ease(Quartic.easeInOut).play()
 ```
 
 Alternatively, you can setup a tween on a UIView or CALayer instance by using the `tween()` properly, which is an extension provided by Kinetic:
 
 ```swift
-square.tween().to(X(250), Size(height: 100)).duration(0.5).ease(.inOutQuart).play()
+square.tween().to(X(250), Size(height: 100)).duration(0.5).ease(Quartic.easeInOut).play()
 ```
 
 ![Basic Tween](Example/screenshots/kinetic-tween-basic.gif)
@@ -83,7 +83,7 @@ orangeSquare.backgroundColor = .orange
 view.addSubview(orangeSquare)
 	
 let timeline = Kinetic.animateAll([greenSquare, blueSquare, orangeSquare]).to(Rotation(y: CGFloat(Double.pi / 2))).duration(1)
-timeline.ease(.sineInOut).perspective(1 / -1000).yoyo().repeatCount(3)
+timeline.ease(Sine.easeInOut).perspective(1 / -1000).yoyo().repeatCount(3)
 timeline.anchor(.center)
 timeline.play()
 ```
@@ -179,7 +179,7 @@ Underlying each tween instance is a series of values conforming to the `Interpol
 For instance, if you just want to interpolate a value of `100.0` to `500.0` with a specific timing function offered by Kinetic, just use the `interpolator(to:duration:function:apply:)` method on your starting value:                                  
 
 ```swift
-(100.0.interpolator(to: 500.0, duration: 1.0, function: Easing.type(.quadInOut)) { (value) in
+(100.0.interpolator(to: 500.0, duration: 1.0, function: Easing.type(Quadratic.easeInOut)) { (value) in
 	print("\(value)")
 }).run()
 ```       
@@ -205,7 +205,7 @@ tween.duration(0.5)
 tween.delay(2)
 
 // set the easing to use for the animation, which will be used for all properties in the tween
-tween.ease(.inOutQuart)
+tween.ease(Quartic.easeInOut)
 
 // configure the tween to use a spring animation, which will be used instead of any easing previously set
 tween.spring(tension: 100, friction: 12)
@@ -344,7 +344,7 @@ textLabel.text = "\(testObject.value)"
 let tween = testObject.tween()
     .to(KeyPath("value", 250.0))
     .duration(2)
-    .ease(.expoOut)
+    .ease(Exponential.easeOut)
 	
 tween.on(.updated) { (animation) in
 	self.textLabel.text = "\(String(format:"%.1f", self.testObject.value))"
@@ -370,20 +370,20 @@ In many cases, you'll want to perform a serial, or sequential, animation on a si
 square.tween()
     .to(X(110))
     .duration(1)
-    .ease(.inOutCubic)
+    .ease(Cubic.easeInOut)
     .play()
 	
 square.tween()
     .to(Y(250))
     .duration(1)
-    .ease(.inOutCubic)
+    .ease(Cubic.easeInOut)
     .delay(1)
     .play()
 	
 square.tween()
     .to(Scale(2))
     .duration(1)
-    .ease(.inOutCubic)
+    .ease(Cubic.easeInOut)
     .delay(2)
     .play()
 ```
@@ -392,9 +392,9 @@ Note that if you change the duration of any of the individual tweens, you also h
 
 ```swift
 let timeline = Timeline()
-timeline.add(square.tween().to(X(110)).duration(1).ease(.inOutCubic))
-timeline.add(square.tween().to(Y(250)).duration(1).ease(.inOutCubic))
-timeline.add(square.tween().to(Scale(2)).duration(1).ease(.inOutCubic))
+timeline.add(square.tween().to(X(110)).duration(1).ease(Cubic.easeInOut))
+timeline.add(square.tween().to(Y(250)).duration(1).ease(Cubic.easeInOut))
+timeline.add(square.tween().to(Scale(2)).duration(1).ease(Cubic.easeInOut))
 timeline.play()
 ```
 
@@ -406,9 +406,9 @@ Instead of having each tween play one after another, you can specify a position 
 
 ```swift
 let timeline = Timeline()
-timeline.add(square.tween().to(X(110)).duration(1).ease(.inOutCubic))
-timeline.add(square.tween().to(Y(250)).duration(1).ease(.inOutCubic), position: 1.5)
-timeline.add(square.tween().to(Scale(2)).duration(1).ease(.inOutCubic))
+timeline.add(square.tween().to(X(110)).duration(1).ease(Cubic.easeInOut))
+timeline.add(square.tween().to(Y(250)).duration(1).ease(Cubic.easeInOut), position: 1.5)
+timeline.add(square.tween().to(Scale(2)).duration(1).ease(Cubic.easeInOut))
 timeline.play()
 ```
 
@@ -425,7 +425,7 @@ let squares = [greenSquare, blueSquare, redSquare]
 let timeline = squares.tween()
                     .to(Scale(2), Rotation(CGFloat(Math.pi / 2.0)))
                     .duration(1)
-                    .ease(.inOutSine)
+                    .ease(Sine.easeInOut)
 timeline.play()
 ```
 
@@ -455,7 +455,7 @@ You can also add labels to your timeline to be used for referencing when adding 
 let resize = square.tween()
                 .to(Size(150,100))
                 .duration(1)
-                .ease(Easing.inOutCubic)
+                .ease(Cubic.easeInOut)
 					
 let color = square.tween()
                 .to(BackgroundColor(UIColor.blue))
@@ -479,11 +479,11 @@ let color = square.tween().to(BackgroundColor(UIColor.blue)).duration(0.75)
 timeline.add(color, relativeToLabel: "colorChange", offset: 0)
 
 // resize the view 1 second after the color change starts
-let resize = square.tween().to(Size(150,100)).duration(1).ease(.inOutCubic)
+let resize = square.tween().to(Size(150,100)).duration(1).ease(Cubic.easeInOut)
 timeline.add(resize, relativeToLabel: "colorChange", offset: 0.5)
 
 // move the view 0.25 seconds before the color change starts
-let move = square.tween().to(Position(200,200)).duration(1).ease(.inOutCubic)
+let move = square.tween().to(Position(200,200)).duration(1).ease(Cubic.easeInOut)
 timeline.add(move, relativeToLabel: "colorChange", offset: -0.25)
 
 timeline.play()
