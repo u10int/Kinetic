@@ -27,7 +27,7 @@ class InterpolatorTests: XCTestCase {
 		let from = CGPoint(x: 20.0, y: 50.0)
 		let to = CGPoint(x: 100.0, y: 80.0)
 		
-		let interpolator = Interpolator(from: from, to: to, duration: 1.0, function: Easing(.cubicInOut)) { (value) in
+		let interpolator = Interpolator(from: from, to: to, duration: 1.0, function: Cubic.easeInOut.timingFunction) { (value) in
 			print(value)
 			if (value.x == 100.0 && value.y == 80.0) {
 				expectation.fulfill()

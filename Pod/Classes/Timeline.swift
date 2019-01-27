@@ -345,7 +345,7 @@ public class Timeline: Animation {
 	}
 	
 	@discardableResult
-	override public func ease(_ easing: Easing.EasingType) -> Timeline {
+	override public func ease(_ easing: EasingType) -> Timeline {
 		children.forEach { (range) in
 			range.tween.ease(easing)
 		}

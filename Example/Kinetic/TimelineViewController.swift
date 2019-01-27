@@ -64,8 +64,8 @@ class TimelineViewController: ExampleViewController {
 		view.addConstraint(verticalConstraint)
 		
 		// animation
-		let move = Tween(target: square).to(Position(200, 200)).duration(1).ease(.cubicInOut)
-		let resize = Tween(target: square).to(Size(150, 150)).duration(1).ease(.cubicInOut)
+		let move = Tween(target: square).to(Position(200, 200)).duration(1).ease(Cubic.easeInOut)
+		let resize = Tween(target: square).to(Size(150, 150)).duration(1).ease(Cubic.easeInOut)
 		let color = Tween(target: square).to(BackgroundColor(UIColor.blue)).duration(0.75)
 		
 		let timeline = Timeline()

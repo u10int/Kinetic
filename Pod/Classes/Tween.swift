@@ -153,7 +153,7 @@ public class Tween: Animation {
 	
 	// MARK: Animation
 	
-	override public var timingFunction: TimingFunctionType {
+	override public var timingFunction: TimingFunction {
 		didSet {
 			animators.forEach { (_, animator) in
 				animator.timingFunction = timingFunction

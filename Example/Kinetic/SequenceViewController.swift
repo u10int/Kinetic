@@ -33,14 +33,14 @@ class SequenceViewController: ExampleViewController {
 		square.backgroundColor = UIColor.red
 		view.addSubview(square)
 		
-		let moveX = Tween(target: square).to(X(110)).duration(0.5).ease(.cubicInOut)
+		let moveX = Tween(target: square).to(X(110)).duration(0.5).ease(Cubic.easeInOut)
 		
-		let moveY = Tween(target: square).to(Y(250), BackgroundColor(UIColor.orange)).duration(0.5).ease(.cubicInOut)
+		let moveY = Tween(target: square).to(Y(250), BackgroundColor(UIColor.orange)).duration(0.5).ease(Cubic.easeInOut)
 		moveY.on(.started) { (animation) -> Void in
 			print("starting moveY")
 		}
 		
-		let resize = Tween(target: square).to(Size(width: 200), BackgroundColor(UIColor.blue)).duration(0.5).ease(.circInOut)
+		let resize = Tween(target: square).to(Size(width: 200), BackgroundColor(UIColor.blue)).duration(0.5).ease(Circular.easeInOut)
 		resize.on(.started) { [weak self] (animation) -> Void in
 			print("starting resize")
 			self?.perform(#selector(SequenceViewController.slower), with: nil, afterDelay: 2.0)

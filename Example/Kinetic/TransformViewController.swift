@@ -45,7 +45,7 @@ class TransformViewController: ExampleViewController {
 		view.addSubview(orangeSquare)
 		
 		let timeline = Kinetic.animateAll([greenSquare, blueSquare, orangeSquare]).to(Rotation(y: CGFloat(Double.pi / 2))).duration(1)
-		timeline.ease(.sineInOut).perspective(1 / -1000).yoyo().repeatCount(3)
+		timeline.ease(Sine.easeInOut).perspective(1 / -1000).yoyo().repeatCount(3)
 		timeline.anchor(.center)
 		animation = timeline
 	}

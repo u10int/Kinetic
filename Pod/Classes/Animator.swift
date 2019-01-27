@@ -10,7 +10,7 @@ import Foundation
 
 extension Interpolatable {
 	
-	public func interpolator(to: Self, duration: TimeInterval, function: TimingFunctionType, apply: @escaping ((Self) -> Void)) -> Interpolator {
+	public func interpolator(to: Self, duration: TimeInterval, function: TimingFunction, apply: @escaping ((Self) -> Void)) -> Interpolator {
 		return Interpolator(from: self, to: to, duration: duration, function: function, apply: { (value) in
 			apply(value)
 		})
@@ -29,7 +29,7 @@ public class Interpolator : Subscriber {
 				spring.proceed(Double(progress))
 				adjustedProgress = spring.current
 			} else {
-				adjustedProgress = timingFunction.solveForTime(Double(progress))
+				adjustedProgress = timingFunction.solve(Double(progress))
 			}
 			
 			current = from.interpolate(to: to, progress: adjustedProgress)
@@ -49,12 +49,12 @@ public class Interpolator : Subscriber {
 	fileprivate var from: InterpolatableValue
 	fileprivate var to: InterpolatableValue
 	fileprivate var duration: TimeInterval
-	fileprivate var timingFunction: TimingFunctionType
+	fileprivate var timingFunction: TimingFunction
 	fileprivate var elapsed: TimeInterval = 0.0
 	fileprivate var reversed = false
 	fileprivate var apply: ((Interpolatable) -> Void)?
 	
-	public init<T: Interpolatable>(from: T, to: T, duration: TimeInterval, function: TimingFunctionType, apply: @escaping ((T) -> Void)) {
+	public init<T: Interpolatable>(from: T, to: T, duration: TimeInterval, function: TimingFunction, apply: @escaping ((T) -> Void)) {
 		self.from = InterpolatableValue(value: from.vectorize())
 		self.to = InterpolatableValue(value: to.vectorize())
 		self.current = InterpolatableValue(value: self.from)
@@ -117,7 +117,7 @@ final public class Animator: Equatable {
 	fileprivate (set) public var to: Property
 	fileprivate (set) public var duration: Double
 	fileprivate (set) public var key: String
-	public var timingFunction: TimingFunctionType = LinearTimingFunction()
+	public var timingFunction: TimingFunction = Linear().timingFunction
 	public var additive: Bool = true
 	public var changed: ((Animator, Property) -> Void)?
 	public var finished: Bool {
@@ -134,7 +134,7 @@ final public class Animator: Equatable {
 	fileprivate var reversed = false
 	fileprivate var presentation: ((Property) -> Property?)?
 	
-	public init(from: Property, to: Property, duration: Double, timingFunction: TimingFunctionType) {
+	public init(from: Property, to: Property, duration: Double, timingFunction: TimingFunction) {
 		self.from = from
 		self.to = to
 		self.duration = duration
@@ -185,7 +185,7 @@ final public class Animator: Equatable {
 			}
 			adjustedProgress = spring.current
 		} else {
-			adjustedProgress = timingFunction.solveForTime(progress)
+			adjustedProgress = timingFunction.solve(progress)
 		}
 				
 		var presentationValue: Property = current

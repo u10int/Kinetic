@@ -50,12 +50,12 @@ public protocol Animatable: class, Hashable {
 	var elapsed: TimeInterval { get }
 	var time: TimeInterval { get }
 	
-	var timingFunction: TimingFunctionType { get }
+	var timingFunction: TimingFunction { get }
 	var spring: Spring? { get }
 	
 	func duration(_ duration: TimeInterval) -> Self
 	func delay(_ delay: TimeInterval) -> Self
-	func ease(_ easing: Easing.EasingType) -> Self
+	func ease(_ easing: EasingType) -> Self
 	func spring(tension: Double, friction: Double) -> Self
 
 	func play()

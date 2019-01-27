@@ -198,7 +198,7 @@ class PathTweenViewController: ExampleViewController {
 			path = QuadBezier(start: start.center, cp1: controlPoint1.center, end: end.center)
 		}
 		
-		let tween = Kinetic.animate(square).along(path).duration(1).ease(.quartInOut)
+		let tween = Kinetic.animate(square).along(path).duration(1).ease(Quartic.easeInOut)
 		animation = tween
 	}
 }

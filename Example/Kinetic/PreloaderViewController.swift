@@ -60,7 +60,7 @@ class PreloaderViewController: ExampleViewController {
 			if idx < dotCount {
 //				timeline.add(Kinetic.from(dot, duration: 0.5, options: [ .Alpha(0), .Scale(0.01) ]).ease(Easing.outQuart), position: Float(idx) * 0.1)
 				
-				let t = Tween(target: dot).to(Rotation(deg2rad(rotation - 360))).duration(2).ease(.quartInOut)
+				let t = Tween(target: dot).to(Rotation(deg2rad(rotation - 360))).duration(2).ease(Quartic.easeInOut)
 				timeline.add(t, position: Float(idx) * 0.15)
 				timeline.addCallback(Float(idx) * 0.15 + 1.5, block: { [unowned self] in
 					Kinetic.animate(dot).to(FillColor(self.colors[self.colorIndex])).duration(0.5).play()

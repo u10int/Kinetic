@@ -45,7 +45,7 @@ class CountingLabelViewController: ExampleViewController {
 		let tween = Kinetic.animate(testObject)
 			.to(KeyPath("value", 250.0))
 			.duration(2)
-			.ease(.expoOut)
+			.ease(Exponential.easeOut)
 		
 		tween.on(.updated) { (animation) -> Void in
 //			self.textLabel.text = "\(String(format:"%.1f", self.testObject.value))"

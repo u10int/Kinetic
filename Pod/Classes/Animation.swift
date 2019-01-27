@@ -104,7 +104,7 @@ public class Animation: Animatable, TimeScalable, Repeatable, Reversable, Subscr
 	}
 	internal var runningTime: TimeInterval = 0
 	
-	internal(set) public var timingFunction: TimingFunctionType = LinearTimingFunction()
+	internal(set) public var timingFunction: TimingFunction = Linear().timingFunction
 	internal(set) public var spring: Spring?
 	
 	@discardableResult
@@ -120,8 +120,8 @@ public class Animation: Animatable, TimeScalable, Repeatable, Reversable, Subscr
 	}
 	
 	@discardableResult
-	public func ease(_ easing: Easing.EasingType) -> Self {
-		timingFunction = Easing(easing)
+	public func ease(_ easing: EasingType) -> Self {
+		timingFunction = easing.timingFunction
 		return self
 	}
 	

@@ -5,190 +5,408 @@
 //  Created by Nicholas Shipes on 12/18/15.
 //  Copyright © 2015 Urban10 Interactive, LLC. All rights reserved.
 //
-//  Easing.swift used and adapted from Cheetah library under the MIT license, https://github.com/suguru/Cheetah
-//  Created by Suguru Namura on 2015/08/19.
-//  Copyright © 2015年 Suguru Namura.
 
 import UIKit
 
-public protocol TimingFunctionType {
-	func solveForTime(_ x: Double) -> Double
+public protocol FloatingPointMath: FloatingPoint {
+	var sine: Self { get }
+	var cosine: Self { get }
+	var powerOfTwo: Self { get }
 }
 
-public struct LinearTimingFunction: TimingFunctionType {
-	public init() {}
-	
-	public func solveForTime(_ x: Double) -> Double {
-		return x
+extension Float: FloatingPointMath {
+	public var sine: Float {
+		return sin(self)
+	}
+	public var cosine: Float {
+		return cos(self)
+	}
+	public var powerOfTwo: Float {
+		return pow(2, self)
 	}
 }
 
-extension UnitBezier: TimingFunctionType {
-	
-	public func solveForTime(_ x: Double) -> Double {
-		return solve(x)
+extension Double: FloatingPointMath {
+	public var sine: Double {
+		return sin(self)
+	}
+	public var cosine: Double {
+		return cos(self)
+	}
+	public var powerOfTwo: Double {
+		return pow(2, self)
 	}
 }
 
-// MARK: - Easing
+public protocol TimingFunction {
+	func solve(_ x: Double) -> Double
+}
 
-public typealias Ease = (_ t: CGFloat, _ b: CGFloat, _ c: CGFloat) -> CGFloat
-
-public struct Easing: TimingFunctionType {
-	var bezier: UnitBezier
+struct TimingFunctionSolver: TimingFunction {
+	var solver: (Double) -> Double
 	
-	public enum EasingType {
-		case sineIn
-		case sineOut
-		case sineInOut
-		
-		case quadIn
-		case quadOut
-		case quadInOut
-		
-		case cubicIn
-		case cubicOut
-		case cubicInOut
-		
-		case quartIn
-		case quartOut
-		case quartInOut
-		
-		case quintIn
-		case quintOut
-		case quintInOut
-		
-		case expoIn
-		case expoOut
-		case expoInOut
-		
-		case circIn
-		case circOut
-		case circInOut
-		
-		case backIn
-		case backOut
-		case backInOut
-		
-		case curve(Double, Double, Double, Double)
+	init(solver: @escaping (Double) -> Double) {
+		self.solver = solver
 	}
 	
-	public init(_ easing: EasingType) {
-		switch easing {
-		case .sineIn:
-			bezier = UnitBezier(0.47, 0, 0.745, 0.715)
-		case .sineOut:
-			bezier = UnitBezier(0.39, 0.575, 0.565, 1)
-		case .sineInOut:
-			bezier = UnitBezier(0.455, 0.03, 0.515, 0.955)
-			
-		case .quadIn:
-			bezier = UnitBezier(0.55, 0.085, 0.68, 0.53)
-		case .quadOut:
-			bezier = UnitBezier(0.25, 0.46, 0.45, 0.94)
-		case .quadInOut:
-			bezier = UnitBezier(0.455, 0.03, 0.515, 0.955)
-			
-		case .cubicIn:
-			bezier = UnitBezier(0.55, 0.055, 0.675, 0.19)
-		case .cubicOut:
-			bezier = UnitBezier(0.215, 0.61, 0.355, 1)
-		case .cubicInOut:
-			bezier = UnitBezier(0.645, 0.045, 0.355, 1)
-		
-		case .quartIn:
-			bezier = UnitBezier(0.895, 0.03, 0.685, 0.22)
-		case .quartOut:
-			bezier = UnitBezier(0.165, 0.84, 0.44, 1)
-		case .quartInOut:
-			bezier = UnitBezier(0.77, 0, 0.175, 1)
-			
-		case .quintIn:
-			bezier = UnitBezier(0.755, 0.05, 0.855, 0.06)
-		case .quintOut:
-			bezier = UnitBezier(0.23, 1, 0.32, 1)
-		case .quintInOut:
-			bezier = UnitBezier(0.86,0,0.07,1)
-			
-		case .expoIn:
-			bezier = UnitBezier(0.95, 0.05, 0.795, 0.035)
-		case .expoOut:
-			bezier = UnitBezier(0.19, 1, 0.22, 1)
-		case .expoInOut:
-			bezier = UnitBezier(1, 0, 0, 1)
-			
-		case .circIn:
-			bezier = UnitBezier(0.6, 0.04, 0.98, 0.335)
-		case .circOut:
-			bezier = UnitBezier(0.075, 0.82, 0.165, 1)
-		case .circInOut:
-			bezier = UnitBezier(0.785, 0.135, 0.15, 0.86)
-			
-		case .backIn:
-			bezier = UnitBezier(0.6, -0.28, 0.735, 0.045)
-		case .backOut:
-			bezier = UnitBezier(0.175, 0.885, 0.32, 1.275)
-		case .backInOut:
-			bezier = UnitBezier(0.68, -0.55, 0.265, 1.55)
-			
-		case .curve(let p1x, let p1y, let p2x, let p2y):
-			bezier = UnitBezier(p1x, p1y, p2x, p2y)
+	func solve(_ x: Double) -> Double {
+		return solver(x)
+	}
+}
+
+public protocol EasingType {
+	var timingFunction: TimingFunction { get }
+}
+
+public struct Linear: EasingType {
+	public var timingFunction: TimingFunction {
+		return TimingFunctionSolver(solver: { (x) -> Double in
+			return x
+		})
+	}
+}
+
+public struct Bezier: EasingType {
+	private var bezier: UnitBezier
+	
+	public init(_ p1x: Double, _ p1y: Double, _ p2x: Double, _ p2y: Double) {
+		self.bezier = UnitBezier(p1x, p1y, p2x, p2y)
+	}
+	
+	public var timingFunction: TimingFunction {
+		return TimingFunctionSolver(solver: { (x) -> Double in
+			return self.bezier.solve(x)
+		})
+	}
+}
+
+public enum Quadratic: EasingType {
+	case easeIn
+	case easeOut
+	case easeInOut
+	
+	public var timingFunction: TimingFunction {
+		var fn: (Double) -> Double
+		switch self {
+		case .easeIn:
+			fn = { (x) -> Double in
+				return x * x
+			}
+		case .easeOut:
+			fn = { (x) -> Double in
+				return -x * (x - 2)
+			}
+		case .easeInOut:
+			fn = { (x) -> Double in
+				if x < 1 / 2 {
+					return 2 * x * x
+				} else {
+					return (-2 * x * x) + (4 * x) - 1
+				}
+			}
+		}
+		return TimingFunctionSolver(solver: fn)
+	}
+}
+
+public enum Cubic: EasingType {
+	case easeIn
+	case easeOut
+	case easeInOut
+	
+	public var timingFunction: TimingFunction {
+		var fn: (Double) -> Double
+		switch self {
+		case .easeIn:
+			fn = { (x) -> Double in
+				return x * x * x
+			}
+		case .easeOut:
+			fn = { (x) -> Double in
+				let p = x - 1
+				return  p * p * p + 1
+			}
+		case .easeInOut:
+			fn = { (x) -> Double in
+				if x < 1 / 2 {
+					return 4 * x * x * x
+				} else {
+					let f = 2 * x - 2
+					return 1 / 2 * f * f * f + 1
+				}
+			}
+		}
+		return TimingFunctionSolver(solver: fn)
+	}
+}
+
+public enum Quartic: EasingType {
+	case easeIn
+	case easeOut
+	case easeInOut
+	
+	public var timingFunction: TimingFunction {
+		var fn: (Double) -> Double
+		switch self {
+		case .easeIn:
+			fn = { (x) -> Double in
+				return x * x * x * x
+			}
+		case .easeOut:
+			fn = { (x) -> Double in
+				let f = x - 1
+				return f * f * f * (1 - x) + 1
+			}
+		case .easeInOut:
+			fn = { (x) -> Double in
+				if x < 1 / 2 {
+					return 8 * x * x * x * x
+				} else {
+					let f = x - 1
+					return -8 * f * f * f * f + 1
+				}
+			}
+		}
+		return TimingFunctionSolver(solver: fn)
+	}
+}
+
+public enum Quintic: EasingType {
+	case easeIn
+	case easeOut
+	case easeInOut
+	
+	public var timingFunction: TimingFunction {
+		var fn: (Double) -> Double
+		switch self {
+		case .easeIn:
+			fn = { (x) -> Double in
+				return x * x * x * x * x
+			}
+		case .easeOut:
+			fn = { (x) -> Double in
+				let f = x - 1
+				return f * f * f * f * f + 1
+			}
+		case .easeInOut:
+			fn = { (x) -> Double in
+				if x < 1 / 2 {
+					return 16 * x * x * x * x * x
+				} else {
+					let f = 2 * x - 2
+					return 1 / 2 * f * f * f * f * f + 1
+				}
+			}
+		}
+		return TimingFunctionSolver(solver: fn)
+	}
+}
+
+public enum Sine: EasingType {
+	case easeIn
+	case easeOut
+	case easeInOut
+	
+	public var timingFunction: TimingFunction {
+		var fn: (Double) -> Double
+		switch self {
+		case .easeIn:
+			fn = { (x) -> Double in
+				return ((x - 1) * Double.pi / 2).sine + 1
+			}
+		case .easeOut:
+			fn = { (x) -> Double in
+				return (x * Double.pi / 2).sine
+			}
+		case .easeInOut:
+			fn = { (x) -> Double in
+				return 1 / 2 * (1 - (x * Double.pi).cosine)
+			}
+		}
+		return TimingFunctionSolver(solver: fn)
+	}
+}
+
+public enum Circular: EasingType {
+	case easeIn
+	case easeOut
+	case easeInOut
+	
+	public var timingFunction: TimingFunction {
+		var fn: (Double) -> Double
+		switch self {
+		case .easeIn:
+			fn = { (x) -> Double in
+				return 1 - sqrt(1 - x * x)
+			}
+		case .easeOut:
+			fn = { (x) -> Double in
+				return sqrt((2 - x) * x)
+			}
+		case .easeInOut:
+			fn = { (x) -> Double in
+				if x < 1 / 2 {
+					let h = 1 - sqrt(1 - 4 * x * x)
+					return 1 / 2 * h
+				} else {
+					let f = -(2 * x - 3) * (2 * x - 1)
+					let g = sqrt(f)
+					return 1 / 2 * (g + 1)
+				}
+			}
+		}
+		return TimingFunctionSolver(solver: fn)
+	}
+}
+
+public enum Exponential: EasingType {
+	case easeIn
+	case easeOut
+	case easeInOut
+	
+	public var timingFunction: TimingFunction {
+		var fn: (Double) -> Double
+		switch self {
+		case .easeIn:
+			fn = { (x) -> Double in
+				return x == 0 ? x : (10 * (x - 1)).powerOfTwo
+			}
+		case .easeOut:
+			fn = { (x) -> Double in
+				return x == 1 ? x : 1 - (-10 * x).powerOfTwo
+			}
+		case .easeInOut:
+			fn = { (x) -> Double in
+				if x == 0 || x == 1 {
+					return x
+				}
+				
+				if x < 1 / 2 {
+					return 1 / 2 * (20 * x - 10).powerOfTwo
+				} else {
+					let h = (-20 * x + 10).powerOfTwo
+					return -1 / 2 * h + 1
+				}
+			}
+		}
+		return TimingFunctionSolver(solver: fn)
+	}
+}
+
+public enum Elastic: EasingType {
+	case easeIn
+	case easeOut
+	case easeInOut
+	
+	public var timingFunction: TimingFunction {
+		var fn: (Double) -> Double
+		switch self {
+		case .easeIn:
+			fn = { (x) -> Double in
+				return (13 * Double.pi / 2 * x).sine * (10 * (x - 1)).powerOfTwo
+			}
+		case .easeOut:
+			fn = { (x) -> Double in
+				let f = (-13 * Double.pi / 2 * (x + 1)).sine
+				let g = (-10 * x).powerOfTwo
+				return f * g + 1
+			}
+		case .easeInOut:
+			fn = { (x) -> Double in
+				if x < 1 / 2 {
+					let f = ((13 * Double.pi / 2) * 2 * x).sine
+					return 1 / 2 * f * (10 * ((2 * x) - 1)).powerOfTwo
+				} else {
+					let h = (2 * x - 1) + 1
+					let f = (-13 * Double.pi / 2 * h).sine
+					let g = (-10 * (2 * x - 1)).powerOfTwo
+					return 1 / 2 * (f * g + 2)
+				}
+			}
+		}
+		return TimingFunctionSolver(solver: fn)
+	}
+}
+
+public enum Back: EasingType {
+	case easeIn
+	case easeOut
+	case easeInOut
+	
+	public var timingFunction: TimingFunction {
+		var fn: (Double) -> Double
+		switch self {
+		case .easeIn:
+			fn = { (x) -> Double in
+				return x * x * x - x * (x * Double.pi).sine
+			}
+		case .easeOut:
+			fn = { (x) -> Double in
+				let f = 1 - x
+				return 1 - ( f * f * f - f * (f * Double.pi).sine)
+			}
+		case .easeInOut:
+			fn = { (x) -> Double in
+				if x < 1 / 2 {
+					let f = 2 * x
+					return 1 / 2 * (f * f * f - f * (f * Double.pi).sine)
+				} else {
+					let f = 1 - (2 * x - 1)
+					let g = (f * Double.pi).sine
+					let h = f * f * f - f * g
+					return 1 / 2 * (1 - h ) + 1 / 2
+				}
+			}
+		}
+		return TimingFunctionSolver(solver: fn)
+	}
+}
+
+public enum Bounce: EasingType {
+	case easeIn
+	case easeOut
+	case easeInOut
+	
+	public var timingFunction: TimingFunction {
+		var fn: (Double) -> Double
+		switch self {
+		case .easeIn:
+			fn = easeIn
+		case .easeOut:
+			fn = easeOut
+		case .easeInOut:
+			fn = { (x) -> Double in
+				if x < 1 / 2 {
+					return 1 / 2 * self.easeIn(2 * x)
+				} else {
+					let f = self.easeOut(x * 2 - 1) + 1
+					return 1 / 2 * f
+				}
+			}
+		}
+		return TimingFunctionSolver(solver: fn)
+	}
+	
+	private func easeIn<T: FloatingPoint>(_ x: T) -> T {
+		return 1 - easeOut(1 - x)
+	}
+	
+	private func easeOut<T: FloatingPoint>(_ x: T) -> T {
+		if x < 4 / 11 {
+			return (121 * x * x) / 16
+		} else if x < 8 / 11 {
+			let f = (363 / 40) * x * x
+			let g = (99 / 10) * x
+			return f - g + (17 / 5)
+		} else if x < 9 / 10 {
+			let f = (4356 / 361) * x * x
+			let g = (35442 / 1805) * x
+			return  f - g + 16061 / 1805
+		} else {
+			let f = (54 / 5) * x * x
+			return f - ((513 / 25) * x) + 268 / 25
 		}
 	}
-	
-	public func solveForTime(_ x: Double) -> Double {
-		return bezier.solve(x)
-	}
-	
-	public static let linear:Ease = { (t: CGFloat, b: CGFloat, c: CGFloat) -> CGFloat in
-		return c * t + b
-	}
-	
-	public static func type(_ easing: EasingType) -> TimingFunctionType {
-		return Easing(easing)
-	}
-	
-	// return easing with cubic bezier curve
-	public static func cubicBezier(_ c1x: Double, _ c1y: Double, _ c2x: Double, _ c2y: Double) -> Ease {
-		let bezier = UnitBezier(c1x, c1y, c2x, c2y)
-		return { (t: CGFloat, b: CGFloat, c: CGFloat) -> CGFloat in
-			let y = bezier.solve(Double(t))
-			return c * CGFloat(y) + b
-		}
-	}
-	
-	// Easing curves are from https://github.com/ai/easings.net/
-	public static let inSine:Ease = Easing.cubicBezier(0.47,0,0.745,0.715)
-	public static let outSine:Ease = Easing.cubicBezier(0.39,0.575,0.565, 1)
-	public static let inOutSine:Ease = Easing.cubicBezier(0.455,0.03,0.515,0.955)
-	
-	public static let inQuad:Ease = Easing.cubicBezier(0.55, 0.085, 0.68, 0.53)
-	public static let outQuad:Ease = Easing.cubicBezier(0.25, 0.46, 0.45, 0.94)
-	public static let inOutQuad:Ease = Easing.cubicBezier(0.455, 0.03, 0.515, 0.955)
-	
-	public static let inCubic:Ease = Easing.cubicBezier(0.55, 0.055, 0.675, 0.19)
-	public static let outCubic:Ease = Easing.cubicBezier(0.215, 0.61, 0.355, 1)
-	public static let inOutCubic:Ease = Easing.cubicBezier(0.645, 0.045, 0.355, 1)
-	
-	public static let inQuart:Ease = Easing.cubicBezier(0.895, 0.03, 0.685, 0.22)
-	public static let outQuart:Ease = Easing.cubicBezier(0.165, 0.84, 0.44, 1)
-	public static let inOutQuart:Ease = Easing.cubicBezier(0.77, 0, 0.175, 1)
-	
-	public static let inQuint:Ease = Easing.cubicBezier(0.755, 0.05, 0.855, 0.06)
-	public static let outQuint:Ease = Easing.cubicBezier(0.23, 1, 0.32, 1)
-	public static let inOutQuint:Ease = Easing.cubicBezier(0.86,0,0.07,1)
-	
-	public static let inExpo:Ease = Easing.cubicBezier(0.95, 0.05, 0.795, 0.035)
-	public static let outExpo:Ease = Easing.cubicBezier(0.19, 1, 0.22, 1)
-	public static let inOutExpo:Ease = Easing.cubicBezier(1, 0, 0, 1)
-	
-	public static let inCirc:Ease = Easing.cubicBezier(0.6, 0.04, 0.98, 0.335)
-	public static let outCirc:Ease = Easing.cubicBezier(0.075, 0.82, 0.165, 1)
-	public static let inOutCirc:Ease = Easing.cubicBezier(0.785, 0.135, 0.15, 0.86)
-	
-	public static let inBack:Ease = Easing.cubicBezier(0.6, -0.28, 0.735, 0.045)
-	public static let outBack:Ease = Easing.cubicBezier(0.175, 0.885, 0.32, 1.275)
-	public static let inOutBack:Ease = Easing.cubicBezier(0.68, -0.55, 0.265, 1.55)
 }
 
 // MARK: - Unit Bezier
@@ -198,20 +416,20 @@ public struct Easing: TimingFunctionType {
 
 private let epsilon: Double = 1.0 / 1000
 
-public struct UnitBezier {
+private struct UnitBezier {
 	public var p1x: Double
 	public var p1y: Double
 	public var p2x: Double
 	public var p2y: Double
 	
-	public init(_ p1x: Double, _ p1y: Double, _ p2x: Double, _ p2y: Double) {
+	init(_ p1x: Double, _ p1y: Double, _ p2x: Double, _ p2y: Double) {
 		self.p1x = p1x
 		self.p1y = p1y
 		self.p2x = p2x
 		self.p2y = p2y
 	}
 	
-	public func solve(_ x: Double) -> Double {
+	func solve(_ x: Double) -> Double {
 		return UnitBezierSover(bezier: self).solve(x)
 	}
 }
