@@ -43,6 +43,7 @@ class ViewController: UIViewController {
 		rows.append(GroupTweenViewController())
 		rows.append(SequenceViewController())
 		rows.append(TransformViewController())
+		rows.append(AnchorPointViewController())
 		rows.append(AdditiveViewController())
 		rows.append(PhysicsViewController())
 		rows.append(StaggerViewController())

@@ -14,6 +14,7 @@
 		2B61D64D1F2D4A7F009C9F91 /* PropertyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B61D64C1F2D4A7F009C9F91 /* PropertyTests.swift */; };
 		2B61D64F1F2D6837009C9F91 /* TweenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B61D64E1F2D6837009C9F91 /* TweenTests.swift */; };
 		2B61D6511F2D719D009C9F91 /* TimelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B61D6501F2D719D009C9F91 /* TimelineTests.swift */; };
+		2B64C12522076DCC002B8119 /* AnchorPointViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B64C12422076DCC002B8119 /* AnchorPointViewController.swift */; };
 		2B92960F1E46B11900056AAC /* AdditiveViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B9296001E46B11900056AAC /* AdditiveViewController.swift */; };
 		2B9296101E46B11900056AAC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B9296011E46B11900056AAC /* AppDelegate.swift */; };
 		2B9296111E46B11900056AAC /* BasicFromToTweenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B9296021E46B11900056AAC /* BasicFromToTweenViewController.swift */; };
@@ -57,6 +58,7 @@
 		2B61D64C1F2D4A7F009C9F91 /* PropertyTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PropertyTests.swift; sourceTree = "<group>"; };
 		2B61D64E1F2D6837009C9F91 /* TweenTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TweenTests.swift; sourceTree = "<group>"; };
 		2B61D6501F2D719D009C9F91 /* TimelineTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimelineTests.swift; sourceTree = "<group>"; };
+		2B64C12422076DCC002B8119 /* AnchorPointViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnchorPointViewController.swift; sourceTree = "<group>"; };
 		2B9296001E46B11900056AAC /* AdditiveViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AdditiveViewController.swift; sourceTree = "<group>"; };
 		2B9296011E46B11900056AAC /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2B9296021E46B11900056AAC /* BasicFromToTweenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BasicFromToTweenViewController.swift; sourceTree = "<group>"; };
@@ -156,6 +158,7 @@
 				2B9296011E46B11900056AAC /* AppDelegate.swift */,
 				2B92960E1E46B11900056AAC /* ViewController.swift */,
 				2B9296001E46B11900056AAC /* AdditiveViewController.swift */,
+				2B64C12422076DCC002B8119 /* AnchorPointViewController.swift */,
 				2B9296021E46B11900056AAC /* BasicFromToTweenViewController.swift */,
 				2B9296031E46B11900056AAC /* BasicFromTweenViewController.swift */,
 				2B9296041E46B11900056AAC /* BasicTweenViewController.swift */,
@@ -430,6 +433,7 @@
 				2B9296101E46B11900056AAC /* AppDelegate.swift in Sources */,
 				2B9296191E46B11900056AAC /* SequenceViewController.swift in Sources */,
 				2B5FD5DD1F2ECAD10085B250 /* PathTweenViewController.swift in Sources */,
+				2B64C12522076DCC002B8119 /* AnchorPointViewController.swift in Sources */,
 				2B92961A1E46B11900056AAC /* StaggerViewController.swift in Sources */,
 				2B92961C1E46B11900056AAC /* TransformViewController.swift in Sources */,
 				2B9296171E46B11900056AAC /* PhysicsViewController.swift in Sources */,
@@ -523,7 +527,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -570,7 +574,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";

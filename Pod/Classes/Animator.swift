@@ -118,6 +118,7 @@ final public class Animator: Equatable {
 	fileprivate (set) public var duration: Double
 	fileprivate (set) public var key: String
 	public var timingFunction: TimingFunction = Linear().timingFunction
+	public var anchorPoint: CGPoint = CGPoint(x: 0.5, y: 0.5)
 	public var additive: Bool = true
 	public var changed: ((Animator, Property) -> Void)?
 	public var finished: Bool {

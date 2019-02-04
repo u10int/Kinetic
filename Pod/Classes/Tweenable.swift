@@ -253,6 +253,23 @@ extension ViewType where Self: UIView {
 			return layer.anchorPoint
 		}
 		set {
+			// adjust the layer's anchorPoint without moving the view
+			// re: https://www.hackingwithswift.com/example-code/calayer/how-to-change-a-views-anchor-point-without-moving-it
+			var newPoint = CGPoint(x: bounds.size.width * newValue.x, y: bounds.size.height * newValue.y)
+			var oldPoint = CGPoint(x: bounds.size.width * layer.anchorPoint.x, y: bounds.size.height * layer.anchorPoint.y);
+			
+			newPoint = newPoint.applying(transform)
+			oldPoint = oldPoint.applying(transform)
+			
+			var position = layer.position
+			
+			position.x -= oldPoint.x
+			position.x += newPoint.x
+			
+			position.y -= oldPoint.y
+			position.y += newPoint.y
+			
+			layer.position = position
 			layer.anchorPoint = newValue
 		}
 	}
@@ -323,5 +340,25 @@ extension ViewType where Self: CALayer {
 		set {
 			transform = newValue
 		}
+	}
+}
+
+public class TransformContainerView: UIView {
+	
+	public init(view: UIView) {
+		super.init(frame: .zero)
+		
+		self.translatesAutoresizingMaskIntoConstraints = false
+		view.translatesAutoresizingMaskIntoConstraints = false
+		addSubview(view)
+		
+		NSLayoutConstraint.activate([view.topAnchor.constraint(equalTo: self.topAnchor),
+									 self.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+									 self.leftAnchor.constraint(equalTo: view.leftAnchor),
+									 self.rightAnchor.constraint(equalTo: view.rightAnchor)])
+	}
+	
+	required init?(coder aDecoder: NSCoder) {
+		fatalError("init(coder:) has not been implemented")
 	}
 }

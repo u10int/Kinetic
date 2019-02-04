@@ -77,8 +77,8 @@ public class Tween: Animation {
 	}
 	fileprivate var propertiesByType: Dictionary<String, FromToValue> = [String: FromToValue]()
 	private(set) var animators = [String: Animator]()
-	
 	fileprivate var needsPropertyPrep = false
+	fileprivate var anchorPoint: CGPoint = AnchorPoint.center.point()
 	
 	public var additive = true;
 	
@@ -87,6 +87,11 @@ public class Tween: Animation {
 	required public init(target: Tweenable) {
 		self.target = target
 		super.init()
+		
+		self.on(.started) { [unowned self] (animation) in
+			guard var view = self.target as? UIView else { return }
+			view.anchorPoint = self.anchorPoint
+		}
 		
 		TweenCache.session.cache(self, target: target)
 	}
@@ -145,9 +150,7 @@ public class Tween: Animation {
 	
 	@discardableResult
 	open func anchorPoint(_ point: CGPoint) -> Tween {
-		if var view = target as? ViewType {
-			view.anchorPoint = point
-		}
+		anchorPoint = point
 		return self
 	}
 	
@@ -371,6 +374,7 @@ public class Tween: Animation {
 				let animator = Animator(from: transformFrom, to: transformTo, duration: duration, timingFunction: timingFunction)
 				animator.spring = spring
 				animator.additive = false
+				animator.anchorPoint = anchorPoint
 				animator.onChange({ [weak self] (animator, value) in
 					self?.target.apply(value)
 				})

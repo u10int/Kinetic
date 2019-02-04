@@ -34,6 +34,8 @@ class ExampleViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+		
+		view.backgroundColor = .white
 
 		playButton = UIButton(type: .roundedRect)
 		playButton.translatesAutoresizingMaskIntoConstraints = false
