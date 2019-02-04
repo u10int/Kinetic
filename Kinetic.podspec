@@ -2,7 +2,7 @@
 Pod::Spec.new do |s|
 
   s.name             = "Kinetic"
-  s.version          = "1.1.0"
+  s.version          = "1.1.1"
   s.summary          = "A super-flexible tweening library for iOS in Swift inspired by GSAP."
 
   s.description      = <<-DESC
