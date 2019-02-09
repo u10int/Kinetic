@@ -48,25 +48,11 @@ class CountingLabelViewController: ExampleViewController {
 			.ease(Exponential.easeOut)
 		
 		tween.on(.updated) { (animation) -> Void in
-//			self.textLabel.text = "\(String(format:"%.1f", self.testObject.value))"
+			self.textLabel.text = "\(String(format:"%.1f", self.testObject.value))"
 		}.on(.completed) { (animation) -> Void in
-			self.textLabel.text = "\(String(format:"%.1f", self.testObject.value))"
-		}
-		
-		tween.on(.updated) { (animation) in
-			self.textLabel.text = "\(String(format:"%.1f", self.testObject.value))"
-		}.on(.completed) { (animation) in
 			print("DONE")
 		}
 		
 		animation = tween
 	}
-	
-	override func reset() {
-		super.reset()
-		
-		testObject.value = 50
-		textLabel.text = "\(testObject.value)"
-	}
-
 }

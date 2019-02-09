@@ -52,12 +52,6 @@ class SequenceViewController: ExampleViewController {
 		
 		animation = timeline
 	}
-	
-	override func reset() {
-		super.reset()
-		square.frame = CGRect(x: 50, y: 50, width: 50, height: 50)
-		square.backgroundColor = UIColor.red
-	}
 
 	func slower() {
 //		animation?.slower()

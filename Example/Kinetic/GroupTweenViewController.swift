@@ -34,7 +34,7 @@ class GroupTweenViewController: ExampleViewController {
 		
 		let moveX: Tween = Tween(target: square).to(X(200)).duration(0.5).ease(Cubic.easeInOut)
 		let moveY: Tween = Tween(target: square).to(Y(290)).duration(0.75).ease(Sine.easeOut)
-		let color: Tween = Tween(target: square).to(BackgroundColor(UIColor.yellow)).duration(0.5).ease(Sine.easeOut)
+		let color: Tween = Tween(target: square).to(BackgroundColor(.yellow)).duration(0.5).ease(Sine.easeOut)
 		
 		let timeline = Timeline(tweens: [moveX, moveY, color], align: .start)
 		timeline.yoyo().forever()

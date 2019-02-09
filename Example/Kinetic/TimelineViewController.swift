@@ -99,13 +99,6 @@ class TimelineViewController: ExampleViewController {
 		}
 	}
 	
-	override func reset() {
-		super.reset()
-		
-		animation?.stop()
-		updateProgress(0)
-	}
-	
 	func timelineProgressChanged(_ sender: UISlider) {
 		timelineProgressValue.text = "\(Int(round(sender.value * 100)))%"
 		

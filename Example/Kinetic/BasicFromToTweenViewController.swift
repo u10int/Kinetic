@@ -32,15 +32,7 @@ class BasicFromToTweenViewController: ExampleViewController {
 		square.backgroundColor = UIColor.red
 		view.addSubview(square)
 		
-//		let tween = Kinetic.animate(square).from(.Position(50,50)).to(.Position(200,200), .Scale(2)).duration(0.5).ease(Easing.inOutCubic).delay(0.5)
 		let tween = Kinetic.animate(square).from(Position(50,50)).to(Position(200,200)).duration(0.5).ease(Cubic.easeInOut)
 		animation = tween
-	}
-	
-	override func reset() {
-		super.reset()
-//		square.layer.transform = CATransform3DIdentity
-//		square.frame = CGRect(x: 0, y: 200, width: 50, height: 50)
-		animation?.seek(0)
 	}
 }

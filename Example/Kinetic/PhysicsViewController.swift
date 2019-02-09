@@ -116,9 +116,8 @@ class PhysicsViewController: ExampleViewController {
 	}
 	
 	override func reset() {
-		animation?.stop()
+		super.reset()
 		Kinetic.killTweensOf(square)
-		square.frame = CGRect(x: 50, y: 50, width: 50, height: 50)
 	}
 	
 	func tensionChanged(_ sender: UISlider) {

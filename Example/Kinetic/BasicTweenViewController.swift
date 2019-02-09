@@ -35,9 +35,4 @@ class BasicTweenViewController: ExampleViewController {
 		let tween = square.tween().to(X(250), Size(height: 100)).duration(0.5).ease(Cubic.easeInOut)
 		animation = tween
     }
-	
-	override func reset() {
-		super.reset()
-		square.frame = CGRect(x: 50, y: 50, width: 50, height: 50)
-	}
 }

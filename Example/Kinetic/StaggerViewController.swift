@@ -47,12 +47,4 @@ class StaggerViewController: ExampleViewController {
 		}
 		animation = timeline
 	}
-	
-	override func reset() {
-		super.reset()
-		
-		for square in squares {
-			square.frame.size.width = 50
-		}
-	}
 }
