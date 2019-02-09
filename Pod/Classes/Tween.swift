@@ -271,6 +271,7 @@ public class Tween: Animation {
 	fileprivate func setupAnimatorsIfNeeded() {
 		var transformFrom: Transform?
 		var transformTo: Transform?
+		var transformKeys: [String] = []
 		var tweenedProps = [String: Property]()
 		
 		for (key, prop) in propertiesByType {
@@ -337,6 +338,9 @@ public class Tween: Animation {
 					TweenCache.session.addActiveKeys(keys: [key], toTarget: target)
 					
 					if let from = from as? TransformType, let to = to as? TransformType {
+						if transformKeys.contains(key) == false {
+							transformKeys.append(key)
+						}
 						if let view = target as? ViewType {
 							if transformFrom == nil && transformTo == nil {
 								transformFrom = Transform(view.transform3d)
@@ -369,8 +373,7 @@ public class Tween: Animation {
 		}
 		
 		if let transformFrom = transformFrom, let transformTo = transformTo {
-			let key = "transform"
-			if animators[key] == nil {
+			if animators["transform"] == nil {
 				let animator = Animator(from: transformFrom, to: transformTo, duration: duration, timingFunction: timingFunction)
 				animator.spring = spring
 				animator.additive = false
@@ -378,7 +381,8 @@ public class Tween: Animation {
 				animator.onChange({ [weak self] (animator, value) in
 					self?.target.apply(value)
 				})
-				animators[key] = animator
+				animators["transform"] = animator
+				transformKeys.forEach { animators[$0] = animator }
 			}
 		}
 	}

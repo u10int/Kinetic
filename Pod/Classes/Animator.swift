@@ -154,15 +154,9 @@ final public class Animator: Equatable {
 	
 	public func reset() {
 		current = from
-		
 		if let spring = spring {
 			spring.reset()
 		}
-		
-//		// only force target presentation update if we've elapsed past 0
-//		if elapsed > 0 {
-//			changed?(self, current)
-//		}
 		changed?(self, current)
 		elapsed = 0
 	}
@@ -170,7 +164,11 @@ final public class Animator: Equatable {
 	public func render(_ time: Double, advance: TimeInterval = 0) {
 //		elapsed += time
 //		elapsed = max(0, min(elapsed, duration))
-		elapsed = max(0, min(time, duration))
+		let elapsed = max(0, min(time, duration))
+		if elapsed == self.elapsed {
+			return
+		}
+		self.elapsed = elapsed
 		reversed = time < 0
 		
 		var progress = elapsed / duration
@@ -216,7 +214,6 @@ final public class Animator: Equatable {
 		}
 		
 //		print("animator \(key) - progress: \(progress), current: \(current.value.vectors), presentation: \(presentationValue.value.vectors), from: \(from.value.vectors), to: \(to.value.vectors)")
-//		print("Animator.advance() - elapsed: \(elapsed), progress: \(progress), from: \(from.value), to: \(to.value)")
 		changed?(self, presentationValue)
 	}
 	
